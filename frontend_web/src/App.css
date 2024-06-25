@@ -36,3 +36,11 @@
     transform: rotate(360deg);
   }
 }
+
+:root{
+  --redColor: #A51F1F;
+  --creamColor: #FFF3E8;
+  --transRed: #F8D2C9;
+  --backgroundGray: #313338;
+  --navBarGray: #222328;
+}
