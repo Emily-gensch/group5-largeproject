@@ -20,15 +20,12 @@ function Register() {
 
   const doRegister = async (event) => {
     event.preventDefault();
-    // Example: Perform registration logic, such as sending data to a backend API
-    // Here, you would typically make an API call to register the user
+    
     try {
-      // Simulate registration success
-      // Replace with actual API call and handle response accordingly
+      // Replace with actual API call and handle response
       setMessage('Registration successful');
       alert('Registering: ' + registerName + ' ' + registerEmail + ' ' + registerPassword);
     } catch (error) {
-      // Handle registration failure
       setMessage('Registration failed. Please try again.');
       console.error('Registration error:', error);
     }
