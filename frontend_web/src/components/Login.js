@@ -7,9 +7,8 @@ function Login() {
 
     const doLogin = async (event) => {
         event.preventDefault();
-        alert('Logging in: ' + loginEmail + ' ' + loginPassword);
-        // Example: You can set message here based on login success or failure
-        setMessage('Login successful'); // Example message
+        alert('Logging in: ' + loginEmail + ' ' + loginPassword); //api
+        setMessage('Login successful'); 
     };
 
     const handleEmailChange = (event) => {
@@ -28,14 +27,14 @@ function Login() {
                     type="email"
                     id="loginEmail"
                     placeholder="Email"
-                    value={loginEmail} // Bind value to state
+                    value={loginEmail} 
                     onChange={handleEmailChange}
                 /><br />
                 <input
                     type="password"
                     id="loginPassword"
                     placeholder="Password"
-                    value={loginPassword} // Bind value to state
+                    value={loginPassword} 
                     onChange={handlePasswordChange}
                 /><br />
                 <input
