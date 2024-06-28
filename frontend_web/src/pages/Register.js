@@ -22,7 +22,6 @@ function Register() {
     event.preventDefault();
     
     try {
-      // Replace with actual API call and handle response
       setMessage('Registration successful');
       alert('Registering: ' + registerName + ' ' + registerEmail + ' ' + registerPassword);
     } catch (error) {
