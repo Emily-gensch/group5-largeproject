@@ -1,16 +1,8 @@
 const mongoose = require('mongoose');
 
-const PartySchema = new mongoose.Schema({
-  partyID: {
-    type: String,
-    required: true,
-  },
+const partySchema = new mongoose.Schema({
   partyName: {
     type: String,
-    required: true,
-  },
-  date: {
-    type: Date,
     required: true,
   },
   hostID: {
@@ -18,10 +10,11 @@ const PartySchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  location: {
+  partyInviteCode: {
     type: String,
     required: true,
+    unique: true,
   },
 });
 
-module.exports = mongoose.model('Party', PartySchema);
+module.exports = mongoose.model('Party', partySchema);
