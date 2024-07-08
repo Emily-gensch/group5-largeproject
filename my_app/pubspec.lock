@@ -57,14 +57,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
-  elliptic_text:
-    dependency: "direct main"
-    description:
-      name: elliptic_text
-      sha256: cdabf2758c65aad407d67ac0ab8daafbb99f92d21d543a54dec1730bd109ba83
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1+9"
   fake_async:
     dependency: transitive
     description:
