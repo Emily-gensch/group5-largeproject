@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/constants.dart';
-import 'package:my_app/screens/register/register_screen.dart';
 import 'package:my_app/screens/welcome/components/button.dart';
 import 'package:my_app/screens/welcome/welcome_screen.dart';
 import 'package:my_app/screens/join/join_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class CreateGroupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -16,7 +15,7 @@ class LoginScreen extends StatelessWidget {
         alignment: Alignment.center,
         children: <Widget>[
           Positioned(child: SizedBox(
-            height: size.height * 0.7,
+            height: size.height * 0.65,
             width: size.width * 0.8,
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -35,12 +34,12 @@ class LoginScreen extends StatelessWidget {
               alignment: Alignment.center,
               children: <Widget>[
                 Positioned(
-                  top: size.height * 0.22,
+                  top: size.height * 0.25,
                   child: Text(
-                    "Login",
+                    "Create a Group",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 70,
+                      fontSize: 40,
                       color: primaryCream,
                       shadows: [Shadow(
                         blurRadius: 5.0,
@@ -51,15 +50,15 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: size.height * 0.37,
+                  top: size.height * 0.35,
                   child: TextFieldContainer()
                 ),
                 Positioned(
-                  top: size.height * 0.5,
+                  top: size.height * 0.48,
                   child: TextFieldContainer()
                 ),
                 Positioned(
-                  top: size.height * 0.64,
+                  top: size.height * 0.62,
                   child: Button(
                     text: "Submit",
                     press: () {
@@ -68,7 +67,7 @@ class LoginScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) {
-                            return JoinScreen(); // placeholder for join screen
+                            return WelcomeScreen(); // placeholder for code screen
                           }
                         )
                       );
@@ -76,17 +75,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: size.height * 0.75,
-                  child: Text(
-                    "Don't have an account?",
-                    style: TextStyle(
-                      color: primaryCream,
-                      fontSize: 20
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: size.height * 0.78,
+                  top: size.height * 0.73,
                   child: TextButton(
                     onPressed: () {
                       // placeholder for apis
@@ -94,13 +83,13 @@ class LoginScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) {
-                            return RegisterScreen();
+                            return JoinScreen();
                           }
                         )
                       );
                     },
                     child: Text(
-                      "Sign Up!",
+                      "Return to Join Group",
                       style: TextStyle(
                         color: primaryCream,
                         fontSize: 20,

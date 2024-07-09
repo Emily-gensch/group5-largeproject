@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/constants.dart';
-import 'package:my_app/screens/register/register_screen.dart';
+import 'package:my_app/screens/create_group/create_group_screen.dart';
 import 'package:my_app/screens/welcome/components/button.dart';
 import 'package:my_app/screens/welcome/welcome_screen.dart';
-import 'package:my_app/screens/join/join_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class JoinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -16,7 +15,7 @@ class LoginScreen extends StatelessWidget {
         alignment: Alignment.center,
         children: <Widget>[
           Positioned(child: SizedBox(
-            height: size.height * 0.7,
+            height: size.height * 0.55,
             width: size.width * 0.8,
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -35,9 +34,9 @@ class LoginScreen extends StatelessWidget {
               alignment: Alignment.center,
               children: <Widget>[
                 Positioned(
-                  top: size.height * 0.22,
+                  top: size.height * 0.28,
                   child: Text(
-                    "Login",
+                    "Join",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 70,
@@ -51,15 +50,22 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: size.height * 0.37,
+                  top: size.height * 0.4,
+                  child: Text(
+                    "To start voting enter a code:",
+                    style: TextStyle(
+                      color: primaryCream,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: size.height * 0.46,
                   child: TextFieldContainer()
                 ),
                 Positioned(
-                  top: size.height * 0.5,
-                  child: TextFieldContainer()
-                ),
-                Positioned(
-                  top: size.height * 0.64,
+                  top: size.height * 0.6,
                   child: Button(
                     text: "Submit",
                     press: () {
@@ -68,7 +74,7 @@ class LoginScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) {
-                            return JoinScreen(); // placeholder for join screen
+                            return WelcomeScreen(); // placeholder for create group
                           }
                         )
                       );
@@ -76,17 +82,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: size.height * 0.75,
-                  child: Text(
-                    "Don't have an account?",
-                    style: TextStyle(
-                      color: primaryCream,
-                      fontSize: 20
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: size.height * 0.78,
+                  top: size.height * 0.7,
                   child: TextButton(
                     onPressed: () {
                       // placeholder for apis
@@ -94,13 +90,13 @@ class LoginScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) {
-                            return RegisterScreen();
+                            return CreateGroupScreen(); 
                           }
                         )
                       );
                     },
                     child: Text(
-                      "Sign Up!",
+                      "Create a Group!",
                       style: TextStyle(
                         color: primaryCream,
                         fontSize: 20,
