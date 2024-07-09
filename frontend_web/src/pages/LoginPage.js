@@ -30,7 +30,6 @@ function LoginPage() {
 
   return (
     <div className="container">
-      <h1 id="welcomeHeader" className="goldText">Welcome to "Large Project"</h1>
       <div id="loginDiv">
         <form onSubmit={doLogin}>
           <span id="inner-title">PLEASE LOGIN</span><br />
