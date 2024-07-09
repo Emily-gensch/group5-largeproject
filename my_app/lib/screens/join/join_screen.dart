@@ -50,12 +50,12 @@ class JoinScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: size.height * 0.4,
+                  top: size.height * 0.42,
                   child: Text(
                     "To start voting enter a code:",
                     style: TextStyle(
                       color: primaryCream,
-                      fontSize: 22,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold
                     ),
                   ),

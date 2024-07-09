@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/constants.dart';
-import 'package:my_app/screens/welcome/components/button.dart';
-import 'package:my_app/screens/welcome/welcome_screen.dart';
 import 'package:my_app/screens/join/join_screen.dart';
-import 'package:my_app/screens/generate_code/generate_code_screen.dart';
+import 'package:my_app/screens/welcome/welcome_screen.dart';
 
-class CreateGroupScreen extends StatelessWidget {
+class GenerateCodeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -16,7 +14,7 @@ class CreateGroupScreen extends StatelessWidget {
         alignment: Alignment.center,
         children: <Widget>[
           Positioned(child: SizedBox(
-            height: size.height * 0.65,
+            height: size.height * 0.5,
             width: size.width * 0.8,
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -35,9 +33,9 @@ class CreateGroupScreen extends StatelessWidget {
               alignment: Alignment.center,
               children: <Widget>[
                 Positioned(
-                  top: size.height * 0.25,
+                  top: size.height * 0.29,
                   child: Text(
-                    "Create a Group",
+                    "Your Group",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 40,
@@ -52,31 +50,49 @@ class CreateGroupScreen extends StatelessWidget {
                 ),
                 Positioned(
                   top: size.height * 0.35,
+                  child: Text(
+                    "Code is:",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 40,
+                      color: primaryCream,
+                      shadows: [Shadow(
+                        blurRadius: 5.0,
+                        color: Colors.black.withOpacity(0.5),
+                        offset: Offset(2.0, 2.0),
+                      )],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: size.height * 0.44,
                   child: TextFieldContainer()
                 ),
                 Positioned(
-                  top: size.height * 0.48,
-                  child: TextFieldContainer()
-                ),
-                Positioned(
-                  top: size.height * 0.62,
-                  child: Button(
-                    text: "Submit",
-                    press: () {
+                  top: size.height * 0.59,
+                  child: TextButton(
+                    onPressed: () {
                       // placeholder for apis
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) {
-                            return GenerateCodeScreen(); // placeholder for code screen
+                            return WelcomeScreen(); // placeholder for copy
                           }
                         )
                       );
                     },
-                  ),
+                    child: Text(
+                      "Copy",
+                      style: TextStyle(
+                        color: primaryCream,
+                        fontSize: 20
+                      ),
+                    ),
+                  )
                 ),
                 Positioned(
-                  top: size.height * 0.73,
+                  top: size.height * 0.67,
                   child: TextButton(
                     onPressed: () {
                       // placeholder for apis
@@ -121,9 +137,9 @@ class TextFieldContainer extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       width: size.width * 0.7,
-      height: size.height * 0.1,
+      height: size.height * 0.15,
       decoration: BoxDecoration(
-        color: primaryCream,
+        color: Colors.black,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [BoxShadow(
                   color: Colors.black.withOpacity(0.5),
