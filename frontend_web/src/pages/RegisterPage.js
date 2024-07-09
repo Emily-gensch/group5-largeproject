@@ -1,61 +1,94 @@
 import React, { useState } from 'react';
-import './styles/Login.css';
+import './styles/Register.css';
 
-function Login() {
-    const [loginEmail, setLoginEmail] = useState('');
-    const [loginPassword, setLoginPassword] = useState('');
-    const [message, setMessage] = useState('');
+function RegisterPage() {
+  const [registerUsername, setRegisterUsername] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [message, setMessage] = useState('');
 
-    const doLogin = async (event) => {
-        event.preventDefault();
-        alert('Logging in: ' + loginEmail + ' ' + loginPassword); //api
-        setMessage('Login successful'); 
-    };
+  const doRegister = async (event) => {
+    event.preventDefault();
 
-    const handleEmailChange = (event) => {
-        setLoginEmail(event.target.value);
-    };
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: registerEmail,
+          name: registerUsername,
+          password: registerPassword,
+        }),
+      });
 
-    const handlePasswordChange = (event) => {
-        setLoginPassword(event.target.value);
-    };
+      const result = await response.json();
 
-    return (
-        <div className="container">
-            <div id="welcomeHeader" className="goldText">
-                Welcome to "Large Project"
-            </div>
-            <div id="loginDiv">
-                <form onSubmit={doLogin}>
-                    <span id="inner-title">PLEASE LOGIN</span><br />
-                    <input
-                        type="email"
-                        id="loginEmail"
-                        placeholder="Email"
-                        value={loginEmail} // Bind value to state
-                        onChange={handleEmailChange}
-                    /><br />
-                    <input
-                        type="password"
-                        id="loginPassword"
-                        placeholder="Password"
-                        value={loginPassword} // Bind value to state
-                        onChange={handlePasswordChange}
-                    /><br />
-                    <input
-                        type="submit"
-                        id="loginButton"
-                        className="buttons"
-                        value="Submit"
-                    />
-                </form>
-                <span id="loginResult">{message}</span>
-                <div>
-                    <span>If you don't have an account, <a href="/register" id="signupLink">Register</a></span>
-                </div>
-            </div>
+      if (response.ok) {
+        setMessage('Registration successful');
+      } else {
+        console.error('Registration failed:', result);
+        setMessage(`Registration failed: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error registering:', error);
+      setMessage('Registration failed');
+    }
+  };
+
+  const handleUsernameChange = (event) => {
+    setRegisterUsername(event.target.value);
+  };
+
+  const handleEmailChange = (event) => {
+    setRegisterEmail(event.target.value);
+  };
+
+  const handlePasswordChange = (event) => {
+    setRegisterPassword(event.target.value);
+  };
+
+  return (
+    <div className="container">
+      <div id="registerDiv">
+        <form onSubmit={doRegister}>
+          <span id="inner-title">REGISTER</span><br />
+          <input
+            type="text"
+            id="registerUsername"
+            placeholder="Username"
+            value={registerUsername}
+            onChange={handleUsernameChange}
+          /><br />
+          <input
+            type="email"
+            id="registerEmail"
+            placeholder="Email"
+            value={registerEmail}
+            onChange={handleEmailChange}
+          /><br />
+          <input
+            type="password"
+            id="registerPassword"
+            placeholder="Password"
+            value={registerPassword}
+            onChange={handlePasswordChange}
+          /><br />
+          <input
+            type="submit"
+            id="registerButton"
+            className="buttons"
+            value="Register"
+          />
+        </form>
+        <span id="registerResult">{message}</span>
+        <div>
+          <span>If you already have an account, <a href="/login">Login</a></span>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
-export default Login;
+export default RegisterPage;
