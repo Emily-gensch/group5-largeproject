@@ -6,19 +6,13 @@ const pollSchema = new mongoose.Schema({
     ref: 'Party',
     required: true,
   },
-  movieID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Movie',
-    required: true,
-  },
-  votes: {
-    type: Number,
-    default: 0,
-  },
-  watchedStatus: {
-    type: Boolean,
-    default: false,
-  },
+  movies: [
+    {
+      movieID: { type: mongoose.Schema.Types.ObjectId, ref: 'Movie' },
+      votes: { type: Number, default: 0 },
+      watchedStatus: { type: Boolean, default: false },
+    },
+  ],
 });
 
 module.exports = mongoose.model('Poll', pollSchema);

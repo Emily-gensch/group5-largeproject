@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const partySchema = new mongoose.Schema({
+const PartySchema = new Schema({
   partyName: {
     type: String,
     required: true,
   },
   hostID: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
@@ -15,6 +16,8 @@ const partySchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  // Add other fields as necessary
 });
 
-module.exports = mongoose.model('Party', partySchema);
+const Party = mongoose.model('Party', PartySchema);
+module.exports = Party;
