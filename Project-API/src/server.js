@@ -239,6 +239,25 @@ app.post('/api/displayWatchedMovies', authenticate, async (req, res) => {
   }
 });
 
+//search movies
+app.post('/api/searchMovie', async (req, res) => {
+    const { search } = req.body;
+    var _search = search.trim();
+    try {
+      const db = client.db('party-database');
+      const results = await db.collection('movie').find({"title":{$regex: _search + '.*', $options:'i'}}).toArray();
+      var titles = [];
+      for( var i=0; i<results.length; i++ )
+      {
+          titles.push( results[i].title );
+      }
+      var movies = {results:titles};
+      res.status(200).json(movies);
+    } catch (e) {
+        res.status(500).json({ error: e.toString() });
+    }
+});
+
 // Display user account
 app.post('/api/userAccount', authenticate, async (req, res) => {
   const { userID } = req.body;
