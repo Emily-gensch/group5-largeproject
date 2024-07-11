@@ -43,17 +43,27 @@ router.post('/register', async (req, res) => {
 
 // Login
 router.post('/login', async (req, res) => {
+  // Request started
+  console.log('Login request received:', req.body);
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
+    //checkpoint
+    console.log('User found:', user);
     if (!user || !bcrypt.compareSync(password, user.password)) {
+      // Login failed
+      console.log('Invalid email or password');
       return res.status(401).json({ message: 'Invalid email or password' });
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '1h',
     });
+    // Login completed successfully
+    console.log('Login approved. Token generated');
     res.status(200).json({ message: 'Login successful', token });
   } catch (err) {
+    // Error from server response
+    console.error('Server error', err.message);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });

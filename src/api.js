@@ -20,6 +20,8 @@ export const register = async (email, name, password) => {
 };
 
 export const login = async (email, password) => {
+  // Login process initiated
+  console.log('Sending login request', { email, password });
   const response = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: {
@@ -27,5 +29,6 @@ export const login = async (email, password) => {
     },
     body: JSON.stringify({ email, password }),
   });
+  console.log('Response received successfully', response);
   return handleResponse(response);
 };
