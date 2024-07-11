@@ -6,11 +6,34 @@ const Poll = require('../models/Poll');
 const mongoose = require('mongoose');
 const authenticate = require('../middleware/authenticate');
 
+// Generates unique party invite code when creating new party
+const generateUniquePartyCode = async () => {
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let code;
+  let isUnique = false;
+
+  while (!isUnique) {
+    code = '';
+    for (let i = 0; i < 6; i++) {
+      code += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+
+    const existingParty = await Party.findOne({ partyInviteCode: code });
+    if (!existingParty) {
+      isUnique = true;
+    }
+  }
+  return code;
+};
+
 // Create party
-router.post('/api/party/create', authenticate, async (req, res) => {
-  const { partyName, partyInviteCode } = req.body;
+router.post('/create', authenticate, async (req, res) => {
+  const { partyName } = req.body;
 
   try {
+    const partyInviteCode = await generateUniquePartyCode();
+
     const newParty = new Party({
       partyName,
       hostID: new mongoose.Types.ObjectId(req.userId),
@@ -26,7 +49,6 @@ router.post('/api/party/create', authenticate, async (req, res) => {
 
     await newPoll.save();
 
-    // Logging for debugging
     console.log('New Party:', newParty);
     console.log('New Poll:', newPoll);
 
@@ -42,7 +64,7 @@ router.post('/api/party/create', authenticate, async (req, res) => {
 });
 
 // Homepage of party
-router.get('/api/party/home', authenticate, async (req, res) => {
+router.get('/home', authenticate, async (req, res) => {
   const { partyID } = req.query;
 
   try {
@@ -53,7 +75,6 @@ router.get('/api/party/home', authenticate, async (req, res) => {
       userEmail: guest.userID.email,
     }));
 
-    // Use correct path for population
     const polls = await Poll.find({ partyID }).populate('movies.movieID');
     const topVotedMovie = polls.reduce((top, poll) => {
       const topMovieInPoll = poll.movies.sort((a, b) => b.votes - a.votes)[0];
@@ -77,7 +98,7 @@ router.get('/api/party/home', authenticate, async (req, res) => {
 });
 
 // Join party
-router.post('/api/joinParty', authenticate, async (req, res) => {
+router.post('/joinParty', authenticate, async (req, res) => {
   const { partyInviteCode, userID } = req.body;
   const db = client.db('party-database');
   let error = 'none';
@@ -102,7 +123,7 @@ router.post('/api/joinParty', authenticate, async (req, res) => {
 });
 
 // Leave party
-router.post('/api/leaveParty', authenticate, async (req, res) => {
+router.post('/leaveParty', authenticate, async (req, res) => {
   const { userID, partyID } = req.body;
   const db = client.db('party-database');
   try {
@@ -110,7 +131,7 @@ router.post('/api/leaveParty', authenticate, async (req, res) => {
     await db.collection('users').updateOne({ userID }, { $set: { status: 0 } });
     res.status(200).json({ message: 'Left party successfully' });
   } catch (e) {
-    res.status(500).json({ error: e.toString() });
+    res.status500().json({ error: e.toString() });
   }
 });
 
