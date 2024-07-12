@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 // MongoDB connection
-const url = process.env.MONGO_URI;
+const url = process.env.MONGO_URI_PARTY;
 
 mongoose.set('strictQuery', true);
 
@@ -19,6 +19,7 @@ if (process.env.NODE_ENV !== 'test') {
     .connect(url, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      dbName: 'party-database',
     })
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.log(err));
