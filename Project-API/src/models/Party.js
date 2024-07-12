@@ -16,8 +16,7 @@ const PartySchema = new Schema({
     required: true,
     unique: true,
   },
-  // Add other fields as necessary
 });
 
-const Party = mongoose.model('Party', PartySchema);
+const Party = mongoose.model('Party', PartySchema, 'party');
 module.exports = Party;
