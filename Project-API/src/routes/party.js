@@ -27,11 +27,38 @@ const generateUniquePartyCode = async () => {
   return code;
 };
 
+//Edit Party Name
+router.post('/EditPartyName', authenticate, async (req, res) => {
+  const { newPartyName } = req.body;
+
+  try {
+    const party = await Party.findOne({ hostID: req.userId });
+
+    if (!party) {
+      return res.status(404).json({ message: 'Party not found' });
+    }
+
+    party.partyName = newPartyName;
+    await party.save();
+
+    res.status(200).json({ message: 'Party name updated successfully', party });
+  } catch (err) {
+    console.error('Error updating party name:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 // Create party
 router.post('/create', authenticate, async (req, res) => {
   const { partyName } = req.body;
 
   try {
+    const party = await Party.findOne({ hostID: req.userID });
+
+    if (party) {
+      return res.status(400).json({ message: 'User already has a party' });
+    }
+
     const partyInviteCode = await generateUniquePartyCode();
 
     const newParty = new Party({
