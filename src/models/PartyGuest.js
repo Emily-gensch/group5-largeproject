@@ -13,4 +13,4 @@ const partyGuestSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('PartyGuest', partyGuestSchema);
+module.exports = mongoose.model('PartyGuest', partyGuestSchema, 'partyguests');
