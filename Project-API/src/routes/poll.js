@@ -1,11 +1,14 @@
-// routes/poll.js
 const express = require('express');
 const mongoose = require('mongoose');
 const Poll = require('../models/Poll');
 const authenticate = require('../middleware/authenticate');
 const router = express.Router();
 
-router.get('/api/poll/:partyID', authenticate, async (req, res) => {
+// APIs that have the 'authenticate' parameter will utilize the 'authenticate.js' file within the middleware folder.
+// 'authenticate' is used for verifying that the user has the correct permission to be granted specific functionality
+
+// Get polls for a party by partyID
+router.get('/poll/:partyID', authenticate, async (req, res) => {
   const { partyID } = req.params;
 
   try {
@@ -18,28 +21,50 @@ router.get('/api/poll/:partyID', authenticate, async (req, res) => {
   }
 });
 
-router.post('/api/addMovieToPoll', authenticate, async (req, res) => {
-  const { pollID, movieID } = req.body; // Accept pollID and movieID
+// Vote Page
+//! Not fixed "error": "Cannot populate path `movieID` because it is not in your schema. Set the `strictPopulate` option to false to override."
+router.get('/votePage/:pollID', async (req, res) => {
+  const { pollID } = req.params;
   try {
-    const poll = await Poll.findById(pollID);
+    const poll = await Poll.findById(pollID).populate('movieID');
     if (!poll) {
       return res.status(404).json({ error: 'Poll not found' });
     }
+    res.status(200).json({ movieName: poll.movieID.title, votes: poll.votes });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Add movie to poll
+router.post('/addMovieToPoll', authenticate, async (req, res) => {
+  const { partyID, movieID } = req.body;
+  try {
+    const poll = await Poll.findOne({ partyID });
+    if (!poll) {
+      return res.status(404).json({ error: 'Poll not found for this party' });
+    }
+
     poll.movies.push({ movieID, votes: 0, watchedStatus: false });
     await poll.save();
+
     res.status(200).json({ message: 'Movie added to poll successfully', poll });
   } catch (e) {
     res.status(500).json({ error: e.toString() });
   }
 });
 
-// Upvote movie button (incoming: poll ID)
-router.post('/api/upvoteMovie', authenticate, async (req, res) => {
-  const { pollID, movieID } = req.body;
+// Upvote movie
+// User cannot vote on more than one movie in total.
+// TODO: Update so user can only vote for one movie.
+router.post('/upvoteMovie', authenticate, async (req, res) => {
+  const { partyID, movieID } = req.body;
   try {
-    const poll = await Poll.findById(pollID);
+    const poll = await Poll.findOne({
+      partyID: mongoose.Types.ObjectId(partyID),
+    });
     if (!poll) {
-      return res.status(404).json({ error: 'Poll not found' });
+      return res.status(404).json({ error: 'Poll not found for this party' });
     }
     const movie = poll.movies.find((m) => m.movieID.toString() === movieID);
     if (!movie) {
@@ -55,12 +80,15 @@ router.post('/api/upvoteMovie', authenticate, async (req, res) => {
   }
 });
 
-router.post('/api/downvoteMovie', authenticate, async (req, res) => {
-  const { pollID, movieID } = req.body;
+// Downvote movie
+router.post('/downvoteMovie', authenticate, async (req, res) => {
+  const { partyID, movieID } = req.body;
   try {
-    const poll = await Poll.findById(pollID);
+    const poll = await Poll.findOne({
+      partyID: mongoose.Types.ObjectId(partyID),
+    });
     if (!poll) {
-      return res.status(404).json({ error: 'Poll not found' });
+      return res.status(404).json({ error: 'Poll not found for this party' });
     }
     const movie = poll.movies.find((m) => m.movieID.toString() === movieID);
     if (!movie) {
@@ -76,13 +104,15 @@ router.post('/api/downvoteMovie', authenticate, async (req, res) => {
   }
 });
 
-// Remove movie button (incoming: poll ID)
-router.delete('/api/removeMovie', authenticate, async (req, res) => {
-  const { pollID, movieID } = req.body;
+// Remove movie from poll
+router.delete('/removeMovie', authenticate, async (req, res) => {
+  const { partyID, movieID } = req.body;
   try {
-    const poll = await Poll.findById(pollID);
+    const poll = await Poll.findOne({
+      partyID: mongoose.Types.ObjectId(partyID),
+    });
     if (!poll) {
-      return res.status(404).json({ error: 'Poll not found' });
+      return res.status(404).json({ error: 'Poll not found for this party' });
     }
     const movieIndex = poll.movies.findIndex(
       (m) => m.movieID.toString() === movieID
@@ -90,7 +120,7 @@ router.delete('/api/removeMovie', authenticate, async (req, res) => {
     if (movieIndex === -1) {
       return res.status(404).json({ error: 'Movie not found in poll' });
     }
-    poll.movies.splice(movieIndex, 1); // Remove the movie
+    poll.movies.splice(movieIndex, 1);
     await poll.save();
     res.status(200).json({ message: 'Movie removed from poll successfully' });
   } catch (err) {
@@ -98,8 +128,8 @@ router.delete('/api/removeMovie', authenticate, async (req, res) => {
   }
 });
 
-//mark movie as watched
-router.post('/api/markWatched', authenticate, async (req, res) => {
+// Mark movie as watched
+router.post('/markWatched', authenticate, async (req, res) => {
   const { movieID, partyID } = req.body;
   try {
     const poll = await Poll.findOne({ movieID, partyID });
@@ -114,23 +144,9 @@ router.post('/api/markWatched', authenticate, async (req, res) => {
   }
 });
 
-// Vote Page
-router.get('/api/votePage', async (req, res) => {
-  const { pollID } = req.body;
-  try {
-    const poll = await Poll.findById(pollID).populate('movieID');
-    if (!poll) {
-      return res.status(404).json({ error: 'Poll not found' });
-    }
-    res.status(200).json({ movieName: poll.movieID.title, votes: poll.votes });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-});
-
 // Start poll
-routes.post('/api/startPoll', authenticate, async (req, res) => {
-  const { partyID } = req.body; // Only require partyID
+router.post('/startPoll', authenticate, async (req, res) => {
+  const { partyID } = req.body;
   try {
     const newPoll = new Poll({ partyID, movies: [] });
     await newPoll.save();
@@ -143,3 +159,5 @@ routes.post('/api/startPoll', authenticate, async (req, res) => {
     res.status(500).json({ error: e.toString() });
   }
 });
+
+module.exports = router;
