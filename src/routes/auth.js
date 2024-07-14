@@ -41,6 +41,8 @@ router.post('/register', async (req, res) => {
   }
 });
 
+//TODO: Add email verification api. Need to alter database
+
 // Login
 router.post('/login', async (req, res) => {
   // Request started
