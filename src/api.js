@@ -106,3 +106,44 @@ export const createParty = async (partyName) => {
 
   return await response.json();
 };
+
+// Allows user to join a party. POST request that expects the party invite code that is created when the party is created by host.
+export const joinParty = async (partyInviteCode) => {
+  const token = await getToken();
+
+  const response = await fetch(`${API_URL}/party/joinParty`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token,
+    },
+    body: JSON.stringify({ partyInviteCode }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Something went wrong');
+  }
+
+  return await response.json();
+};
+
+// Gets the homepage of the party. GET request that expects the partyID as a query parameter.
+// Example: http://localhost:5000/api/party/home/?partyID=66934da66fca26f472155a9d
+export const getPartyHomePage = async (partyID) => {
+  const token = await getToken();
+
+  const response = await fetch(`${API_URL}/party/home?partyID=${partyID}`, {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + token,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Something went wrong');
+  }
+
+  return await response.json();
+};
