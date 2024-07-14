@@ -38,9 +38,11 @@ app.use(express.json());
 
 const authRouter = require('./routes/auth');
 const partyRouter = require('./routes/party');
+const pollRouter = require('./routes/poll');
 
 app.use('/api/auth', authRouter);
 app.use('/api/party', partyRouter);
+app.use('/api/poll', pollRouter);
 
 const MongoClient = require('mongodb').MongoClient;
 const client = new MongoClient(url, {
