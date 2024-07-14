@@ -6,6 +6,11 @@ const Poll = require('../models/Poll');
 const mongoose = require('mongoose');
 const authenticate = require('../middleware/authenticate');
 
+const MongoClient = require('mongodb').MongoClient;
+const url =
+  'mongodb+srv://lyrenee02:tSGwv9viMBFajw3u@cluster.muwwbsd.mongodb.net/?retryWrites=true&w=majority&appName=cluster';
+const client = new MongoClient(url);
+
 // Generates unique party invite code when creating new party
 const generateUniquePartyCode = async () => {
   const characters =
@@ -51,11 +56,13 @@ router.post('/EditPartyName', authenticate, async (req, res) => {
 // Create party
 router.post('/create', authenticate, async (req, res) => {
   const { partyName } = req.body;
+  console.log('Creating party for user ID:', req.userId);
 
   try {
-    const party = await Party.findOne({ hostID: req.userID });
+    const existingParty = await Party.findOne({ hostID: req.userId });
+    console.log('Found party:', existingParty);
 
-    if (party) {
+    if (existingParty) {
       return res.status(400).json({ message: 'User already has a party' });
     }
 
@@ -63,7 +70,7 @@ router.post('/create', authenticate, async (req, res) => {
 
     const newParty = new Party({
       partyName,
-      hostID: new mongoose.Types.ObjectId(req.userId),
+      hostID: req.userId,
       partyInviteCode,
     });
 
@@ -96,19 +103,27 @@ router.get('/home', authenticate, async (req, res) => {
 
   try {
     const party = await Party.findById(partyID).populate('hostID');
+    console.log('Party found:', party);
+
     const guests = await PartyGuest.find({ partyID }).populate('userID');
+    console.log('Guests found:', guests);
+
     const guestDetails = guests.map((guest) => ({
       userName: guest.userID.name,
       userEmail: guest.userID.email,
     }));
+    console.log('Guest details:', guestDetails);
 
     const polls = await Poll.find({ partyID }).populate('movies.movieID');
+    console.log('Polls found:', polls);
+
     const topVotedMovie = polls.reduce((top, poll) => {
       const topMovieInPoll = poll.movies.sort((a, b) => b.votes - a.votes)[0];
       return topMovieInPoll && (!top || topMovieInPoll.votes > top.votes)
         ? topMovieInPoll
         : top;
     }, null);
+    console.log('Top voted movie:', topVotedMovie);
 
     res.status(200).json({
       partyName: party.partyName,
@@ -120,6 +135,7 @@ router.get('/home', authenticate, async (req, res) => {
         : 'No votes yet',
     });
   } catch (err) {
+    console.error('Server error:', err.message);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
