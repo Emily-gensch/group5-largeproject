@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
 const Party = require('../models/Party');
 const PartyGuest = require('../models/PartyGuest');
 const Poll = require('../models/Poll');
@@ -142,22 +143,25 @@ router.get('/home', authenticate, async (req, res) => {
 
 // Join party
 router.post('/joinParty', authenticate, async (req, res) => {
-  const { partyInviteCode, userID } = req.body;
-  const db = client.db('party-database');
-  let error = 'none';
+  const { partyInviteCode } = req.body;
 
-  const party = await db.collection('party').findOne({ partyInviteCode });
-  if (!party) {
-    return res.status(400).json({ error: 'Invalid code' });
-  }
-
-  const newMember = { userID, partyID: party.partyID };
   try {
-    await db.collection('party-members').insertOne(newMember);
-    await db.collection('users').updateOne({ userID }, { $set: { status: 1 } });
+    const party = await Party.findOne({ partyInviteCode });
+    if (!party) {
+      return res.status(400).json({ error: 'Invalid code' });
+    }
+
+    const newMember = new PartyGuest({
+      userID: req.userId,
+      partyID: party._id,
+    });
+
+    await newMember.save();
+    await User.updateOne({ _id: req.userId }, { $set: { status: 1 } });
+
     res.status(200).json({
-      userID,
-      partyID: party.partyID,
+      userID: req.userId,
+      partyID: party._id,
       message: 'Joined party successfully',
     });
   } catch (e) {
