@@ -31,16 +31,28 @@ export const login = async (email, password) => {
     },
     body: JSON.stringify({ email, password }),
   });
-
   if (!response.ok) {
     const error = await response.json();
+    console.error('Login error:', error.message || 'Something went wrong');
     throw new Error(error.message || 'Something went wrong');
   }
-
   const data = await response.json();
+
+  console.log('Token received:', data.token);
+
   localStorage.setItem('token', data.token);
   localStorage.setItem('tokenExpiry', Date.now() + 3600 * 1000);
-  console.log('Response received successfully', data);
+  const storedToken = localStorage.getItem('token');
+
+  console.log('Token stored:', storedToken);
+
+  if (storedToken !== data.token) {
+    console.error(
+      'Token mismatch! Something went wrong with storing the token.'
+    );
+  } else {
+    console.log('Token successfully stored and matched.');
+  }
   return data;
 };
 
