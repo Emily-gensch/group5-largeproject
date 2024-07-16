@@ -1,5 +1,3 @@
-/* Create Group Page */
-
 .container {
     display: flex;
     justify-content: center;
@@ -14,7 +12,7 @@
   #createGroupDiv {
     width: 400px;
     padding: 40px;
-    background-color: #A51F1F; /* Red background */
+    background-color: #A51F1F; 
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
@@ -22,7 +20,7 @@
   }
   
   .inner-heading {
-    color: #FFF3E8; /* White color for inner heading */
+    color: #FFF3E8; 
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
