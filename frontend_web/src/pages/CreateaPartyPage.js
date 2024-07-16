@@ -1,38 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './styles/CreateaPartyPage.css';
 
 const CreateaPartyPage = () => {
   const [groupName, setGroupName] = useState('');
   const [groupCode, setGroupCode] = useState('');
   const [message, setMessage] = useState('');
+  const [token, setToken] = useState('');
 
-  const handleCreateGroup = async (event) => {
-    event.preventDefault();
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const response = await fetch('http://localhost:5002/api/auth/token');
+        if (response.ok) {
+          const data = await response.json();
+          setToken(data.token);
+        } else {
+          throw new Error('Failed to fetch token');
+        }
+      } catch (error) {
+        console.error('Error fetching token:', error);
+      }
+    };
+
+    fetchToken();
+  }, []);
+
+  const handleCreateGroup = async (groupName) => {
     try {
-      const response = await fetch('/api/createGroup', {
+      const response = await fetch('http://localhost:5002/api/party/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ groupName, groupCode }),
+        body: JSON.stringify({ partyName: groupName }),
       });
 
       const result = await response.json();
-      if (result.error === 'none') {
-        setMessage(`Group created successfully! Group ID: ${result.groupID}`);
+      if (response.ok) {
+        setGroupCode(result.partyInviteCode);
+        setMessage(`Group created successfully! Group Code: ${result.partyInviteCode}`);
       } else {
-        setMessage(`Error: ${result.error}`);
+        setMessage(`Error: ${result.message}`);
       }
     } catch (error) {
       setMessage(`Error: ${error.toString()}`);
     }
   };
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    handleCreateGroup(groupName);
+  };
+
   return (
     <div className="container">
       <div id="createGroupDiv">
         <h1 className="inner-heading">Create a Party</h1>
-        <form onSubmit={handleCreateGroup}>
+        <form onSubmit={handleSubmit}>
           <input
             type="text"
             value={groupName}
@@ -41,23 +66,20 @@ const CreateaPartyPage = () => {
             className="inputField"
             required
           />
-          <input
-            type="text"
-            value={groupCode}
-            onChange={(e) => setGroupCode(e.target.value)}
-            placeholder="Group Code"
-            className="inputField"
-            required
-          />
-          <button type="submit" className="buttons">Submit </button>
+          <button type="submit" className="buttons">Submit</button>
         </form>
+        {groupCode && (
+          <div>
+            <p>Group Code: {groupCode}</p>
+          </div>
+        )}
         <span id="registerResult">{message}</span>
         <div>
-          <span> Return to Home <a href="/login" id="loginLink">Home</a></span> 
+          <a href="/join" id="joinLink">Have a code? Enter it!</a>
         </div>
         {message && <p className="message">{message}</p>}
       </div>
-    </div> // need to change and change the return link "have to make page"
+    </div>
   );
 };
 
