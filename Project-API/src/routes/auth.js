@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
       expiresIn: '1h',
     });
     // Login completed successfully
-    console.log('Login approved. Token generated');
+    console.log('Login approved. Token generated', token);
     res.status(200).json({ message: 'Login successful', token });
   } catch (err) {
     // Error from server response
