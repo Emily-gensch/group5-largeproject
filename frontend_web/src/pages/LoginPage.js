@@ -6,32 +6,47 @@ function LoginPage() {
   const [loginPassword, setLoginPassword] = useState('');
   const [message, setMessage] = useState('');
 
-  const doLogin = async (event) => {
-    event.preventDefault();
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: loginEmail,
-        password: loginPassword,
-      }),
-    });
+  const doLogin = async (email, password) => {
+    try {
+      const response = await fetch('http://localhost:5002/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-    const result = await response.json();
+      const data = await response.json();
+      console.log('Login response:', response);
+      console.log('Login data:', data);
 
-    if (result.success) {
-      setMessage('Login successful');
-    } else {
-      setMessage('Login failed. Please check your email and password.');
+      if (response.ok) {
+        console.log('Login successful');
+        setMessage('Login successful');
+        // Redirect to another page after login (example: '/use-code')
+        window.location.href = '/join'; // Replace with your desired redirect location
+      } else {
+        console.log('Login failed:', data.message); // Log the specific error message from backend
+        setMessage('Login failed. Please check your email and password.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setMessage('Login failed. Please try again later.');
     }
+  };
+
+  const handleLogin = (event) => {
+    event.preventDefault();
+    doLogin(loginEmail, loginPassword);
   };
 
   return (
     <div className="container">
       <div id="loginDiv">
-        <form onSubmit={doLogin}>
+        <form onSubmit={handleLogin}>
           <span id="inner-title">PLEASE LOGIN</span><br />
           <input
             type="email"
