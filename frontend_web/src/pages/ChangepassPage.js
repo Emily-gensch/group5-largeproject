@@ -24,7 +24,7 @@ const ChangePasswordPage = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/changePassword', {
+      const response = await fetch('https://lighthearted-moxie-82edfd.netlify.app/api/changePassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
