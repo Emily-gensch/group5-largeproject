@@ -1,10 +1,52 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:my_app/constants.dart';
 import 'package:my_app/screens/login/login_screen.dart';
 import 'package:my_app/screens/welcome/components/button.dart';
 import 'package:my_app/screens/welcome/welcome_screen.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget{
+  const RegisterScreen({Key? key}) : super(key: key);
+
+  @override
+  _RegisterScreenState createState() => _RegisterScreenState();
+}
+
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  void register(String email, String name, String password) async {
+    try{
+      Response response = await post(
+        Uri.parse("http://localhost:5000/api/auth/register"),
+        body: jsonEncode({
+          'email': email,
+          'name': name,
+          'password': password
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if(response.statusCode == 201){
+        var data = jsonDecode(response.body.toString());
+        print(data);
+        print(data['token']);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()), 
+        );
+      } else {
+        print("Register failed");
+        print(jsonDecode(response.body.toString()));
+      }
+    }catch(e){
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -50,31 +92,74 @@ class RegisterScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: size.height * 0.3,
-                  child: TextFieldContainer()
+                  top: size.height * 0.28,
+                  child: TextFieldContainer(child: TextFormField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: "Email",
+                      labelStyle: TextStyle(
+                        color: secondaryCream,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                      focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                    floatingLabelBehavior: FloatingLabelBehavior.never
+                    ),
+                  ))
                 ),
                 Positioned(
-                  top: size.height * 0.42,
-                  child: TextFieldContainer()
+                  top: size.height * 0.4,
+                  child: TextFieldContainer(child: TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: "Name",
+                      labelStyle: TextStyle(
+                        color: secondaryCream,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                      focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                    floatingLabelBehavior: FloatingLabelBehavior.never
+                    ),
+                  ))
                 ),
                 Positioned(
-                  top: size.height * 0.54,
-                  child: TextFieldContainer()
+                  top: size.height * 0.52,
+                  child: TextFieldContainer(child: TextFormField(
+                    controller: passwordController,
+                    decoration: InputDecoration(
+                      labelText: "Password",
+                      labelStyle: TextStyle(
+                        color: secondaryCream,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                      focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                    floatingLabelBehavior: FloatingLabelBehavior.never
+                    ),
+                  ))
                 ),
                 Positioned(
                   top: size.height * 0.67,
                   child: Button(
                     text: "Submit",
                     press: () {
-                      // placeholder for apis
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return LoginScreen(); 
-                          }
-                        )
-                      );
+                      register(emailController.text.toString(), nameController.text.toString(), passwordController.text.toString());
                     },
                   ),
                 ),
@@ -124,14 +209,17 @@ class RegisterScreen extends StatelessWidget {
 }
 
 class TextFieldContainer extends StatelessWidget {
+  final Widget child;
   const TextFieldContainer({
     super.key,
+    required this.child
   });
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Container(
+      margin: EdgeInsets.symmetric(vertical: 20),
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       width: size.width * 0.7,
       height: size.height * 0.1,
@@ -144,6 +232,8 @@ class TextFieldContainer extends StatelessWidget {
                   offset: Offset(2.0, 2.0)
                 )]
       ),
+      child: child
     );
   }
 }
+

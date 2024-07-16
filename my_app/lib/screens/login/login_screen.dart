@@ -1,11 +1,55 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:my_app/constants.dart';
 import 'package:my_app/screens/register/register_screen.dart';
 import 'package:my_app/screens/welcome/components/button.dart';
 import 'package:my_app/screens/welcome/welcome_screen.dart';
 import 'package:my_app/screens/join/join_screen.dart';
+import 'package:http/http.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget{
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  void login(String email, String password) async {
+    try{
+      print(email);
+      print(password);
+      Response response = await post(
+        Uri.parse("http://localhost:5000/api/auth/login"),
+        body: jsonEncode({
+          'email': email,
+          'password': password
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if(response.statusCode == 200){
+        var data = jsonDecode(response.body.toString());
+        print(data['token']);
+        Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return JoinScreen(); 
+                          }
+                        )
+                      );
+      } else {
+        print("Login failed");
+        print(jsonDecode(response.body.toString()));
+      }
+    }catch(e){
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -51,12 +95,47 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: size.height * 0.37,
-                  child: TextFieldContainer()
+                  top: size.height * 0.35,
+                  child: TextFieldContainer(child: TextFormField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: "Email",
+                      labelStyle: TextStyle(
+                        color: secondaryCream,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                      focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                    floatingLabelBehavior: FloatingLabelBehavior.never
+                    ),
+                  ))
                 ),
                 Positioned(
-                  top: size.height * 0.5,
-                  child: TextFieldContainer()
+                  top: size.height * 0.48,
+                  child: TextFieldContainer(child: TextField(
+                    obscureText: true,
+                    controller: passwordController,
+                    decoration: InputDecoration(
+                      labelText: "Password",
+                      labelStyle: TextStyle(
+                        color: secondaryCream,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                      focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                    floatingLabelBehavior: FloatingLabelBehavior.never
+                    ),
+                  ))
                 ),
                 Positioned(
                   top: size.height * 0.64,
@@ -64,14 +143,7 @@ class LoginScreen extends StatelessWidget {
                     text: "Submit",
                     press: () {
                       // placeholder for apis
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return JoinScreen(); // placeholder for join screen
-                          }
-                        )
-                      );
+                      login(emailController.text.toString(), passwordController.text.toString());
                     },
                   ),
                 ),
@@ -121,14 +193,17 @@ class LoginScreen extends StatelessWidget {
 }
 
 class TextFieldContainer extends StatelessWidget {
+  final Widget child;
   const TextFieldContainer({
     super.key,
+    required this.child
   });
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Container(
+      margin: EdgeInsets.symmetric(vertical: 20),
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       width: size.width * 0.7,
       height: size.height * 0.1,
@@ -141,6 +216,7 @@ class TextFieldContainer extends StatelessWidget {
                   offset: Offset(2.0, 2.0)
                 )]
       ),
+      child: child
     );
   }
 }
