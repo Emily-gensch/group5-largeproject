@@ -6,7 +6,7 @@
   background-color: #313338;
   color: #fff3e8;
   height: 100vh;
-  overflow-y: auto; 
+  overflow-y: auto; /* Enable vertical scrolling */
 }
 
 .search-bar {
