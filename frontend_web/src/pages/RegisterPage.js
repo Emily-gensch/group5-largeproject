@@ -10,7 +10,7 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch('http://https://lighthearted-moxie-82edfd.netlify.app/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,8 +25,9 @@ function RegisterPage() {
       if (response.ok) {
         console.log('Registration successful');
         setMessage('Registration successful');
-        localStorage.setItem('token', data.token); // not too sure yet 
-        window.location.href = '/join'; 
+        localStorage.setItem('token', data.token); // Store the token in localStorage
+        // Redirect to the join page or login page
+        window.location.href = '/join'; // Example: Redirect to '/join' page
       } else if (response.status === 400) {
         console.log('Registration failed: Bad Request');
         console.log('Registration error:', data.error);
@@ -44,7 +45,7 @@ function RegisterPage() {
 
   const fetchUserAccount = async (token) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/user', {
+      const response = await fetch('http://https://lighthearted-moxie-82edfd.netlify.app/api/auth/user', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -65,7 +66,7 @@ function RegisterPage() {
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/auth/token');
+        const response = await fetch('http://https://lighthearted-moxie-82edfd.netlify.app/api/auth/token');
         if (response.ok) {
           const data = await response.json();
           setToken(data.token);
