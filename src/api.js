@@ -31,28 +31,17 @@ export const login = async (email, password) => {
     },
     body: JSON.stringify({ email, password }),
   });
+
   if (!response.ok) {
     const error = await response.json();
-    console.error('Login error:', error.message || 'Something went wrong');
     throw new Error(error.message || 'Something went wrong');
   }
+
   const data = await response.json();
-
   console.log('Token received:', data.token);
-
   localStorage.setItem('token', data.token);
   localStorage.setItem('tokenExpiry', Date.now() + 3600 * 1000);
-  const storedToken = localStorage.getItem('token');
-
-  console.log('Token stored:', storedToken);
-
-  if (storedToken !== data.token) {
-    console.error(
-      'Token mismatch! Something went wrong with storing the token.'
-    );
-  } else {
-    console.log('Token successfully stored and matched.');
-  }
+  console.log('Token stored:', localStorage.getItem('token'));
   return data;
 };
 
@@ -97,10 +86,21 @@ const getToken = async () => {
   return token;
 };
 
+// Party functions
+
+// createParty
+// joinParty
+// GetPartyHomePage
+// EditPartyName
+
 // Creates a party. POST request that requires a party name. Token is required from the user (they have to be logged in) in order to create a party.
 // getToken() function is used to retrieve the current users token.
 export const createParty = async (partyName) => {
-  const token = await getToken();
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    throw new Error('Token is missing. Please log in again.');
+  }
 
   const response = await fetch(`${API_URL}/party/create`, {
     method: 'POST',
@@ -159,3 +159,25 @@ export const getPartyHomePage = async (partyID) => {
 
   return await response.json();
 };
+
+// TODO: Look for bugs
+export const editPartyName = async (newPartyName) => {
+  const token = await getToken();
+
+  const response = await fetch(`${API_URL}/party/EditPartyName`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token,
+    },
+    body: JSON.stringify({ newPartyName }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Something went wrong');
+  }
+  return await response.json();
+};
+
+export const LeaveParty = async;
