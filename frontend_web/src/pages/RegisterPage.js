@@ -10,7 +10,7 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      const response = await fetch('http://localhost:5002/api/auth/register', {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ function RegisterPage() {
 
   const fetchUserAccount = async (token) => {
     try {
-      const response = await fetch('http://localhost:5002/api/auth/user', {
+      const response = await fetch('http://localhost:5000/api/auth/user', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -65,7 +65,7 @@ function RegisterPage() {
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const response = await fetch('http://localhost:5002/api/auth/token');
+        const response = await fetch('http://localhost:5000/api/auth/token');
         if (response.ok) {
           const data = await response.json();
           setToken(data.token);
