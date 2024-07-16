@@ -26,10 +26,9 @@ function LoginPage() {
       if (response.ok) {
         console.log('Login successful');
         setMessage('Login successful');
-        // Redirect to another page after login (example: '/use-code')
-        window.location.href = '/join'; // Replace with your desired redirect location
+        window.location.href = '/join'; 
       } else {
-        console.log('Login failed:', data.message); // Log the specific error message from backend
+        console.log('Login failed:', data.message); 
         setMessage('Login failed. Please check your email and password.');
       }
     } catch (error) {
