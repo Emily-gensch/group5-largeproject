@@ -25,9 +25,8 @@ function RegisterPage() {
       if (response.ok) {
         console.log('Registration successful');
         setMessage('Registration successful');
-        localStorage.setItem('token', data.token); // Store the token in localStorage
-        // Redirect to the join page or login page
-        window.location.href = '/join'; // Example: Redirect to '/join' page
+        localStorage.setItem('token', data.token); // not too sure yet 
+        window.location.href = '/join'; 
       } else if (response.status === 400) {
         console.log('Registration failed: Bad Request');
         console.log('Registration error:', data.error);
