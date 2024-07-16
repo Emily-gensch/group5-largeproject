@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './styles/LoginPage.css';
+import './styles/Login.css';
 
 function LoginPage() {
   const [loginEmail, setLoginEmail] = useState('');
@@ -8,7 +8,7 @@ function LoginPage() {
 
   const doLogin = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch('https://lighthearted-moxie-82edfd.netlify.app/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
