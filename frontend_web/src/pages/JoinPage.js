@@ -8,7 +8,7 @@ const JoinPage = () => {
   const handleJoinParty = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/party/joinParty', {
+      const response = await fetch('http://https://lighthearted-moxie-82edfd.netlify.app/api/party/joinParty', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
