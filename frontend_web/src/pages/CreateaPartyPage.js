@@ -10,7 +10,7 @@ const CreateaPartyPage = () => {
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const response = await fetch('http://localhost:5002/api/auth/token');
+        const response = await fetch('http://localhost:5000/api/auth/token');
         if (response.ok) {
           const data = await response.json();
           setToken(data.token);
@@ -27,7 +27,7 @@ const CreateaPartyPage = () => {
 
   const handleCreateGroup = async (groupName) => {
     try {
-      const response = await fetch('http://localhost:5002/api/party/create', {
+      const response = await fetch('http://localhost:5000/api/party/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
