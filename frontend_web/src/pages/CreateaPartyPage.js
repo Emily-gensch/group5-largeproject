@@ -10,7 +10,7 @@ const CreateaPartyPage = () => {
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const response = await fetch('https://lighthearted-moxie-82edfd.netlify.app/api/auth/token');
+        const response = await fetch('http://localhost:5002/api/auth/token');
         if (response.ok) {
           const data = await response.json();
           setToken(data.token);
