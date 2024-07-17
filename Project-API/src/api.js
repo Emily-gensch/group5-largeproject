@@ -32,41 +32,7 @@ export const login = async (email, password) => {
     body: JSON.stringify({ email, password }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Something went wrong');
-  }
-
-  const data = await response.json();
-  console.log('Token received:', data.token);
-  localStorage.setItem('token', data.token);
-  localStorage.setItem('tokenExpiry', Date.now() + 3600 * 1000);
-  console.log('Token stored:', localStorage.getItem('token'));
-  return data;
-};
-
-// Used to refresh the token of the current logged in user if it expires.
-// Implemented so the user does not have to continously log in after one hour which is when the token expires. Avoids interruptions.
-const refreshToken = async () => {
-  const token = localStorage.getItem('token');
-
-  const response = await fetch(`${API_URL}/auth/refresh`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + token,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Something went wrong');
-  }
-
-  const data = await response.json();
-  localStorage.setItem('token', data.token);
-  localStorage.setItem('tokenExpiry', Date.now() + 3600 * 1000);
-  return data.token;
+  return handleResponse(response);
 };
 
 // This function will return the specific token for the current user that is currently logged in.
@@ -96,88 +62,61 @@ const getToken = async () => {
 // Creates a party. POST request that requires a party name. Token is required from the user (they have to be logged in) in order to create a party.
 // getToken() function is used to retrieve the current users token.
 export const createParty = async (partyName) => {
-  const token = localStorage.getItem('token');
-
-  if (!token) {
-    throw new Error('Token is missing. Please log in again.');
-  }
-
   const response = await fetch(`${API_URL}/party/create`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + token,
     },
     body: JSON.stringify({ partyName }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Something went wrong');
-  }
-
-  return await response.json();
+  return handleResponse(response);
 };
 
 // Allows user to join a party. POST request that expects the party invite code that is created when the party is created by host.
-export const joinParty = async (partyInviteCode) => {
-  const token = await getToken();
-
+export const joinParty = async (partyInviteCode, userID) => {
   const response = await fetch(`${API_URL}/party/joinParty`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + token,
     },
-    body: JSON.stringify({ partyInviteCode }),
+    body: JSON.stringify({ partyInviteCode, userID }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Something went wrong');
-  }
-
-  return await response.json();
+  return handleResponse(response);
 };
 
 // Gets the homepage of the party. GET request that expects the partyID as a query parameter.
 // Example: http://localhost:5000/api/party/home/?partyID=66934da66fca26f472155a9d
 export const getPartyHomePage = async (partyID) => {
-  const token = await getToken();
-
   const response = await fetch(`${API_URL}/party/home?partyID=${partyID}`, {
     method: 'GET',
-    headers: {
-      Authorization: 'Bearer ' + token,
-    },
+    headers: {},
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Something went wrong');
-  }
-
-  return await response.json();
+  return handleResponse(response);
 };
 
-// TODO: Look for bugs
-export const editPartyName = async (newPartyName) => {
-  const token = await getToken();
-
+export const editPartyName = async (newPartyName, hostID) => {
   const response = await fetch(`${API_URL}/party/EditPartyName`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + token,
     },
-    body: JSON.stringify({ newPartyName }),
+    body: JSON.stringify({ newPartyName, hostID }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Something went wrong');
-  }
-  return await response.json();
+  return handleResponse(response);
 };
 
-export const LeaveParty = async;
+export const leaveParty = async (userID, partyID) => {
+  const response = await fetch(`${API_URL}/party/leaveParty`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userID, partyID }),
+  });
+
+  return handleResponse(response);
+};
