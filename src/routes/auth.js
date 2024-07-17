@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
 
 // Register
 router.post('/register', async (req, res) => {
@@ -29,12 +30,15 @@ router.post('/register', async (req, res) => {
   }
 
   try {
+    const emailToken = jwt.sign({data: 'Token Data' }, 'ourSecretKey');
     const hashedPassword = bcrypt.hashSync(password, 8);
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
       status: 0,
+      emailToken: emailToken,
+      emailVerifStatus: 0
     });
     await newUser.save();
     res
@@ -46,6 +50,47 @@ router.post('/register', async (req, res) => {
 });
 
 //TODO: Add email verification api. Need to alter database
+// sendEmail
+router.post('/sendEmail', async (req, res) => {
+    const { email, emailToken} = req.body;
+    transporter.sendMail({
+    from: '"largeproject " <joanndinzey@gmail.com>',
+    to: email,
+    subject: 'Email Verification',
+    text: `Hi! There, You have recently visited 
+            our website and entered your email.
+            Please follow the given link to verify your email
+            http://localhost:5000/api/verifyEmail/${emailToken} 
+            Thanks`,
+    }).then(() => {
+        res.status(200).json({ message: 'email sent' });
+    }).catch(err => {
+    res.status(500).json({ error: e.toString() });
+    });
+});
+
+// verifyEmail
+router.get('/verifyEmail/:emailToken', async (req, res) => {
+    const {emailToken} = req.params;
+    const db = client.db('party-database');
+    try {
+        const user = await db.collection('users').findOne({ emailToken: emailToken });
+        if (!user) {
+          res.status(401).send("Email verification failed: Invalid Token");
+        }
+        else{
+            const query = {emailToken:emailToken};
+            var newValue = {$set: {emailVerifStatus: 1}};
+            db.collection('users').updateOne(query, newValue);
+            newValue = {$set: {emailToken: ""}};
+            db.collection('users').updateOne(query, newValue);
+            res.status(200).send("Email verifified successfully");
+        }
+    }
+    catch (e) {
+        res.status(500).send(e.toString());
+    }
+});
 
 // Login
 router.post('/login', async (req, res) => {
@@ -62,6 +107,11 @@ router.post('/login', async (req, res) => {
       // Login failed
       console.log('Invalid email or password');
       return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    if (user.emailVerifStatus == 0){
+      // Login failed
+      console.log('Email not verfired');
+      return res.status(401).json({ message: 'Email not verfired' });
     }
 
     // JWT token generation (uncomment if needed)
