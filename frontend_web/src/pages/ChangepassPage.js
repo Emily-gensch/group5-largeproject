@@ -24,13 +24,13 @@ const ChangePasswordPage = () => {
     }
 
     try {
-      const response = await fetch('https://lighthearted-moxie-82edfd.netlify.app/api/changePassword', {
+      const response = await fetch('http://localhost:5002/api/changePassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userID: 'currentUserId', 
+          userID: 'currentUserId', // Replace with actual user ID
           newPassword: newPassword,
           validatePassword: confirmNewPassword,
         }),
@@ -47,7 +47,7 @@ const ChangePasswordPage = () => {
         setError('');
         setTimeout(() => {
           window.location.href = '/profile';
-        }, 2000); 
+        }, 2000); // Redirect after 2 seconds
       }
     } catch (error) {
       console.error('Change password error:', error);
