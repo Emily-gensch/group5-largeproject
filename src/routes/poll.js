@@ -45,6 +45,13 @@ router.post('/addMovieToPoll', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'Poll not found for this party' });
     }
 
+    const movieExists = poll.movies.some(
+      (movie) => movie.movieID.toString() === movieID
+    );
+    if (movieExists) {
+      return res.status(401).json({ error: 'Movie already in poll' });
+    }
+
     poll.movies.push({ movieID, votes: 0, watchedStatus: false });
     await poll.save();
 
@@ -80,29 +87,29 @@ router.post('/upvoteMovie', authenticate, async (req, res) => {
   }
 });
 
-// Downvote movie
-router.post('/downvoteMovie', authenticate, async (req, res) => {
-  const { partyID, movieID } = req.body;
-  try {
-    const poll = await Poll.findOne({
-      partyID: mongoose.Types.ObjectId(partyID),
-    });
-    if (!poll) {
-      return res.status(404).json({ error: 'Poll not found for this party' });
-    }
-    const movie = poll.movies.find((m) => m.movieID.toString() === movieID);
-    if (!movie) {
-      return res.status(404).json({ error: 'Movie not found in poll' });
-    }
-    movie.votes -= 1;
-    await poll.save();
-    res
-      .status(200)
-      .json({ message: 'Movie downvoted successfully', votes: movie.votes });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-});
+// // Downvote movie
+// router.post('/downvoteMovie', authenticate, async (req, res) => {
+//   const { partyID, movieID } = req.body;
+//   try {
+//     const poll = await Poll.findOne({
+//       partyID: mongoose.Types.ObjectId(partyID),
+//     });
+//     if (!poll) {
+//       return res.status(404).json({ error: 'Poll not found for this party' });
+//     }
+//     const movie = poll.movies.find((m) => m.movieID.toString() === movieID);
+//     if (!movie) {
+//       return res.status(404).json({ error: 'Movie not found in poll' });
+//     }
+//     movie.votes -= 1;
+//     await poll.save();
+//     res
+//       .status(200)
+//       .json({ message: 'Movie downvoted successfully', votes: movie.votes });
+//   } catch (err) {
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// });
 
 // Remove movie from poll
 router.delete('/removeMovie', authenticate, async (req, res) => {

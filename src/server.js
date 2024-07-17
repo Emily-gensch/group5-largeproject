@@ -3,7 +3,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const app = express();
@@ -29,13 +28,35 @@ if (process.env.NODE_ENV !== 'test') {
 const User = require('./models/User');
 const Party = require('./models/Party');
 const Poll = require('./models/Poll');
-const PartyGuest = require('./models/PartyGuest');
+const PartyGuest = require('./models/PartyMembers');
 const Movie = require('./models/Movie');
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
+// // Middleware authentication
+// const authenticate = (req, res, next) => {
+//   const authHeader = req.header('Authorization');
+//   if (!authHeader) {
+//     return res.status(401).json({ message: 'Access Denied' });
+//   }
+
+//   const token = authHeader.replace('Bearer ', '');
+//   if (!token) {
+//     return res.status(401).json({ message: 'Access Denied' });
+//   }
+
+//   try {
+//     const verified = jwt.verify(token, process.env.JWT_SECRET);
+//     req.userId = verified.id;
+//     next();
+//   } catch (err) {
+//     res.status(400).json({ message: 'Invalid Token' });
+//   }
+// };
+
+// Routes
 const authRouter = require('./routes/auth');
 const partyRouter = require('./routes/party');
 const pollRouter = require('./routes/poll');
@@ -44,42 +65,10 @@ app.use('/api/auth', authRouter);
 app.use('/api/party', partyRouter);
 app.use('/api/poll', pollRouter);
 
-const MongoClient = require('mongodb').MongoClient;
-const client = new MongoClient(url, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-// Middleware authentication
-const authenticate = (req, res, next) => {
-  const authHeader = req.header('Authorization');
-  if (!authHeader) {
-    return res.status(401).json({ message: 'Access Denied' });
-  }
-
-  const token = authHeader.replace('Bearer ', '');
-  if (!token) {
-    return res.status(401).json({ message: 'Access Denied' });
-  }
-
-  try {
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = verified.id;
-    next();
-  } catch (err) {
-    res.status(400).json({ message: 'Invalid Token' });
-  }
-};
-
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/party', authenticate, require('./routes/party'));
-
 // Display movies
 app.post('/api/displayMovies', async (req, res) => {
-  const db = client.db('party-database');
   try {
-    const movies = await db.collection('movie').find({}).toArray();
-    movies.sort((a, b) => a.title.localeCompare(b.title));
+    const movies = await Movie.find({}).sort({ title: 1 }).exec();
     res.status(200).json(movies);
   } catch (e) {
     res.status(500).json({ error: e.toString() });
@@ -87,52 +76,36 @@ app.post('/api/displayMovies', async (req, res) => {
 });
 
 // Display watched movies
-app.post('/api/displayWatchedMovies', authenticate, async (req, res) => {
+app.post('/api/displayWatchedMovies', async (req, res) => {
   const { partyID } = req.body;
-  const db = client.db('party-database');
   try {
-    const watchedMovies = await db
-      .collection('poll')
-      .find({ partyID, watchedStatus: 1 })
-      .toArray();
-    const movieIDs = watchedMovies.map((m) => m.movieID);
-    const movies = await db
-      .collection('movie')
-      .find({ movieID: { $in: movieIDs } })
-      .toArray();
+    const polls = await Poll.find({ partyID, watchedStatus: 1 });
+    const movieIDs = polls.flatMap((poll) =>
+      poll.movies.map((movie) => movie.movieID)
+    );
+    const movies = await Movie.find({ _id: { $in: movieIDs } });
     res.status(200).json(movies);
   } catch (e) {
     res.status(500).json({ error: e.toString() });
   }
 });
 
-//search movies
+// Search movies
 app.post('/api/searchMovie', async (req, res) => {
   const { search } = req.body;
-  var _search = search.trim();
   try {
-    const db = client.db('party-database');
-    const results = await db
-      .collection('movie')
-      .find({ title: { $regex: _search + '.*', $options: 'i' } })
-      .toArray();
-    var titles = [];
-    for (var i = 0; i < results.length; i++) {
-      titles.push(results[i].title);
-    }
-    var movies = { results: titles };
-    res.status(200).json(movies);
+    const movies = await Movie.find({ title: new RegExp(search, 'i') });
+    res.status(200).json(movies.map((movie) => movie.title));
   } catch (e) {
     res.status(500).json({ error: e.toString() });
   }
 });
 
 // Display user account
-app.post('/api/userAccount', authenticate, async (req, res) => {
+app.post('/api/userAccount', async (req, res) => {
   const { userID } = req.body;
-  const db = client.db('party-database');
   try {
-    const user = await db.collection('users').findOne({ userID });
+    const user = await User.findById(userID);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -143,9 +116,8 @@ app.post('/api/userAccount', authenticate, async (req, res) => {
 });
 
 // Change password
-app.post('/api/changePassword', authenticate, async (req, res) => {
+app.post('/api/changePassword', async (req, res) => {
   const { userID, newPassword, validatePassword } = req.body;
-  const db = client.db('party-database');
   const passwordRegex =
     /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,32}$/;
 
@@ -157,17 +129,18 @@ app.post('/api/changePassword', authenticate, async (req, res) => {
   }
 
   try {
-    const existingUser = await db
-      .collection('users')
-      .findOne({ userID, password: newPassword });
-    if (existingUser) {
+    const user = await User.findById(userID);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const isSamePassword = bcrypt.compareSync(newPassword, user.password);
+    if (isSamePassword) {
       return res
         .status(400)
         .json({ error: 'Password matches current password' });
     }
-    await db
-      .collection('users')
-      .updateOne({ userID }, { $set: { password: newPassword } });
+    user.password = bcrypt.hashSync(newPassword, 8);
+    await user.save();
     res.status(200).json({ message: 'Password changed successfully' });
   } catch (e) {
     res.status(500).json({ error: e.toString() });
@@ -175,15 +148,9 @@ app.post('/api/changePassword', authenticate, async (req, res) => {
 });
 
 // Start the server
-client.connect((err) => {
-  if (err) {
-    console.error('Failed to connect to the database. Exiting now...');
-    process.exit();
-  } else {
-    app.listen(5000, () => {
-      console.log('Server is running on port 5000');
-    });
-  }
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 module.exports = app;
