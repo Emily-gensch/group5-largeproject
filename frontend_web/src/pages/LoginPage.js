@@ -8,7 +8,7 @@ function LoginPage() {
 
   const doLogin = async (email, password) => {
     try {
-      const response = await fetch('https://lighthearted-moxie-82edfd.netlify.app/api/auth/login', {
+      const response = await fetch('http://localhost:5002/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,9 +26,10 @@ function LoginPage() {
       if (response.ok) {
         console.log('Login successful');
         setMessage('Login successful');
-        window.location.href = '/join'; 
+        // Redirect to another page after login (example: '/use-code')
+        window.location.href = '/join'; // Replace with your desired redirect location
       } else {
-        console.log('Login failed:', data.message); 
+        console.log('Login failed:', data.message); // Log the specific error message from backend
         setMessage('Login failed. Please check your email and password.');
       }
     } catch (error) {
