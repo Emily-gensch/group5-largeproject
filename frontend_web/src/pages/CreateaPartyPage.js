@@ -27,7 +27,7 @@ const CreateaPartyPage = () => {
 
   const handleCreateGroup = async (groupName) => {
     try {
-      const response = await fetch('https://lighthearted-moxie-82edfd.netlify.app/api/party/create', {
+      const response = await fetch('http://localhost:5002/api/party/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
