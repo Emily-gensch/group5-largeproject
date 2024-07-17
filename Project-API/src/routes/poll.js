@@ -59,14 +59,19 @@ router.post('/addMovieToPoll', async (req, res) => {
   );
 
   try {
+    // Log the type of movieID
+    console.log('Type of movieID:', typeof movieID);
+
     // Ensure the movieID is a valid number
     if (typeof movieID !== 'number') {
+      console.log('Invalid movie ID type:', movieID);
       return res.status(400).json({ error: 'Invalid movie ID' });
     }
 
     // Check if the movie exists in the Movie collection
     const movie = await Movie.findOne({ movieID: movieID });
     if (!movie) {
+      console.log('Movie not found for movieID:', movieID);
       return res.status(404).json({ error: 'Movie not found' });
     }
 
@@ -74,11 +79,13 @@ router.post('/addMovieToPoll', async (req, res) => {
       partyID: mongoose.Types.ObjectId(partyID),
     });
     if (!poll) {
+      console.log('Poll not found for partyID:', partyID);
       return res.status(404).json({ error: 'Poll not found for this party' });
     }
 
     const movieExists = poll.movies.some((movie) => movie.movieID === movieID);
     if (movieExists) {
+      console.log('Movie already in poll:', movieID);
       return res.status(400).json({ error: 'Movie already in poll' });
     }
 
