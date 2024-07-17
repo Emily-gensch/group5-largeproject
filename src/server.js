@@ -8,8 +8,7 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 // MongoDB connection
-const url = mongodb+srv:"//lyrenee02:tSGwv9viMBFajw3u@cluster.muwwbsd.mongodb.net/party-database?retryWrites=true&w=majority&appName=cluster";
-;
+const url = process.env.MONGO_URI_PARTY;
 
 mongoose.set('strictQuery', true);
 
