@@ -89,7 +89,7 @@ router.post('/create', async (req, res) => {
 
     const newPoll = new Poll({
       partyID: newParty._id,
-      movies: [],
+      movies: [], // Start with an empty array
     });
 
     await newPoll.save();
@@ -121,7 +121,7 @@ router.get('/home', async (req, res) => {
     console.log('Party found:', party);
 
     const guests = await db
-      .collection('partyMembers')
+      .collection('PartyMembers')
       .find({ partyID: new ObjectId(partyID) })
       .toArray();
     console.log('Guests found:', guests);
@@ -187,7 +187,7 @@ router.post('/joinParty', async (req, res) => {
     const partyObjectId = new ObjectId(party._id);
 
     const existingMember = await db
-      .collection('partyMembers')
+      .collection('PartyMembers')
       .findOne({ userID: userObjectId, partyID: partyObjectId });
     if (existingMember) {
       console.log('User is already a member of the party');
@@ -202,7 +202,7 @@ router.post('/joinParty', async (req, res) => {
     };
 
     const insertResult = await db
-      .collection('partyMembers')
+      .collection('PartyMembers')
       .insertOne(newMember);
     console.log('Insert result:', insertResult);
 
@@ -233,7 +233,7 @@ router.post('/leaveParty', async (req, res) => {
     const partyObjectId = new ObjectId(partyID);
 
     const partyMember = await db
-      .collection('partyMembers')
+      .collection('PartyMembers')
       .findOne({ userID: userObjectId, partyID: partyObjectId });
     if (!partyMember) {
       console.log('User is not in the party');
@@ -241,18 +241,18 @@ router.post('/leaveParty', async (req, res) => {
     }
 
     const currentMembers = await db
-      .collection('partyMembers')
+      .collection('PartyMembers')
       .find({ partyID: partyObjectId })
       .toArray();
     console.log('Current party members:', currentMembers);
 
     const deleteResult = await db
-      .collection('partyMembers')
+      .collection('PartyMembers')
       .deleteOne({ userID: userObjectId, partyID: partyObjectId });
     console.log('Delete result:', deleteResult);
 
     const updatedMembers = await db
-      .collection('partyMembers')
+      .collection('PartyMembers')
       .find({ partyID: partyObjectId })
       .toArray();
     console.log('Updated party members:', updatedMembers);
