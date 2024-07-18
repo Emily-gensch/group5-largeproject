@@ -120,3 +120,62 @@ export const leaveParty = async (userID, partyID) => {
 
   return handleResponse(response);
 };
+
+export const getVotePage = async (pollID) => {
+  const response = await fetch(`${API_URL}/poll/votePage?pollID=${pollID}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return handleResponse(response);
+};
+
+export const addMovieToPoll = async (partyID, movieID) => {
+  const response = await fetch(`${API_URL}/poll/addMovieToPoll`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ partyID, movieID }),
+  });
+
+  return handleResponse(response);
+};
+
+export const upvoteMovie = async (partyID, movieID) => {
+  const response = await fetch(`${API_URL}/poll/upvoteMovie`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ partyID, movieID }),
+  });
+
+  return handleResponse(response);
+};
+
+export const removeMovieFromPoll = async (partyID, movieID) => {
+  const response = await fetch(`${API_URL}/poll/removeMovie`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ partyID, movieID }),
+  });
+
+  return handleResponse(response);
+};
+
+export const markMovieAsWatched = async (partyID, movieID) => {
+  const response = await fetch(`${API_URL}/poll/markWatched`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ partyID, movieID }),
+  });
+
+  return handleResponse(response);
+};

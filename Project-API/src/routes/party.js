@@ -5,6 +5,7 @@ const Party = require('../models/Party');
 const PartyMembers = require('../models/PartyMembers');
 const Poll = require('../models/Poll');
 const mongoose = require('mongoose');
+const Movie = require('../models/Movie');
 const authenticate = require('../middleware/authenticate');
 const { ObjectId } = require('mongodb');
 
@@ -111,58 +112,64 @@ router.post('/create', async (req, res) => {
 // Homepage of party
 router.get('/home', async (req, res) => {
   const { partyID } = req.query;
-  const db = client.db('party-database');
+  console.log(`Fetching home page for partyID: ${partyID}`);
 
   try {
     const party = await Party.findById(partyID).populate('hostID');
     if (!party) {
-      return res.status(404).json({ message: 'Party not found' });
+      console.log('Party not found');
+      return res.status(404).json({ error: 'Party not found' });
     }
+
     console.log('Party found:', party);
 
-    const guests = await db
-      .collection('PartyMembers')
-      .find({ partyID: new ObjectId(partyID) })
-      .toArray();
+    const guests = await PartyMembers.find({ partyID }).populate('userID');
     console.log('Guests found:', guests);
 
-    const guestDetails = await Promise.all(
-      guests.map(async (guest) => {
-        const user = await db
-          .collection('users')
-          .findOne({ _id: new ObjectId(guest.userID) });
-        return {
-          userName: user.name,
-          userEmail: user.email,
-        };
-      })
-    );
+    const guestDetails = guests.map((guest) => ({
+      userName: guest.userID.name,
+      userEmail: guest.userID.email,
+    }));
     console.log('Guest details:', guestDetails);
 
-    const polls = await Poll.find({ partyID: new ObjectId(partyID) }).populate(
-      'movies.movieID'
-    );
+    const polls = await Poll.find({ partyID });
     console.log('Polls found:', polls);
 
-    const topVotedMovie = polls.reduce((top, poll) => {
-      const topMovieInPoll = poll.movies.sort((a, b) => b.votes - a.votes)[0];
-      return topMovieInPoll && (!top || topMovieInPoll.votes > top.votes)
-        ? topMovieInPoll
-        : top;
-    }, null);
-    console.log('Top voted movie:', topVotedMovie);
+    const moviesWithDetails = await Promise.all(
+      polls.map(async (poll) => {
+        return await Promise.all(
+          poll.movies.map(async (movieEntry) => {
+            const movie = await Movie.findOne({ movieID: movieEntry.movieID });
+            if (!movie) {
+              console.log('Movie not found for movieID:', movieEntry.movieID);
+              return null;
+            }
+            return {
+              movieName: movie.title,
+              votes: movieEntry.votes,
+              watchedStatus: movieEntry.watchedStatus,
+              genre: movie.genre,
+              description: movie.description,
+            };
+          })
+        );
+      })
+    );
+
+    const topVotedMovie = moviesWithDetails.flat().reduce((top, movie) => {
+      if (!movie) return top;
+      return movie.votes > (top.votes || 0) ? movie : top;
+    }, {});
 
     res.status(200).json({
       partyName: party.partyName,
       partyInviteCode: party.partyInviteCode,
       hostName: party.hostID.name,
       guests: guestDetails,
-      topVotedMovie: topVotedMovie
-        ? topVotedMovie.movieID.title
-        : 'No votes yet',
+      topVotedMovie: topVotedMovie.movieName || 'No votes yet',
     });
   } catch (err) {
-    console.error('Server error:', err.message);
+    console.error('Server error:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
