@@ -5,6 +5,7 @@ const Movie = require('../models/Movie');
 const router = express.Router();
 
 // Vote Page using query parameter
+// Example: http://localhost:5000/api/poll/votePage?pollID=66980dc3b03ee5fdec99ffde
 router.get('/votePage', async (req, res) => {
   const { pollID } = req.query;
   console.log(`Fetching vote page for pollID: ${pollID}`);
@@ -49,6 +50,11 @@ router.get('/votePage', async (req, res) => {
   }
 });
 
+// Add movie to Poll
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
 router.post('/addMovieToPoll', async (req, res) => {
   const { partyID, movieID } = req.body;
   console.log(
@@ -95,6 +101,10 @@ router.post('/addMovieToPoll', async (req, res) => {
 });
 
 // Upvote movie
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
 router.post('/upvoteMovie', async (req, res) => {
   const { partyID, movieID } = req.body;
   console.log(`Upvoting movie for partyID: ${partyID}, movieID: ${movieID}`);
@@ -125,6 +135,10 @@ router.post('/upvoteMovie', async (req, res) => {
 });
 
 // Remove movie from poll
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
 router.delete('/removeMovie', async (req, res) => {
   const { partyID, movieID } = req.body;
   console.log(
@@ -159,6 +173,10 @@ router.delete('/removeMovie', async (req, res) => {
 });
 
 // Mark movie as watched
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
 router.post('/markWatched', async (req, res) => {
   const { movieID, partyID } = req.body;
   console.log(

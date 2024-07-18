@@ -121,6 +121,7 @@ export const leaveParty = async (userID, partyID) => {
   return handleResponse(response);
 };
 
+// Example: http://localhost:5000/api/poll/votePage?pollID=66980dc3b03ee5fdec99ffde
 export const getVotePage = async (pollID) => {
   const response = await fetch(`${API_URL}/poll/votePage?pollID=${pollID}`, {
     method: 'GET',
@@ -132,6 +133,10 @@ export const getVotePage = async (pollID) => {
   return handleResponse(response);
 };
 
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
 export const addMovieToPoll = async (partyID, movieID) => {
   const response = await fetch(`${API_URL}/poll/addMovieToPoll`, {
     method: 'POST',
@@ -144,6 +149,10 @@ export const addMovieToPoll = async (partyID, movieID) => {
   return handleResponse(response);
 };
 
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
 export const upvoteMovie = async (partyID, movieID) => {
   const response = await fetch(`${API_URL}/poll/upvoteMovie`, {
     method: 'POST',
@@ -156,6 +165,10 @@ export const upvoteMovie = async (partyID, movieID) => {
   return handleResponse(response);
 };
 
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
 export const removeMovieFromPoll = async (partyID, movieID) => {
   const response = await fetch(`${API_URL}/poll/removeMovie`, {
     method: 'DELETE',
@@ -168,6 +181,10 @@ export const removeMovieFromPoll = async (partyID, movieID) => {
   return handleResponse(response);
 };
 
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
 export const markMovieAsWatched = async (partyID, movieID) => {
   const response = await fetch(`${API_URL}/poll/markWatched`, {
     method: 'POST',
