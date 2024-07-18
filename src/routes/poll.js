@@ -10,24 +10,22 @@ router.get('/votePage', async (req, res) => {
   console.log(`Fetching vote page for pollID: ${pollID}`);
 
   try {
-    const poll = await Poll.findById(pollID).populate('movies.movieID');
+    const pollObjectId = mongoose.Types.ObjectId(pollID);
+
+    const poll = await Poll.findById(pollObjectId);
     if (!poll) {
       console.log('Poll not found');
       return res.status(404).json({ error: 'Poll not found' });
     }
 
-    // Logging for debugging
     console.log('Poll found:', poll);
-    console.log('Populated movies:', poll.movies);
+    console.log('Movies:', poll.movies);
 
     const moviesWithDetails = await Promise.all(
       poll.movies.map(async (movieEntry) => {
         const movie = await Movie.findOne({ movieID: movieEntry.movieID });
         if (!movie) {
-          console.log(
-            'Movie ID is not correctly populated for movieEntry:',
-            movieEntry
-          );
+          console.log('Movie not found for movieID:', movieEntry.movieID);
           return null;
         }
 
@@ -42,7 +40,6 @@ router.get('/votePage', async (req, res) => {
       })
     );
 
-    // Filter out any null values in case some movies were not populated correctly
     const validMovies = moviesWithDetails.filter((movie) => movie !== null);
 
     res.status(200).json({ movies: validMovies });
@@ -59,16 +56,13 @@ router.post('/addMovieToPoll', async (req, res) => {
   );
 
   try {
-    // Log the type of movieID
-    console.log('Type of movieID:', typeof movieID);
+    console.log('Type of partyID:', typeof partyID, 'Value:', partyID);
 
-    // Ensure the movieID is a valid number
     if (typeof movieID !== 'number') {
       console.log('Invalid movie ID type:', movieID);
       return res.status(400).json({ error: 'Invalid movie ID' });
     }
 
-    // Check if the movie exists in the Movie collection
     const movie = await Movie.findOne({ movieID: movieID });
     if (!movie) {
       console.log('Movie not found for movieID:', movieID);
@@ -80,6 +74,7 @@ router.post('/addMovieToPoll', async (req, res) => {
     });
     if (!poll) {
       console.log('Poll not found for partyID:', partyID);
+      console.log(poll);
       return res.status(404).json({ error: 'Poll not found for this party' });
     }
 
@@ -105,20 +100,24 @@ router.post('/upvoteMovie', async (req, res) => {
   console.log(`Upvoting movie for partyID: ${partyID}, movieID: ${movieID}`);
 
   try {
-    const poll = await Poll.findOne({
-      partyID: mongoose.Types.ObjectId(partyID),
-      movieID: mongoose.Types.ObjectId(movieID),
-    });
+    const partyObjectId = mongoose.Types.ObjectId(partyID);
+
+    const poll = await Poll.findOne({ partyID: partyObjectId });
     if (!poll) {
-      return res
-        .status(404)
-        .json({ error: 'Poll not found for this party and movie' });
+      return res.status(404).json({ error: 'Poll not found for this party' });
     }
-    poll.votes += 1;
+
+    const movieEntry = poll.movies.find((movie) => movie.movieID === movieID);
+    if (!movieEntry) {
+      return res.status(404).json({ error: 'Movie not found in poll' });
+    }
+
+    movieEntry.votes += 1;
     await poll.save();
+
     res
       .status(200)
-      .json({ message: 'Movie upvoted successfully', votes: poll.votes });
+      .json({ message: 'Movie upvoted successfully', votes: movieEntry.votes });
   } catch (err) {
     console.error('Error upvoting movie:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -133,16 +132,25 @@ router.delete('/removeMovie', async (req, res) => {
   );
 
   try {
-    const poll = await Poll.findOne({
-      partyID: mongoose.Types.ObjectId(partyID),
-      movieID: mongoose.Types.ObjectId(movieID),
-    });
+    const partyObjectId = mongoose.Types.ObjectId(partyID);
+
+    const poll = await Poll.findOne({ partyID: partyObjectId });
     if (!poll) {
-      return res
-        .status(404)
-        .json({ error: 'Poll not found for this party and movie' });
+      console.log('Poll not found for partyID:', partyID);
+      return res.status(404).json({ error: 'Poll not found for this party' });
     }
-    await poll.remove();
+
+    const movieIndex = poll.movies.findIndex(
+      (movie) => movie.movieID === movieID
+    );
+    if (movieIndex === -1) {
+      console.log('Movie not found in poll:', movieID);
+      return res.status(404).json({ error: 'Movie not found in poll' });
+    }
+
+    poll.movies.splice(movieIndex, 1);
+    await poll.save();
+
     res.status(200).json({ message: 'Movie removed from poll successfully' });
   } catch (err) {
     console.error('Error removing movie from poll:', err);
@@ -158,15 +166,23 @@ router.post('/markWatched', async (req, res) => {
   );
 
   try {
-    const poll = await Poll.findOne({
-      movieID: mongoose.Types.ObjectId(movieID),
-      partyID: mongoose.Types.ObjectId(partyID),
-    });
+    const partyObjectId = mongoose.Types.ObjectId(partyID);
+
+    const poll = await Poll.findOne({ partyID: partyObjectId });
     if (!poll) {
+      console.log('Poll not found for partyID:', partyID);
       return res.status(404).json({ error: 'Poll not found' });
     }
-    poll.watchedStatus = true;
+
+    const movieEntry = poll.movies.find((movie) => movie.movieID === movieID);
+    if (!movieEntry) {
+      console.log('Movie not found in poll:', movieID);
+      return res.status(404).json({ error: 'Movie not found in poll' });
+    }
+
+    movieEntry.watchedStatus = true;
     await poll.save();
+
     res.status(200).json({ message: 'Movie marked as watched successfully' });
   } catch (err) {
     console.error('Error marking movie as watched:', err);
