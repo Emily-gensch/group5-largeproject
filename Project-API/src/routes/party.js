@@ -90,7 +90,7 @@ router.post('/create', async (req, res) => {
 
     const newPoll = new Poll({
       partyID: newParty._id,
-      movies: [], // Start with an empty array
+      movies: [],
     });
 
     await newPoll.save();
