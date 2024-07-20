@@ -1,0 +1,134 @@
+.home-page-container {
+  position: relative;
+  width: calc(100% - 200px); /* Adjust width to account for the navigation bar */
+  min-height: calc(100vh - 70px); /* Adjust to fit the viewport height minus navigation bar height */
+  background: #313338;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center align items horizontally */
+  justify-content: flex-start; /* Align items to the top */
+  padding: 20px;
+  margin-left: 200px; /* Consider navigation bar width */
+}
+
+.group-name {
+  color: #fff3e8;
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center; /* Center align text */
+}
+
+.large-project-header {
+  color: #fff3e8;
+  font-family: 'Inter', sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center; /* Center align text */
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.group-members,
+.group-picks {
+  background-color: #a51f1f;
+  padding: 15px; /* Adjust padding */
+  border-radius: 8px;
+  color: #fff3e8;
+  font-family: 'Inter', sans-serif;
+  width: 400px; /* Fixed width for the red boxes */
+  height: 500px; /* Fixed height for the red boxes */
+  display: flex;
+  flex-direction: column; /* Display white boxes vertically */
+  align-items: center; /* Align white boxes to the center */
+  justify-content: flex-start; /* Align white boxes to the top */
+  margin-bottom: 30px; /* Add bottom margin for spacing */
+}
+
+.group-members {
+  align-self: flex-start; /* Align red box to the left */
+}
+
+.group-members h2,
+.group-picks h2 {
+  font-weight: 700;
+  font-size: 20px; /* Adjust font size */
+  margin-bottom: 10px;
+}
+
+.user-box {
+  background-color: #fff3e8;
+  border-radius: 8px;
+  padding: 8px; /* Adjust padding */
+  margin-bottom: 8px; /* Adjust margin */
+  color: #000 !important; /* Black color for text */
+  text-align: center;
+  width: 300px;
+}
+
+.username,
+.email {
+  color: #000 !important; /* Black color for usernames and emails */
+}
+
+.navigation-bar {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  background: #000;
+  padding: 10px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+}
+
+.nav-item {
+  color: #fff3e8;
+  font-family: 'Inter', sans-serif;
+}
+
+.current-page {
+  font-weight: bold;
+}
+
+.current-page a {
+  color: #ff0; /* Highlight current page link */
+}
+
+.current-page a:hover {
+  text-decoration: underline;
+}
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+  text-align: center; /* Center align text */
+}
+
+.popup button {
+  margin-top: 10px;
+  background-color: #a51f1f;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.popup button:hover {
+  background-color: #8a1d1d;
+}

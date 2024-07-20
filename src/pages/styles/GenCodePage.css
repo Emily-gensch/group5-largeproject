@@ -1,0 +1,49 @@
+.generate-code-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.red-box {
+  background-color: red;
+  height: 100px;
+  width: 100px;
+  margin: 0 auto;
+}
+
+.inner-title {
+  font-size: 24px;
+  margin: 20px 0;
+}
+
+.code {
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.copy-button, .continue-button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.copy-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+}
+
+.continue-button {
+  background-color: #008CBA;
+  color: white;
+  border: none;
+}
+
+.status-bar {
+  margin-top: 20px;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}

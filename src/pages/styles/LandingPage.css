@@ -1,0 +1,48 @@
+.landing-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #313338; /* Grey background */
+}
+
+.landing-header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.landing-title {
+  color: #fff3e8; /* White text */
+  font-family: 'Inter', sans-serif;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.landing-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.landing-link {
+  text-decoration: none;
+}
+
+.landing-button {
+  margin: 10px;
+  padding: 12px 24px;
+  font-size: 18px;
+  background-color: #a51f1f; /* Red button */
+  color: #fff3e8;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.landing-button:hover {
+  background-color: #7e1313; /* Darker red on hover */
+}

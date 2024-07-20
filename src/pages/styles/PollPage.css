@@ -1,0 +1,32 @@
+.poll-page {
+  text-align: center;
+  color: #fff3e8;
+  font-family: 'Inter', sans-serif;
+  padding: 20px;
+  background-color: #313338;
+  min-height: calc(100vh - 70px); /* Adjust to fit the viewport height minus navigation bar height */
+}
+
+.poll-page h1 {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.poll-page h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.poll-page ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.poll-page li {
+  background-color: #a51f1f;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
