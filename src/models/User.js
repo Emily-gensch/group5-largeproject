@@ -7,6 +7,8 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     status: { type: Number, default: 0 },
+    emailToken: { type: String },
+    emailVerifStatus: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
