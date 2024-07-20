@@ -30,6 +30,7 @@ export const login = async (email, password) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ email, password }),
+    credentials: 'include',
   });
 
   return handleResponse(response);
@@ -68,6 +69,7 @@ export const createParty = async (partyName) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ partyName }),
+    credentials: 'include',
   });
 
   return handleResponse(response);
