@@ -53,8 +53,16 @@ router.post('/register', async (req, res) => {
 // sendEmail
 router.post('/sendEmail', async (req, res) => {
   const { email, emailToken } = req.body;
-  transporter
-    .sendMail({
+  const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+          user: "joanndinzey@gmail.com",
+          pass: "ocdr fxxd iggz vysi",
+      },
+  });  
+  transporter.sendMail({
       from: '"largeproject " <joanndinzey@gmail.com>',
       to: email,
       subject: 'Email Verification',
@@ -63,11 +71,9 @@ router.post('/sendEmail', async (req, res) => {
             Please follow the given link to verify your email
             http://localhost:5000/verifyEmail/${emailToken} 
             Thanks`,
-    })
-    .then(() => {
+  }).then(() => {
       res.status(200).json({ message: 'email sent' });
-    })
-    .catch((err) => {
+    }).catch((err) => {
       res.status(500).json({ error: e.toString() });
     });
 });
