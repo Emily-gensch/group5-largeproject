@@ -62,11 +62,13 @@ router.post('/EditPartyName', async (req, res) => {
 
 // Create party
 router.post('/create', async (req, res) => {
-  const { partyName, userID } = req.body;
+  const { partyName } = req.body;
 
-  if (!userID) {
-    return res.status(400).json({ message: 'User ID is required' });
+  if (!req.session.userId) {
+    return res.status(401).json({ message: 'session userID not found' });
   }
+
+  const userID = req.session.userId;
 
   console.log('Creating party for user ID:', userID);
 
@@ -230,43 +232,41 @@ router.post('/joinParty', async (req, res) => {
 
 //Leave Party
 router.post('/leaveParty', async (req, res) => {
-  const { userID, partyID } = req.body;
-  const db = client.db('party-database');
+  const userID = req.session.userId;
+
+  if (!userID) {
+    return res.status(401).json({ message: 'userID not found' });
+  }
 
   try {
-    console.log(`Attempting to remove user ${userID} from party ${partyID}`);
+    console.log(`Attempting to remove user ${userID} from their party`);
 
     const userObjectId = new ObjectId(userID);
-    const partyObjectId = new ObjectId(partyID);
 
-    const partyMember = await db
-      .collection('PartyMembers')
-      .findOne({ userID: userObjectId, partyID: partyObjectId });
+    const partyMember = await PartyMembers.findOne({ userID: userObjectId });
     if (!partyMember) {
-      console.log('User is not in the party');
-      return res.status(400).json({ message: 'User is not in the party' });
+      console.log('User is not in any party');
+      return res.status(400).json({ message: 'User is not in any party' });
     }
 
-    const currentMembers = await db
-      .collection('PartyMembers')
-      .find({ partyID: partyObjectId })
-      .toArray();
+    const partyObjectId = partyMember.partyID;
+
+    const currentMembers = await PartyMembers.find({ partyID: partyObjectId });
     console.log('Current party members:', currentMembers);
 
-    const deleteResult = await db
-      .collection('PartyMembers')
-      .deleteOne({ userID: userObjectId, partyID: partyObjectId });
+    const deleteResult = await PartyMembers.deleteOne({
+      userID: userObjectId,
+      partyID: partyObjectId,
+    });
     console.log('Delete result:', deleteResult);
 
-    const updatedMembers = await db
-      .collection('PartyMembers')
-      .find({ partyID: partyObjectId })
-      .toArray();
+    const updatedMembers = await PartyMembers.find({ partyID: partyObjectId });
     console.log('Updated party members:', updatedMembers);
 
-    const updateResult = await db
-      .collection('users')
-      .updateOne({ _id: userObjectId }, { $set: { status: 0 } });
+    const updateResult = await User.updateOne(
+      { _id: userObjectId },
+      { $set: { status: 0 } }
+    );
     console.log('Update result:', updateResult);
 
     res.status(200).json({ message: 'Left party successfully' });

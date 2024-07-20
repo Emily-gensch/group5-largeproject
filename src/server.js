@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
+const session = require('express-session');
 const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -16,8 +18,6 @@ if (process.env.NODE_ENV !== 'test') {
   console.log('MongoDB URI:', url);
   mongoose
     .connect(url, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       dbName: 'party-database',
     })
     .then(() => console.log('MongoDB connected'))
@@ -34,6 +34,22 @@ const Movie = require('./models/Movie');
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: url,
+      dbName: 'party-database',
+      collectionName: 'sessions',
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60, // 1 hour
+    },
+  })
+);
 
 // // Middleware authentication
 // const authenticate = (req, res, next) => {
@@ -64,6 +80,14 @@ const pollRouter = require('./routes/poll');
 app.use('/api/auth', authRouter);
 app.use('/api/party', partyRouter);
 app.use('/api/poll', pollRouter);
+
+app.get('/', (req, res) => {
+  if (!req.session.views) {
+    req.session.views = 0;
+  }
+  req.session.views++;
+  res.send(`Number of views: ${req.session.views}`);
+});
 
 // Display movies
 app.post('/api/displayMovies', async (req, res) => {
