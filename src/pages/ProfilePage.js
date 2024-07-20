@@ -17,7 +17,7 @@ const ProfilePage = () => {
     const fetchUserDetails = async () => {
       try {
         // Fetch user account details
-        const userResponse = await fetch('http://localhost:5002/api/userAccount', {
+        const userResponse = await fetch('https://localhost:5002/api/userAccount', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ const ProfilePage = () => {
   const confirmLeaveGroup = async (confirmed) => {
     if (confirmed) {
       try {
-        const response = await fetch('http://localhost:5002/api/leaveParty', {
+        const response = await fetch('https://localhost:5002/api/leaveParty', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

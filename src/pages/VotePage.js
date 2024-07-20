@@ -9,7 +9,7 @@ const VotePage = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('http://localhost:5002/api/poll/votePage');
+        const response = await fetch('https://localhost:5002/api/poll/votePage');
         if (!response.ok) {
           throw new Error('Failed to fetch movies for voting');
         }
@@ -27,7 +27,7 @@ const VotePage = () => {
 
   const handleUpvote = async (movieId) => {
     try {
-      const response = await fetch('http://localhost:5002/api/poll/upvoteMovie', {
+      const response = await fetch('https://localhost:5002/api/poll/upvoteMovie', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

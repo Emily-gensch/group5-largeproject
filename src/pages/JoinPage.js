@@ -25,7 +25,7 @@ const JoinPage = () => {
     try {
       const userID = '6693c33da7e33797a50f55ce'; // Replace with actual user ID
 
-      const response = await fetch('http://localhost:5002/api/party/joinParty', {
+      const response = await fetch('https://localhost:5002/api/party/joinParty', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

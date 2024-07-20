@@ -11,7 +11,7 @@ const GenCodePage = () => {
     // Function to fetch a new unique party code when component mounts
     const fetchPartyCode = async () => {
       try {
-        const response = await fetch('http://localhost:5002/api/generateUniquePartyCode', {
+        const response = await fetch('https://localhost:5002/api/generateUniquePartyCode', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

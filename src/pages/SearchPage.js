@@ -16,7 +16,7 @@ const SearchPage = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('http://localhost:5002/api/displayMovies', {
+        const response = await fetch('https://localhost:5002/api/displayMovies', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ const SearchPage = () => {
       setShowingAllMovies(true);
     } else {
       try {
-        const response = await fetch('http://localhost:5002/api/searchMovie', {
+        const response = await fetch('https://localhost:5002/api/searchMovie', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ const SearchPage = () => {
 
   const handleAddToVote = async (movieId) => {
     try {
-      const response = await fetch('http://localhost:5002/api/poll/addMovieToPoll', {
+      const response = await fetch('https://localhost:5002/api/poll/addMovieToPoll', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

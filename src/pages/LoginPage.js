@@ -8,7 +8,7 @@ function LoginPage() {
 
   const doLogin = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5002/api/auth/login', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,10 +26,14 @@ function LoginPage() {
       if (response.ok) {
         console.log('Login successful');
         setMessage('Login successful');
-        // Redirect to another page after login (example: '/use-code')
-        window.location.href = '/join'; // Replace with your desired redirect location
+        // Handle the token or user ID if needed
+        const { userID } = data;
+        // For example, you could save the userID in localStorage
+        localStorage.setItem('userID', userID);
+        // Redirect to the join page
+        window.location.href = '/join'; 
       } else {
-        console.log('Login failed:', data.message); // Log the specific error message from backend
+        console.log('Login failed:', data.message);
         setMessage('Login failed. Please check your email and password.');
       }
     } catch (error) {
@@ -54,6 +58,7 @@ function LoginPage() {
             placeholder="Email"
             value={loginEmail}
             onChange={(e) => setLoginEmail(e.target.value)}
+            required
           /><br />
           <input
             type="password"
@@ -61,6 +66,7 @@ function LoginPage() {
             placeholder="Password"
             value={loginPassword}
             onChange={(e) => setLoginPassword(e.target.value)}
+            required
           /><br />
           <input
             type="submit"
@@ -69,7 +75,7 @@ function LoginPage() {
             value="Submit"
           />
         </form>
-        <span id="loginResult">{message}</span>
+        {message && <span id="loginResult">{message}</span>}
         <div>
           <span>If you don't have an account, <a href="/register" id="signupLink">Register</a></span>
         </div>

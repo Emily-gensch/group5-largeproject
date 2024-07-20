@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './styles/Register.css';
 
 function RegisterPage() {
@@ -6,11 +6,11 @@ function RegisterPage() {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [token, setToken] = useState('');
 
   const register = async (email, name, password) => {
     try {
-      const response = await fetch('http://localhost:5002/api/auth/register', {
+      // Register the user
+      const response = await fetch('https://localhost:5002/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -23,11 +23,33 @@ function RegisterPage() {
       console.log('Registration data:', data);
 
       if (response.ok) {
-        console.log('Registration successful');
-        setMessage('Registration successful');
-        localStorage.setItem('token', data.token); // Store the token in localStorage
-        // Redirect to the join page or login page
-        window.location.href = '/join'; // Example: Redirect to '/join' page
+        // Extract the emailToken from the response if it's available
+        const { emailToken } = data;
+
+        // Send verification email
+        if (emailToken) {
+          const emailResponse = await fetch('https://localhost:5002/api/auth/sendEmail', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, emailToken }),
+          });
+
+          const emailData = await emailResponse.json();
+          console.log('Email sending response:', emailResponse);
+          console.log('Email sending data:', emailData);
+
+          if (emailResponse.ok) {
+            setMessage('Registration successful. Please check your email to verify your account.');
+            // Redirect to the join page or login page
+            window.location.href = '/join'; // Example: Redirect to '/join' page
+          } else {
+            setMessage(`Registration successful but failed to send verification email: ${emailData.error}`);
+          }
+        } else {
+          setMessage('Registration successful but failed to get email token.');
+        }
       } else if (response.status === 400) {
         console.log('Registration failed: Bad Request');
         console.log('Registration error:', data.error);
@@ -42,45 +64,6 @@ function RegisterPage() {
       setMessage('Registration failed');
     }
   };
-
-  const fetchUserAccount = async (token) => {
-    try {
-      const response = await fetch('http://localhost:5002/api/auth/user', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('User account data:', data);
-        // Handle user account data
-      } else {
-        throw new Error('Failed to fetch user account');
-      }
-    } catch (error) {
-      console.error('Error fetching user account:', error);
-    }
-  };
-
-  useEffect(() => {
-    const fetchToken = async () => {
-      try {
-        const response = await fetch('http://localhost:5002/api/auth/token');
-        if (response.ok) {
-          const data = await response.json();
-          setToken(data.token);
-          fetchUserAccount(data.token);
-        } else {
-          throw new Error('Failed to fetch token');
-        }
-      } catch (error) {
-        console.error('Error fetching token:', error);
-      }
-    };
-
-    fetchToken();
-  }, []);
 
   return (
     <div className="container">
@@ -125,6 +108,6 @@ function RegisterPage() {
       </div>
     </div>
   );
-}
+} 
 
 export default RegisterPage;
