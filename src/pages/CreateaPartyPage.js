@@ -1,38 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './styles/CreateaPartyPage.css';
 
 const CreateaPartyPage = () => {
   const [groupName, setGroupName] = useState('');
   const [message, setMessage] = useState('');
-  const [userId] = useState('6693c33da7e33797a50f55ce'); // Static userId
+  const [userId, setUserId] = useState('');
+  const [partyCode, setPartyCode] = useState(''); // State for storing party code
+  const [showPopup, setShowPopup] = useState(false); // State for controlling popup visibility
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      setMessage('User ID not found. Please log in.');
+    }
+  }, []);
 
   const handleCreateGroup = async (groupName) => {
     if (!userId) {
-      setMessage('User ID is not set');
+      setMessage('User ID is missing.');
       return;
     }
 
     try {
-      const response = await fetch('https://localhost:5002/api/party/create', {
+      const response = await fetch('http://localhost:5001/api/party/create', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ partyName: groupName, userID: userId }),
+        body: JSON.stringify({ partyName: groupName, userId }), // Send userId with the request
       });
 
       const result = await response.json();
       if (response.ok) {
-        const groupCode = result.party.partyInviteCode;
-        setMessage(`Group created successfully! Group Code: ${groupCode}`);
-        // Redirect to JoinPage with the generated code
-        navigate(`/join?code=${groupCode}`);
+        setPartyCode(result.party.partyInviteCode); // Store the party code
+        setMessage('Group created successfully!');
+        setShowPopup(true); // Show the popup
       } else {
         setMessage(`Error: ${result.message}`);
       }
     } catch (error) {
+      console.error('Error creating group:', error); // Log error for debugging
       setMessage(`Error: ${error.toString()}`);
     }
   };
@@ -40,6 +51,11 @@ const CreateaPartyPage = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     handleCreateGroup(groupName);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false); // Hide the popup
+    navigate('/home'); // Redirect to the HomePage
   };
 
   return (
@@ -55,14 +71,25 @@ const CreateaPartyPage = () => {
             className="inputField"
             required
           />
-          <button type="submit" className="buttons">Submit</button>
+          <button type="submit" className="buttons">
+            Submit
+          </button>
         </form>
-        <span id="registerResult">{message}</span>
+        {message && <p id="registerResult">{message}</p>}
         <div>
-          <a href="/join" id="joinLink">Have a code? Enter it!</a>
+          <a href="/join" id="joinLink">
+            Have a code? Enter it!
+          </a>
         </div>
-        {message && <p className="message">{message}</p>}
       </div>
+
+      {showPopup && (
+        <div className="popup">
+          <p>Group created successfully!</p>
+          <p>Group Code: <strong>{partyCode}</strong></p>
+          <button onClick={handleClosePopup}>OK</button>
+        </div>
+      )}
     </div>
   );
 };

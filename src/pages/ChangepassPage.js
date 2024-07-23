@@ -9,6 +9,9 @@ const ChangePasswordPage = () => {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  // Retrieve userId from local storage
+  const userId = localStorage.getItem('userId');
+
   const handleChangePassword = async (e) => {
     e.preventDefault();
 
@@ -24,20 +27,24 @@ const ChangePasswordPage = () => {
     }
 
     try {
-      const response = await fetch('https://localhost:5002/api/changePassword', {
+      console.log('User ID:', userId); // Debugging line
+
+      const response = await fetch('http://localhost:5001/api/changePassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userID: 'currentUserId', // Replace with actual user ID
-          newPassword: newPassword,
+          userID: userId, // Use actual user ID from local storage
+          currentPassword,
+          newPassword,
           validatePassword: confirmNewPassword,
         }),
       });
 
       const data = await response.json();
       if (!response.ok) {
+        console.log('Response Error Data:', data); // Debugging line
         setError(data.error || 'Failed to change password.');
       } else {
         setSuccessMessage(data.message);

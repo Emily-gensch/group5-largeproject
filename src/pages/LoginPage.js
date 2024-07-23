@@ -1,47 +1,37 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './styles/Login.css';
 
 function LoginPage() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
+  // Handle login request and response
   const doLogin = async (email, password) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+      const response = await fetch('http://localhost:5001/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
-      console.log('Login response:', response);
-      console.log('Login data:', data);
-
+      console.log('Login response:', data); // Debug log
       if (response.ok) {
-        console.log('Login successful');
-        setMessage('Login successful');
-        // Handle the token or user ID if needed
-        const { userID } = data;
-        // For example, you could save the userID in localStorage
-        localStorage.setItem('userID', userID);
-        // Redirect to the join page
-        window.location.href = '/join'; 
+        const { userId } = data;
+        localStorage.setItem('userId', userId); // Store user ID
+        navigate('/join'); // Redirect to another page
       } else {
-        console.log('Login failed:', data.message);
-        setMessage('Login failed. Please check your email and password.');
+        setMessage(data.message || 'Login failed. Please check your email and password.');
       }
     } catch (error) {
-      console.error('Login error:', error);
       setMessage('Login failed. Please try again later.');
     }
   };
 
+  // Handle form submission
   const handleLogin = (event) => {
     event.preventDefault();
     doLogin(loginEmail, loginPassword);
@@ -51,7 +41,8 @@ function LoginPage() {
     <div className="container">
       <div id="loginDiv">
         <form onSubmit={handleLogin}>
-          <span id="inner-title">PLEASE LOGIN</span><br />
+          <span id="inner-title">PLEASE LOGIN</span>
+          <br />
           <input
             type="email"
             id="loginEmail"
@@ -59,7 +50,8 @@ function LoginPage() {
             value={loginEmail}
             onChange={(e) => setLoginEmail(e.target.value)}
             required
-          /><br />
+          />
+          <br />
           <input
             type="password"
             id="loginPassword"
@@ -67,7 +59,8 @@ function LoginPage() {
             value={loginPassword}
             onChange={(e) => setLoginPassword(e.target.value)}
             required
-          /><br />
+          />
+          <br />
           <input
             type="submit"
             id="loginButton"
@@ -77,7 +70,12 @@ function LoginPage() {
         </form>
         {message && <span id="loginResult">{message}</span>}
         <div>
-          <span>If you don't have an account, <a href="/register" id="signupLink">Register</a></span>
+          <span>
+            If you don't have an account,{' '}
+            <a href="/register" id="signupLink">
+              Register
+            </a>
+          </span>
         </div>
       </div>
     </div>

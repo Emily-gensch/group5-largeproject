@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5002/api';
+const API_URL = 'http://localhost:5001/api';
 
 const handleResponse = async (response) => {
   if (!response.ok) {
@@ -24,12 +24,13 @@ export const register = async (email, name, password) => {
 // The generate token is stored for the specific user for later use that requires stricter authentication.
 export const login = async (email, password) => {
   console.log('Sending login request', { email, password });
-  const response = await fetch(`${API_URL}/auth/login`, {
+  const response = await fetch('http://localhost:5001/api/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ email, password }),
+    credentials: 'include',
   });
 
   return handleResponse(response);
@@ -62,12 +63,13 @@ const getToken = async () => {
 // Creates a party. POST request that requires a party name. Token is required from the user (they have to be logged in) in order to create a party.
 // getToken() function is used to retrieve the current users token.
 export const createParty = async (partyName) => {
-  const response = await fetch(`${API_URL}/party/create`, {
+  const response = await fetch('http://localhost:5001/api/party/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ partyName }),
+    credentials: 'include',
   });
 
   return handleResponse(response);

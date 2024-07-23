@@ -212,8 +212,6 @@ router.post('/markWatched', async (req, res) => {
 router.post('/startPoll', async (req, res) => {
   const { partyID, movieID } = req.body;
   console.log(`Starting poll for partyID: ${partyID}, movieID: ${movieID}`);
-  console.log('Starting poll with partyID:', partyID); // Print the value
-
 
   try {
     const newPoll = new Poll({ partyID, movieID });

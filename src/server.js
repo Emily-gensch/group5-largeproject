@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
+const session = require('express-session');
 const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 
@@ -16,12 +18,12 @@ if (process.env.NODE_ENV !== 'test') {
   console.log('MongoDB URI:', url);
   mongoose
     .connect(url, {
+      dbName: 'party-database',
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      dbName: 'party-database',
     })
     .then(() => console.log('MongoDB connected'))
-    .catch((err) => console.log(err));
+    .catch((err) => console.log('MongoDB connection error:', err));
 }
 
 // Mongoose Models
@@ -31,30 +33,32 @@ const Poll = require('./models/Poll');
 const PartyGuest = require('./models/PartyMembers');
 const Movie = require('./models/Movie');
 
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
 app.use(bodyParser.json());
 app.use(express.json());
 
-// // Middleware authentication
-// const authenticate = (req, res, next) => {
-//   const authHeader = req.header('Authorization');
-//   if (!authHeader) {
-//     return res.status(401).json({ message: 'Access Denied' });
-//   }
-
-//   const token = authHeader.replace('Bearer ', '');
-//   if (!token) {
-//     return res.status(401).json({ message: 'Access Denied' });
-//   }
-
-//   try {
-//     const verified = jwt.verify(token, process.env.JWT_SECRET);
-//     req.userId = verified.id;
-//     next();
-//   } catch (err) {
-//     res.status(400).json({ message: 'Invalid Token' });
-//   }
-// };
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: url,
+      dbName: 'party-database',
+      collectionName: 'sessions',
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60,
+      sameSite: 'Lax',
+      secure: process.env.NODE_ENV === 'production',
+    },
+  })
+);
 
 // Routes
 const authRouter = require('./routes/auth');
@@ -64,6 +68,18 @@ const pollRouter = require('./routes/poll');
 app.use('/api/auth', authRouter);
 app.use('/api/party', partyRouter);
 app.use('/api/poll', pollRouter);
+
+app.get('/', (req, res) => {
+  if (!req.session.views) {
+    req.session.views = 0;
+  }
+  req.session.views++;
+  res.send(`Number of views: ${req.session.views}`);
+});
+
+app.get('/api/check-session', (req, res) => {
+  res.json(req.session);
+});
 
 // Display movies
 app.post('/api/displayMovies', async (req, res) => {
@@ -103,9 +119,9 @@ app.post('/api/searchMovie', async (req, res) => {
 
 // Display user account
 app.post('/api/userAccount', async (req, res) => {
-  const { userID } = req.body;
+  const { userId } = req.body;
   try {
-    const user = await User.findById(userID);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -117,7 +133,7 @@ app.post('/api/userAccount', async (req, res) => {
 
 // Change password
 app.post('/api/changePassword', async (req, res) => {
-  const { userID, newPassword, validatePassword } = req.body;
+  const { userId, newPassword, validatePassword } = req.body;
   const passwordRegex =
     /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,32}$/;
 
@@ -148,7 +164,7 @@ app.post('/api/changePassword', async (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

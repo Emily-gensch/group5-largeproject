@@ -5,8 +5,9 @@ import './styles/JoinPage.css';
 const JoinPage = () => {
   const [partyInviteCode, setPartyInviteCode] = useState('');
   const [message, setMessage] = useState('');
+  const [userId, setUserId] = useState('');
   const navigate = useNavigate();
-  
+
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
@@ -18,29 +19,52 @@ const JoinPage = () => {
     if (code) {
       setPartyInviteCode(code);
     }
+
+    // Fetch user ID from local storage
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      setMessage('User ID not found. Please log in.');
+    }
   }, [query]);
 
   const handleJoinParty = async (event) => {
     event.preventDefault();
     try {
-      const userID = '6693c33da7e33797a50f55ce'; // Replace with actual user ID
-
-      const response = await fetch('https://localhost:5002/api/party/joinParty', {
+      const response = await fetch('http://localhost:5001/api/party/joinParty', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ partyInviteCode, userID }),
+        body: JSON.stringify({ partyInviteCode, userId }),
+        credentials: 'include',
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        if (result.userAlreadyInParty) { // Adjust based on actual response structure
+        if (result.userAlreadyInParty) {
           navigate('/home');
         } else {
           setMessage(`Successfully joined the party! Party ID: ${result.partyID}`);
-          navigate('/home');
+
+          // Create poll after joining the party
+          const pollResponse = await fetch('http://localhost:5001/api/poll/startPoll', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ partyID: result.partyID }), // Pass partyID to create poll
+          });
+
+          const pollData = await pollResponse.json();
+          if (pollResponse.ok) {
+            localStorage.setItem('pollID', pollData.pollID); // Store poll ID
+            navigate('/home');
+          } else {
+            setMessage(`Error creating poll: ${pollData.message}`);
+          }
         }
       } else {
         setMessage(`Error: ${result.message || result.error}`);

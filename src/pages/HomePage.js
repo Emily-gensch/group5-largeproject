@@ -10,7 +10,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchGroupMembers = async () => {
       try {
-        const response = await fetch('https://localhost:5002/api/getPartyMembers', {
+        const response = await fetch('http://localhost:5001/api/getPartyMembers', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './styles/SearchPage.css';
 
 const SearchPage = () => {
@@ -7,21 +7,28 @@ const SearchPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [allMovies, setAllMovies] = useState([]);
-  const [showingAllMovies, setShowingAllMovies] = useState(true);
-  const navigate = useNavigate();
+  const [pollID, setPollID] = useState(null);
 
-  // Hardcoded pollID
-  const pollID = '6699afde42489b038b84394b'; // Ensure this is the correct ID
+  // Retrieve pollID from localStorage
+  useEffect(() => {
+    const storedPollID = localStorage.getItem('pollID');
+    if (storedPollID) {
+      setPollID(storedPollID);
+    } else {
+      console.error('No pollID found in localStorage.');
+    }
+  }, []);
 
+  // Fetch all movies from API
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('https://localhost:5002/api/displayMovies', {
+        const response = await fetch('http://localhost:5001/api/displayMovies', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ search: '' }),
+          body: JSON.stringify({}),
         });
 
         if (!response.ok) {
@@ -29,8 +36,13 @@ const SearchPage = () => {
         }
 
         const data = await response.json();
-        setAllMovies(data);
-        setErrorMessage('');
+        console.log('Fetched movies:', data); // Log the fetched data
+        if (Array.isArray(data)) {
+          setAllMovies(data);
+          setErrorMessage('');
+        } else {
+          throw new Error('Unexpected response structure');
+        }
       } catch (error) {
         console.error('Fetch movies error:', error);
         setErrorMessage('Failed to fetch movies. Please try again later.');
@@ -41,72 +53,58 @@ const SearchPage = () => {
     fetchMovies();
   }, []);
 
-  const handleSearch = async () => {
-    if (searchTerm === '') {
-      setSearchResults([]);
-      setShowingAllMovies(true);
+  // Filter movies based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setSearchResults(allMovies);
     } else {
-      try {
-        const response = await fetch('https://localhost:5002/api/searchMovie', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ search: searchTerm }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Search request failed');
-        }
-
-        const data = await response.json();
-        setSearchResults(data.results);
-        setShowingAllMovies(false);
-        setErrorMessage('');
-      } catch (error) {
-        console.error('Search error:', error);
-        setErrorMessage('Search failed. Please try again later.');
-        setSearchResults([]);
-        setShowingAllMovies(true);
-      }
+      const filteredResults = allMovies.filter((movie) =>
+        movie.title.toLowerCase().startsWith(searchTerm.toLowerCase())
+      );
+      setSearchResults(filteredResults);
     }
-  };
+    console.log('Filtered results:', searchResults); // Log filtered results
+  }, [searchTerm, allMovies]);
 
-  const handleAddToVote = async (movieId) => {
+  // Add movie to poll and save to localStorage
+  const handleAddToPoll = async (movieID) => {
+    if (!pollID) {
+      setErrorMessage('Poll ID is missing. Please try again.');
+      return;
+    }
+
     try {
-      const response = await fetch('https://localhost:5002/api/poll/addMovieToPoll', {
+      // Update localStorage directly
+      let storedMovieIDs = JSON.parse(localStorage.getItem('movieIDs')) || [];
+      if (!storedMovieIDs.includes(movieID)) {
+        storedMovieIDs.push(movieID);
+        localStorage.setItem('movieIDs', JSON.stringify(storedMovieIDs));
+      }
+
+      // Make API call to add movie to poll
+      const response = await fetch('http://localhost:5001/api/poll/addMovieToPoll', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          movieID: movieId, // Ensure this matches the expected type
-          partyID: pollID, // Hardcoded partyID
+          partyID: pollID,
+          movieID: movieID,
         }),
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to add movie to poll:', errorText);
+        const responseText = await response.text();
+        console.error('Response error:', responseText);
         throw new Error('Failed to add movie to poll');
       }
 
-      console.log('Movie added to poll successfully');
-      setAllMovies(prevMovies => prevMovies.filter(movie => movie._id !== movieId));
-      setSearchTerm('');
-      setSearchResults([]);
-
-      navigate('/vote'); // Redirect to vote page
+      const result = await response.json();
+      setErrorMessage('Movie added to poll successfully');
     } catch (error) {
-      console.error('Add to poll error:', error);
+      setErrorMessage(`Error: ${error.toString()}`);
     }
   };
-
-  const filteredMovies = searchTerm
-    ? allMovies.filter((movie) =>
-        movie.title.toLowerCase().startsWith(searchTerm.toLowerCase())
-      )
-    : allMovies;
 
   return (
     <div className="search-page-container">
@@ -118,21 +116,20 @@ const SearchPage = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button onClick={handleSearch}>Search</button>
       </div>
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       <div className="movie-list">
-        <h2>{showingAllMovies ? 'All Movies' : 'Search Results'}</h2>
+        <h2>{searchTerm.trim() === '' ? 'All Movies' : 'Search Results'}</h2>
         <div className="movie-grid">
-          {filteredMovies.length === 0 ? (
-            <div className="no-results">No movies available.</div>
+          {searchResults.length === 0 ? (
+            <div className="no-results">No movies found.</div>
           ) : (
-            filteredMovies.map((movie, index) => (
-              <div key={index} className="movie-box">
+            searchResults.map((movie) => (
+              <div key={movie.movieID} className="movie-box">
                 <div className="movie-title">{movie.title}</div>
-                <button 
-                  className="add-button" 
-                  onClick={() => handleAddToVote(movie._id)}
+                <button
+                  className="add-button"
+                  onClick={() => handleAddToPoll(movie.movieID)}
                 >
                   Add To Poll
                 </button>

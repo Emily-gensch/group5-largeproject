@@ -13,8 +13,6 @@
   width: 100%;
   max-width: 800px;
   display: flex;
-  justify-content: center;
-  align-items: center;
   margin-bottom: 20px;
 }
 
@@ -38,7 +36,7 @@
 
 .movie-list {
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px; /* Increase max-width to allow more space */
   margin-bottom: 20px;
 }
 
@@ -51,10 +49,10 @@
 
 .movie-box {
   background-color: #a51f1f;
-  padding: 20px;
+  padding: 30px; /* Increase padding for larger boxes */
   border-radius: 8px;
   text-align: center;
-  width: calc(20% - 20px);
+  width: calc(25% - 20px); /* Increase width to make boxes larger */
   box-sizing: border-box;
   transition: transform 0.3s;
 }
@@ -64,7 +62,7 @@
 }
 
 .movie-title {
-  font-size: 16px;
+  font-size: 18px; /* Increase font size for movie titles */
   font-weight: bold;
   margin-bottom: 10px;
   overflow: hidden;
@@ -78,7 +76,7 @@
   border: none;
   padding: 10px 20px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 16px; /* Increase button font size */
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -96,18 +94,29 @@
   position: fixed;
   bottom: 0;
   left: 0;
+  z-index: 1000; /* Ensure it stays above other content */
 }
 
 .nav-item {
-  width: 40px;
-  height: 40px;
+  flex: 1; /* Allows items to take up available space */
+  text-align: center; /* Center-align text or icons */
+}
+
+.nav-item a {
+  color: #fff3e8;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.current-page a {
+  font-weight: bold;
 }
 
 .nav-icon img {
-  width: 100%;
-  height: 100%;
+  width: 24px; /* Adjust icon size */
+  height: 24px;
 }
 
-.current-page img {
-  opacity: 0.6;
+.current-page a {
+  font-weight: bold;
 }

@@ -10,35 +10,40 @@ const ProfilePage = () => {
   const [redirectAfterConfirm, setRedirectAfterConfirm] = useState('');
   const navigate = useNavigate();
 
-  const userId = '6693c33da7e33797a50f55ce'; // Static user ID
-  const partyID = '6699afde42489b038b84394b'; // Static party ID
+  // Fetch userID and partyID from local storage
+  const userId = localStorage.getItem('userId');
+  const partyID = localStorage.getItem('partyID');
 
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        // Fetch user account details
-        const userResponse = await fetch('https://localhost:5002/api/userAccount', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userID: userId }),
-        });
+    if (!userId) {
+      // Redirect to login if no userId is found
+      navigate('/login');
+    } else {
+      const fetchUserDetails = async () => {
+        try {
+          const userResponse = await fetch('http://localhost:5001/api/userAccount', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userID: userId }),
+          });
 
-        if (!userResponse.ok) {
-          throw new Error('Failed to fetch user account');
+          if (!userResponse.ok) {
+            throw new Error('Failed to fetch user account');
+          }
+
+          const userData = await userResponse.json();
+          setUsername(userData.name);
+          setEmail(userData.email);
+        } catch (error) {
+          console.error('Error fetching user details:', error);
         }
+      };
 
-        const userData = await userResponse.json();
-        setUsername(userData.name);
-        setEmail(userData.email);
-      } catch (error) {
-        console.error('Error fetching user details:', error);
-      }
-    };
-
-    fetchUserDetails();
-  }, []);
+      fetchUserDetails();
+    }
+  }, [userId, navigate]);
 
   const handleLogout = () => {
     setShowLogoutConfirmation(true);
@@ -50,15 +55,17 @@ const ProfilePage = () => {
 
   const confirmLogout = (confirmed) => {
     if (confirmed) {
-      window.location.href = '/';
+      localStorage.removeItem('userId');
+      localStorage.removeItem('partyID');
+      navigate('/'); // Redirect to home or login page
     }
     setShowLogoutConfirmation(false);
   };
 
   const confirmLeaveGroup = async (confirmed) => {
-    if (confirmed) {
+    if (confirmed && partyID) {
       try {
-        const response = await fetch('https://localhost:5002/api/leaveParty', {
+        const response = await fetch('http://localhost:5001/api/leaveParty', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -82,9 +89,9 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (redirectAfterConfirm) {
-      window.location.href = redirectAfterConfirm;
+      navigate(redirectAfterConfirm);
     }
-  }, [redirectAfterConfirm]);
+  }, [redirectAfterConfirm, navigate]);
 
   return (
     <div className="profile-page-container">
