@@ -1,49 +1,50 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Poll = require('../models/Poll');
+const Party = require('../models/Party');
 const Movie = require('../models/Movie');
+const PartyMembers = require('../models/PartyMembers');
+const StoredMovies = require('../models/StoredMovies');
 const router = express.Router();
 
 // Vote Page using query parameter
 // Example: http://localhost:5000/api/poll/votePage?pollID=66980dc3b03ee5fdec99ffde
 router.get('/votePage', async (req, res) => {
-  const { pollID } = req.query;
-  console.log(`Fetching vote page for pollID: ${pollID}`);
+  const userID = req.session.userId;
+
+  if (!userID) {
+    return res.status(401).json({ message: 'userID not found in session' });
+  }
 
   try {
-    const pollObjectId = mongoose.Types.ObjectId(pollID);
-
-    const poll = await Poll.findById(pollObjectId);
-    if (!poll) {
-      console.log('Poll not found');
-      return res.status(404).json({ error: 'Poll not found' });
+    const partyMember = await PartyMembers.findOne({ userID }).populate(
+      'partyID'
+    );
+    if (!partyMember) {
+      return res.status(404).json({ message: 'Party not found for user' });
     }
 
-    console.log('Poll found:', poll);
-    console.log('Movies:', poll.movies);
+    const partyID = partyMember.partyID._id;
 
-    const moviesWithDetails = await Promise.all(
-      poll.movies.map(async (movieEntry) => {
-        const movie = await Movie.findOne({ movieID: movieEntry.movieID });
-        if (!movie) {
-          console.log('Movie not found for movieID:', movieEntry.movieID);
-          return null;
-        }
-
-        const { votes, watchedStatus } = movieEntry;
-        return {
-          movieName: movie.title,
-          votes,
-          watchedStatus,
-          genre: movie.genre,
-          description: movie.description,
-        };
-      })
+    const storedMovies = await StoredMovies.find({ partyID }).populate(
+      'movieID'
     );
+    if (!storedMovies || storedMovies.length === 0) {
+      return res
+        .status(404)
+        .json({ error: 'No stored movies found for this party' });
+    }
 
-    const validMovies = moviesWithDetails.filter((movie) => movie !== null);
+    const moviesWithDetails = storedMovies.map((movieEntry) => ({
+      _id: movieEntry.movieID._id,
+      title: movieEntry.movieID.title,
+      votes: movieEntry.votes,
+      watchedStatus: movieEntry.watchedStatus,
+      genre: movieEntry.movieID.genre,
+      description: movieEntry.movieID.description,
+    }));
 
-    res.status(200).json({ movies: validMovies });
+    res.status(200).json({ movies: moviesWithDetails });
   } catch (err) {
     console.error('Error fetching vote page:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -55,14 +56,28 @@ router.get('/votePage', async (req, res) => {
 //     "partyID": "66980dc3b03ee5fdec99ffdc",
 //     "movieID": 3
 // }
+
 router.post('/addMovieToPoll', async (req, res) => {
-  const { partyID, movieID } = req.body;
-  console.log(
-    `Adding movie to poll for partyID: ${partyID}, movieID: ${movieID}`
-  );
+  const { movieID } = req.body;
+  const userID = req.session.userId;
+  if (!userID) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
 
   try {
-    console.log('Type of partyID:', typeof partyID, 'Value:', partyID);
+    const party = await Party.findOne({ hostID: userID });
+
+    if (!party) {
+      console.log('Party not found for userID:', userID);
+      return res.status(404).json({ error: 'Party not found for this user' });
+    }
+
+    const partyID = party._id;
+
+    if (!mongoose.Types.ObjectId.isValid(partyID)) {
+      console.log('Invalid party ID:', partyID);
+      return res.status(400).json({ error: 'Invalid party ID' });
+    }
 
     if (typeof movieID !== 'number') {
       console.log('Invalid movie ID type:', movieID);
@@ -75,27 +90,31 @@ router.post('/addMovieToPoll', async (req, res) => {
       return res.status(404).json({ error: 'Movie not found' });
     }
 
-    const poll = await Poll.findOne({
-      partyID: mongoose.Types.ObjectId(partyID),
+    const existingStoredMovie = await StoredMovies.findOne({
+      movieID: movie._id,
+      partyID: partyID,
     });
-    if (!poll) {
-      console.log('Poll not found for partyID:', partyID);
-      console.log(poll);
-      return res.status(404).json({ error: 'Poll not found for this party' });
+    if (existingStoredMovie) {
+      console.log('Movie already in storedMovies:', movieID);
+      return res.status(400).json({ error: 'Movie already in storedMovies' });
     }
 
-    const movieExists = poll.movies.some((movie) => movie.movieID === movieID);
-    if (movieExists) {
-      console.log('Movie already in poll:', movieID);
-      return res.status(400).json({ error: 'Movie already in poll' });
-    }
+    const storedMovie = new StoredMovies({
+      userID: userID,
+      movieID: movie._id,
+      partyID: partyID,
+      votes: 0,
+      watchedStatus: false,
+    });
 
-    poll.movies.push({ movieID: movieID, votes: 0, watchedStatus: false });
-    await poll.save();
+    await storedMovie.save();
 
-    res.status(201).json({ message: 'Movie added to poll successfully', poll });
+    res.status(201).json({
+      message: 'Movie added to storedMovies successfully',
+      storedMovie,
+    });
   } catch (e) {
-    console.error('Error adding movie to poll:', e);
+    console.error('Error adding movie to storedMovies:', e);
     res.status(500).json({ error: e.toString() });
   }
 });
@@ -105,6 +124,7 @@ router.post('/addMovieToPoll', async (req, res) => {
 //     "partyID": "66980dc3b03ee5fdec99ffdc",
 //     "movieID": 3
 // }
+
 router.post('/upvoteMovie', async (req, res) => {
   const { partyID, movieID } = req.body;
   console.log(`Upvoting movie for partyID: ${partyID}, movieID: ${movieID}`);
@@ -139,6 +159,7 @@ router.post('/upvoteMovie', async (req, res) => {
 //     "partyID": "66980dc3b03ee5fdec99ffdc",
 //     "movieID": 3
 // }
+
 router.delete('/removeMovie', async (req, res) => {
   const { partyID, movieID } = req.body;
   console.log(
@@ -177,6 +198,7 @@ router.delete('/removeMovie', async (req, res) => {
 //     "partyID": "66980dc3b03ee5fdec99ffdc",
 //     "movieID": 3
 // }
+
 router.post('/markWatched', async (req, res) => {
   const { movieID, partyID } = req.body;
   console.log(
