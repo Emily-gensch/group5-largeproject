@@ -66,7 +66,6 @@ router.post('/register', async (req, res) => {
 });
 
 // Send Email
-// Send Email
 router.post('/sendEmail', async (req, res) => {
   const { email, emailToken } = req.body;
   const transporter = nodemailer.createTransport({
