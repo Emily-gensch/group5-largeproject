@@ -44,7 +44,7 @@ router.post('/register', async (req, res) => {
 
     // Send verification email
     try {
-      const emailResponse = await axios.post('http://localhost:5001/api/auth/sendEmail', {
+      const emailResponse = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/auth/sendEmail', {
         email,
         emailToken
       });
@@ -65,6 +65,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Send Email
 // Send Email
 router.post('/sendEmail', async (req, res) => {
   const { email, emailToken } = req.body;
@@ -107,7 +108,7 @@ router.get('/verifyEmail/:emailToken', async (req, res) => {
           <body>
             <h2>Email verification failed</h2>
             <p>The link you clicked is invalid or has expired. Please try registering again.</p>
-            <p><a href="http://localhost:3000/register">Go to Registration Page</a></p>
+            <p><a href="https://themoviesocial-a63e6cbb1f61.herokuapp.com/register">Go to Registration Page</a></p>
           </body>
         </html>
       `);
@@ -122,7 +123,7 @@ router.get('/verifyEmail/:emailToken', async (req, res) => {
         <body>
           <h2>Email verified successfully</h2>
           <p>Your email has been successfully verified. You can now log in to your account.</p>
-          <p><a href="http://localhost:3000/login">Go to Login Page</a></p>
+          <p><a href="https://themoviesocial-a63e6cbb1f61.herokuapp.com/login">Go to Login Page</a></p>
         </body>
       </html>
     `);
