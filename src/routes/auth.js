@@ -49,20 +49,41 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.get('/check-party', async (req, res) => {
+  const userID = req.session.userId;
+
+  if (!userID) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const user = await User.findById(userID).populate('partyID');
+    if (user && user.partyID) {
+      res.status(200).json({ inParty: true, partyID: user.partyID._id });
+    } else {
+      res.status(200).json({ inParty: false });
+    }
+  } catch (error) {
+    console.error('Error checking party membership:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 //TODO: Add email verification api. Need to alter database
 // sendEmail
 router.post('/sendEmail', async (req, res) => {
   const { email, emailToken } = req.body;
   const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-          user: "joanndinzey@gmail.com",
-          pass: "ocdr fxxd iggz vysi",
-      },
-  });  
-  transporter.sendMail({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: 'joanndinzey@gmail.com',
+      pass: 'ocdr fxxd iggz vysi',
+    },
+  });
+  transporter
+    .sendMail({
       from: '"largeproject " <joanndinzey@gmail.com>',
       to: email,
       subject: 'Email Verification',
@@ -71,9 +92,11 @@ router.post('/sendEmail', async (req, res) => {
             Please follow the given link to verify your email
             http://localhost:5000/verifyEmail/${emailToken} 
             Thanks`,
-  }).then(() => {
+    })
+    .then(() => {
       res.status(200).json({ message: 'email sent' });
-    }).catch((err) => {
+    })
+    .catch((err) => {
       res.status(500).json({ error: e.toString() });
     });
 });
@@ -81,20 +104,15 @@ router.post('/sendEmail', async (req, res) => {
 // verifyEmail
 router.get('/verifyEmail/:emailToken', async (req, res) => {
   const { emailToken } = req.params;
-  const db = client.db('party-database');
   try {
-    const user = await db
-      .collection('users')
-      .findOne({ emailToken: emailToken });
+    const user = await User.findOne({ emailToken });
     if (!user) {
       res.status(401).send('Email verification failed: Invalid Token');
     } else {
-      const query = { emailToken: emailToken };
-      var newValue = { $set: { emailVerifStatus: 1 } };
-      db.collection('users').updateOne(query, newValue);
-      newValue = { $set: { emailToken: '' } };
-      db.collection('users').updateOne(query, newValue);
-      res.status(200).send('Email verifified successfully');
+      user.emailVerifStatus = 1;
+      user.emailToken = '';
+      await user.save();
+      res.status(200).send('Email verified successfully');
     }
   } catch (e) {
     res.status(500).send(e.toString());
@@ -103,33 +121,43 @@ router.get('/verifyEmail/:emailToken', async (req, res) => {
 
 // Login
 router.post('/login', async (req, res) => {
-  console.log('Login request received:', req.body);
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
-    console.log('User found:', user);
 
     if (!user || !bcrypt.compareSync(password, user.password)) {
-      console.log('Invalid email or password');
       return res.status(401).json({ message: 'Invalid email or password' });
     }
-    if (user.emailVerifStatus == 0) {
-      console.log('Email not verified');
-      return res.status(401).json({ message: 'Email not verified' });
-    }
 
+    // if (user.emailVerifStatus === 0) {
+    //   return res.status(401).json({ message: 'Email not verified' });
+    // }
+
+    // Set session
     req.session.userId = user._id;
     req.session.email = user.email;
-
-    console.log('Login approved.', user._id);
-    res.status(200).json({
-      message: 'Login successful',
-      //userID: user._id,
+    req.session.save((err) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: 'Session save error', error: err });
+      }
+      res.status(200).json({ message: 'Login successful', userId: user._id });
     });
   } catch (err) {
-    console.error('Server error', err.message);
     res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+router.get('/check-session', (req, res) => {
+  if (req.session.userId) {
+    res.status(200).json({
+      userId: req.session.userId,
+      email: req.session.email,
+    });
+  } else {
+    res.status(401).json({ message: 'No active session' });
   }
 });
 

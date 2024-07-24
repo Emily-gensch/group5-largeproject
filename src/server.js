@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 
@@ -31,7 +31,12 @@ const Poll = require('./models/Poll');
 const PartyGuest = require('./models/PartyMembers');
 const Movie = require('./models/Movie');
 
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:5002',
+    credentials: true,
+  })
+);
 app.use(bodyParser.json());
 app.use(express.json());
 
@@ -46,31 +51,12 @@ app.use(
       collectionName: 'sessions',
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60, // 1 hour
+      maxAge: 1000 * 60 * 60,
+      sameSite: 'Lax',
+      secure: false,
     },
   })
 );
-
-// // Middleware authentication
-// const authenticate = (req, res, next) => {
-//   const authHeader = req.header('Authorization');
-//   if (!authHeader) {
-//     return res.status(401).json({ message: 'Access Denied' });
-//   }
-
-//   const token = authHeader.replace('Bearer ', '');
-//   if (!token) {
-//     return res.status(401).json({ message: 'Access Denied' });
-//   }
-
-//   try {
-//     const verified = jwt.verify(token, process.env.JWT_SECRET);
-//     req.userId = verified.id;
-//     next();
-//   } catch (err) {
-//     res.status(400).json({ message: 'Invalid Token' });
-//   }
-// };
 
 // Routes
 const authRouter = require('./routes/auth');
@@ -89,7 +75,10 @@ app.get('/', (req, res) => {
   res.send(`Number of views: ${req.session.views}`);
 });
 
-// Display movies
+app.get('/api/check-session', (req, res) => {
+  res.json(req.session);
+});
+
 app.post('/api/displayMovies', async (req, res) => {
   try {
     const movies = await Movie.find({}).sort({ title: 1 }).exec();
@@ -111,6 +100,33 @@ app.post('/api/displayWatchedMovies', async (req, res) => {
     res.status(200).json(movies);
   } catch (e) {
     res.status(500).json({ error: e.toString() });
+  }
+});
+
+app.get('/getPartyMembers', async (req, res) => {
+  const userID = req.session.userId;
+
+  if (!userID) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const partyMember = await PartyMembers.findOne({ userID }).populate(
+      'partyID'
+    );
+
+    if (!partyMember) {
+      return res.status(404).json({ message: 'Party not found' });
+    }
+
+    const members = await PartyMembers.find({
+      partyID: partyMember.partyID._id,
+    }).populate('userID', 'username email');
+
+    res.status(200).json({ members });
+  } catch (error) {
+    console.error('Error fetching party members:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
