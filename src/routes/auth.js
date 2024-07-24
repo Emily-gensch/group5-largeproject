@@ -81,20 +81,15 @@ router.post('/sendEmail', async (req, res) => {
 // verifyEmail
 router.get('/verifyEmail/:emailToken', async (req, res) => {
   const { emailToken } = req.params;
-  const db = client.db('party-database');
   try {
-    const user = await db
-      .collection('users')
-      .findOne({ emailToken: emailToken });
+    const user = await User.findOne({ emailToken });
     if (!user) {
       res.status(401).send('Email verification failed: Invalid Token');
     } else {
-      const query = { emailToken: emailToken };
-      var newValue = { $set: { emailVerifStatus: 1 } };
-      db.collection('users').updateOne(query, newValue);
-      newValue = { $set: { emailToken: '' } };
-      db.collection('users').updateOne(query, newValue);
-      res.status(200).send('Email verifified successfully');
+      user.emailVerifStatus = 1;
+      user.emailToken = "";
+      await user.save();
+      res.status(200).send('Email verified successfully');
     }
   } catch (e) {
     res.status(500).send(e.toString());
