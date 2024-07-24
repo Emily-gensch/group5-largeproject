@@ -43,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> fetchUserData(String userID) async {
-    final url = Uri.parse('http://192.168.1.79:5000/api/userAccount');
+    final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/userAccount');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({'userID': userID});
 
@@ -65,11 +65,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void pressYesLeave()  {
+  Future<void> pressYesLeave(String userId) async {
+  final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/party/leaveParty');
+
+  final headers = {
+    'Content-Type': 'application/json',
+  };
+
+  final body = jsonEncode({
+    'userID': userId,
+  });
+
+  try {
+    final response = await post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      print('Left party successfully: ${responseData['message']}');
+    } else {
+      final responseData = jsonDecode(response.body);
+      print('Failed to leave party: ${responseData['message']}');
+    }
+  } catch (e) {
+    print('Error: $e');
   }
+}
 
   Future<void> pressYesChange(String userId, String newPassword, String validatePassword) async {
-    final url = Uri.parse('http://192.168.1.79:5000/api/changePassword');
+    final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/changePassword');
 
     final response = await post(
       url,
@@ -168,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     actions: [
                       TextButton(
-                        onPressed: pressYesLeave, 
+                        onPressed: () async { await pressYesLeave(userId); }, 
                         child: Text(
                           "Yes",
                           style: TextStyle(
@@ -272,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     actions: [
                       TextButton(
-                        onPressed: () async{ await pressYesChange("66936aa33044654047731785", newPasswordController.text, validatePasswordController.text); }, 
+                        onPressed: () async{ await pressYesChange(userId, newPasswordController.text, validatePasswordController.text); }, 
                         child: Text(
                           "Yes",
                           style: TextStyle(

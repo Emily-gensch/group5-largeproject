@@ -40,7 +40,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   Future<void> createParty(String partyName) async {
   try {
-    final url = Uri.parse('http://192.168.1.79:5000/api/party/create');
+    final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/party/create');
     final userId = await getUserId();
     print('User ID: $userId');  // Log user ID
     final response = await http.post(

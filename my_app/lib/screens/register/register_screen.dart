@@ -22,7 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void register(String email, String name, String password) async {
     try{
       Response response = await post(
-        Uri.parse("http://192.168.1.79:5000/api/auth/register"),
+        Uri.parse("https://cod-destined-secondly.ngrok-free.app/api/auth/register"),
         body: jsonEncode({
           'email': email,
           'name': name,
@@ -48,6 +48,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else {
         print("Register failed");
         print(jsonDecode(response.body.toString()));
+        final errorData = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorData['message'] ?? "Registration failed", style: TextStyle(color: Colors.black),),
+          backgroundColor: primaryCream,
+        ),
+      );
+
       }
     }catch(e){
       print(e.toString());
@@ -55,7 +63,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> sendEmail(String email, String emailToken) async {
-    final url = Uri.parse('http://192.168.1.79:5000/api/auth/sendEmail');
+    final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/auth/sendEmail');
     final response = await post(
       url,
       headers: <String, String>{

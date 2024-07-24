@@ -1,8 +1,53 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:my_app/constants.dart';
 import 'package:my_app/screens/search/global_movies.dart'; // Import global movies class
 
 class VoteScreen extends StatelessWidget {
+  Future<void> _fetchPollData(String pollID) async {
+  final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/poll/votePage?pollID=$pollID');
+
+  try {
+    final response = await get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final movies = List<String>.from(data['movies'].map((movie) => movie['movieName']));
+      // Update your UI with the fetched data
+    } else {
+      print('Failed to fetch poll data: ${response.body}');
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+}
+
+  Future<void> _upvoteMovie(String partyID, String movieID) async {
+  final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/upvoteMovie');
+  final headers = {'Content-Type': 'application/json'};
+  final body = jsonEncode({
+    'partyID': partyID,
+    'movieID': movieID,
+  });
+
+  try {
+    final response = await post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      print('Movie upvoted successfully');
+      // Optionally update UI or show a confirmation
+    } else {
+      print('Failed to upvote movie: ${response.body}');
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+}
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {List<Map<String, String>> _use
   bool _isLoading = true;
   String? _error;
 
-  String apiUrl = 'http://192.168.1.79:5000/home';
+  String apiUrl = 'https://cod-destined-secondly.ngrok-free.app/home';
 
   @override
   void initState() {

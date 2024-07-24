@@ -18,7 +18,7 @@ class _JoinScreenState extends State<JoinScreen> {
   TextEditingController codeController = TextEditingController();
 
   Future<void> joinParty(String partyInviteCode, String userID) async {
-  final url = Uri.parse('http://192.168.1.79:5000/api/party/joinParty');
+  final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/party/joinParty');
   final headers = {'Content-Type': 'application/json'};
   final body = jsonEncode({'partyInviteCode': partyInviteCode, 'userID': userID});
 

@@ -213,7 +213,7 @@ class TextFieldContainer extends StatelessWidget {
 }
 
 Future<List<String>> searchMovie(String searchQuery) async {
-  final url = Uri.parse('http://192.168.1.79:5000/api/searchMovie');
+  final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/searchMovie');
   final headers = {'Content-Type': 'application/json'};
   final body = jsonEncode({'search': searchQuery.trim()});
 

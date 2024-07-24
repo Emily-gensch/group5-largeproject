@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
 
   Future<void> login(String email, String password) async {
-    final url = Uri.parse('http://192.168.1.79:5000/api/auth/login'); 
+    final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/auth/login'); 
 
     try {
       final response = await post(
@@ -153,7 +153,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   ))
                 ),
                 Positioned(
-                  top: size.height * 0.64,
+                  top: size.height * 0.61,
+                  child: TextButton(
+                    onPressed: () {
+                      // placeholder for apis
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return RegisterScreen();
+                          }
+                        )
+                      );
+                    },
+                    child: Text(
+                      "Forgot Password?",
+                      style: TextStyle(
+                        color: primaryCream,
+                        fontSize: 18,
+                      ),
+                    ),
+                  )
+                ),
+                Positioned(
+                  top: size.height * 0.66,
                   child: Button(
                     text: "Submit",
                     press: () {
