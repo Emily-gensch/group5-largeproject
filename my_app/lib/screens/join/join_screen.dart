@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/constants.dart';
 import 'package:my_app/screens/create_group/create_group_screen.dart';
+import 'package:my_app/screens/home/home.dart';
 import 'package:my_app/screens/home/navbar.dart';
 import 'package:my_app/screens/welcome/components/button.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class JoinScreen extends StatefulWidget{
   const JoinScreen({Key? key}) : super(key: key);
@@ -17,99 +17,48 @@ class JoinScreen extends StatefulWidget{
 class _JoinScreenState extends State<JoinScreen> {
   TextEditingController codeController = TextEditingController();
 
-  final String apiUrl = 'http://localhost:5000/api';
+  Future<void> joinParty(String partyInviteCode, String userID) async {
+  final url = Uri.parse('http://192.168.1.79:5000/api/party/joinParty');
+  final headers = {'Content-Type': 'application/json'};
+  final body = jsonEncode({'partyInviteCode': partyInviteCode, 'userID': userID});
 
-// Refresh token function
-Future<String> refreshToken() async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? token = prefs.getString('token');
+  try {
+    final response = await post(url, headers: headers, body: body);
 
-  final response = await post(
-    Uri.parse('$apiUrl/auth/refresh'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    },
-  );
-
-  if (response.statusCode != 200) {
-    final error = json.decode(response.body);
-    throw Exception(error['message'] ?? 'Something went wrong');
-  }
-
-  final data = json.decode(response.body);
-  await prefs.setString('token', data['token']);
-  await prefs.setInt('tokenExpiry', DateTime.now().millisecondsSinceEpoch + 3600 * 1000);
-  return data['token'];
-}
-
-// Get token function
-Future<String> getToken() async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? token = prefs.getString('token');
-  final int? tokenExpiry = prefs.getInt('tokenExpiry');
-
-  if (token == null || DateTime.now().millisecondsSinceEpoch > tokenExpiry!) {
-    try {
-      final newToken = await refreshToken();
-      return newToken;
-    } catch (error) {
-      throw Exception('Session expired. Please log in again.');
+    if (response.statusCode == 200) {
+      handleResponse(response);
+      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return NavBar(); 
+                            }
+                          )
+                        );
+    } 
+    else {
+      print('Error: ${response.statusCode}');
+      print('Error Body: ${response.body}');
     }
+  } catch (e) {
+    print('Error: $e');
   }
-
-  return token;
 }
 
-// Create party function
-Future<Map<String, dynamic>> createParty(String partyName) async {
-  final String token = await getToken();
-
-  final response = await post(
-    Uri.parse('$apiUrl/party/create'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    },
-    body: json.encode({'partyName': partyName}),
-  );
-
-  if (response.statusCode != 200) {
-    final error = json.decode(response.body);
-    throw Exception(error['message'] ?? 'Something went wrong');
-  }
-
-  return json.decode(response.body);
-}
-
-  void joinParty(String partyInviteCode) async {
-    try{
-      Response response = await post(
-        Uri.parse("http://localhost:5000/api/party/joinParty"),
-        body: jsonEncode({
-          'partyInviteCode': partyInviteCode
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
-      if(response.statusCode == 200){
-        var data = jsonDecode(response.body.toString());
-        print(data['token']);
-        Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return JoinScreen(); 
-                          }
-                        )
-                      );
-      } else {
-        print("Login failed");
-        print(jsonDecode(response.body.toString()));
-      }
-    }catch(e){
-      print(e.toString());
+void handleResponse(Response response) {
+  // Handle the response here
+  // This is just an example, adjust it according to your needs
+  try {
+    final jsonResponse = jsonDecode(response.body);
+    if (jsonResponse['error'] != null) {
+      print('Server Error: ${jsonResponse['error']}');
+    } else {
+      print('Response: ${jsonResponse}');
     }
+  } catch (e) {
+    print('Response Error: $e');
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +116,7 @@ Future<Map<String, dynamic>> createParty(String partyName) async {
                   ),
                 ),
                 Positioned(
-                  top: size.height * 0.46,
+                  top: size.height * 0.45,
                   child: TextFieldContainer(child: TextField(
                     controller: codeController,
                     decoration: InputDecoration(
@@ -192,7 +141,7 @@ Future<Map<String, dynamic>> createParty(String partyName) async {
                   child: Button(
                     text: "Submit",
                     press: () {
-                      joinParty(codeController.text.toString());
+                      joinParty(codeController.text.toString(), "66936aa33044654047731785");
                     },
                   ),
                 ),
@@ -205,7 +154,7 @@ Future<Map<String, dynamic>> createParty(String partyName) async {
                         context,
                         MaterialPageRoute(
                           builder: (context) {
-                            return CreateGroupScreen(); 
+                            return CreateGroupScreen(); //CHANGE TO CREATE GROUP
                           }
                         )
                       );

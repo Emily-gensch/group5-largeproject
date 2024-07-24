@@ -5,6 +5,7 @@ import 'package:my_app/screens/join/join_screen.dart';
 import 'package:my_app/screens/generate_code/generate_code_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateGroupScreen extends StatefulWidget {
@@ -16,92 +17,68 @@ class CreateGroupScreen extends StatefulWidget {
 
 class _CreateGroupScreenState extends State<CreateGroupScreen> {
   TextEditingController groupNameController = TextEditingController();
-  TextEditingController codeController = TextEditingController();
 
-  final String apiUrl = 'http://localhost:5000/api';
+  Future<void> storePartyId(String partyID) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('partyID', partyID);
+  }
 
-  // Refresh token function
-  Future<String> refreshToken() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('token');
-    print('Refreshing token with current token: $token');
+  Future<void> storePollId(String pollID) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('pollID', pollID);
+  }
 
+  Future<void> storePartyName(String partyName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('partyName', partyName);
+  }
+
+  Future<String?> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userId');
+  }
+
+  Future<void> createParty(String partyName) async {
+  try {
+    final url = Uri.parse('http://192.168.1.79:5000/api/party/create');
+    final userId = await getUserId();
+    print('User ID: $userId');  // Log user ID
     final response = await http.post(
-      Uri.parse('$apiUrl/auth/refresh'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'partyName': partyName, 'userId': userId}),
     );
+    print('Response status: ${response.statusCode}');  // Log response status
+    print('Response body: ${response.body}');  // Log response body
 
-    print('Refresh token response status: ${response.statusCode}');
-    print('Refresh token response body: ${response.body}');
-
-    if (response.statusCode != 200) {
-      // Checking if response is not JSON
-      if (response.body.contains('<html>')) {
-        print('Invalid endpoint or server error');
-        throw Exception('Invalid endpoint or server error');
-      }
-      final error = json.decode(response.body);
-      throw Exception(error['message'] ?? 'Something went wrong');
-    }
-
-    final data = json.decode(response.body);
-    await prefs.setString('token', data['token']);
-    await prefs.setInt('tokenExpiry', DateTime.now().millisecondsSinceEpoch + 3600 * 1000);
-    print('Token refreshed and stored: ${data['token']}');
-    return data['token'];
-  }
-
-  // Get token function
-  Future<String> getToken() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('token');
-    final int? tokenExpiry = prefs.getInt('tokenExpiry');
-    print('Current token: $token');
-    print('Token expiry: $tokenExpiry');
-    print('Current time: ${DateTime.now().millisecondsSinceEpoch}');
-
-    if (token == null || DateTime.now().millisecondsSinceEpoch > tokenExpiry!) {
-      try {
-        final newToken = await refreshToken();
-        return newToken;
-      } catch (error) {
-        print('Error refreshing token: $error');
-        throw Exception('Session expired. Please log in again.');
+    if (response.statusCode == 201) {
+      final responseData = jsonDecode(response.body);
+      print('Party and Poll created successfully');
+      print('New Party: ${responseData['party']['partyInviteCode']}');
+      print('New Poll: ${responseData['poll']}');
+      storePartyId(responseData['poll']['partyID']);
+      storePollId(responseData['poll']['_id']);
+      storePartyName(partyName);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return GenerateCodeScreen(code: responseData['party']['partyInviteCode']); 
+          },
+        ),
+      );
+    } else {
+      final responseData = jsonDecode(response.body);
+      print('Failed to create party and poll');
+      print('Error: ${responseData['message']}');
+      if (responseData.containsKey('error')) {
+        print('Error details: ${responseData['error']}');
       }
     }
-
-    print('Token retrieved: $token');
-    return token;
+  } catch (e) {
+    print('Exception: $e');  // Log exception
   }
-
-  // Create party function
-  Future<Map<String, dynamic>> createParty(String partyName) async {
-    final String token = await getToken();
-    print('Creating party with token: $token');
-
-    final response = await http.post(
-      Uri.parse('$apiUrl/party/create'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: json.encode({'partyName': partyName}),
-    );
-
-    print('Create party response status: ${response.statusCode}');
-    print('Create party response body: ${response.body}');
-
-    if (response.statusCode != 200) {
-      final error = json.decode(response.body);
-      throw Exception(error['message'] ?? 'Something went wrong');
-    }
-
-    print('Party created successfully');
-    return json.decode(response.body);
-  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +92,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           children: <Widget>[
             Positioned(
               child: SizedBox(
-                height: size.height * 0.65,
+                height: size.height * 0.45,
                 width: size.width * 0.8,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -137,7 +114,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                 alignment: Alignment.center,
                 children: <Widget>[
                   Positioned(
-                    top: size.height * 0.25,
+                    top: size.height * 0.34,
                     child: Text(
                       "Create a Group",
                       style: TextStyle(
@@ -155,7 +132,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     ),
                   ),
                   Positioned(
-                    top: size.height * 0.35,
+                    top: size.height * 0.4,
                     child: TextFieldContainer(
                       child: TextField(
                         controller: groupNameController,
@@ -178,52 +155,16 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     ),
                   ),
                   Positioned(
-                    top: size.height * 0.48,
-                    child: TextFieldContainer(
-                      child: TextField(
-                        controller: codeController,
-                        decoration: InputDecoration(
-                          labelText: "Code",
-                          labelStyle: TextStyle(
-                            color: secondaryCream,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 30,
-                          ),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.transparent),
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.transparent),
-                          ),
-                          floatingLabelBehavior: FloatingLabelBehavior.never,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: size.height * 0.62,
+                    top: size.height * 0.57,
                     child: Button(
                       text: "Submit",
                       press: () async {
-                        try {
-                          final response = await createParty(groupNameController.text);
-                          print('Party created response: $response');
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return GenerateCodeScreen(); // placeholder for code screen
-                              },
-                            ),
-                          );
-                        } catch (error) {
-                          print('Error creating party: $error');
-                        }
+                        await createParty(groupNameController.text);
                       },
                     ),
                   ),
                   Positioned(
-                    top: size.height * 0.73,
+                    top: size.height * 0.65,
                     child: TextButton(
                       onPressed: () {
                         Navigator.push(

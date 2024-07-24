@@ -6,6 +6,9 @@ import 'package:my_app/screens/welcome/components/button.dart';
 import 'package:my_app/screens/welcome/welcome_screen.dart';
 import 'package:my_app/screens/join/join_screen.dart';
 import 'package:http/http.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class LoginScreen extends StatefulWidget{
   const LoginScreen({Key? key}) : super(key: key);
@@ -18,36 +21,48 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  void login(String email, String password) async {
-    try{
-      print(email);
-      print(password);
-      Response response = await post(
-        Uri.parse("http://localhost:5000/api/auth/login"),
-        body: jsonEncode({
+  Future<void> login(String email, String password) async {
+    final url = Uri.parse('http://192.168.1.79:5000/api/auth/login'); 
+
+    try {
+      final response = await post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
           'email': email,
-          'password': password
+          'password': password,
         }),
-        headers: {'Content-Type': 'application/json'},
       );
-      if(response.statusCode == 200){
-        var data = jsonDecode(response.body.toString());
-        print(data['token']);
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        print('Login successful.');
+        storeUserId(jsonResponse['userId']);
         Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return JoinScreen(); 
-                          }
-                        )
-                      );
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return JoinScreen(); 
+                            }
+                          )
+                        );
+      } else if (response.statusCode == 401) {
+        final jsonResponse = jsonDecode(response.body);
+        final message = jsonResponse['message'];
+        print('Login failed: $message');
       } else {
-        print("Login failed");
-        print(jsonDecode(response.body.toString()));
+        print('Server error: ${response.statusCode}');
       }
-    }catch(e){
-      print(e.toString());
+    } catch (e) {
+      print('Error: $e');
     }
+  }
+
+  Future<void> storeUserId(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userId', userId);
   }
 
   @override

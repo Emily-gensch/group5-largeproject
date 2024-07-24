@@ -16,7 +16,7 @@ class Body extends StatelessWidget {
           Container (
             padding: EdgeInsets.all(30),
             child: Text(
-              "Movie Social",
+              "The Movie Social",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 40,

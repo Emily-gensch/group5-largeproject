@@ -22,7 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void register(String email, String name, String password) async {
     try{
       Response response = await post(
-        Uri.parse("http://localhost:5000/api/auth/register"),
+        Uri.parse("http://192.168.1.79:5000/api/auth/register"),
         body: jsonEncode({
           'email': email,
           'name': name,
@@ -33,7 +33,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if(response.statusCode == 201){
         var data = jsonDecode(response.body.toString());
         print(data);
-        print(data['token']);
+
+        final sendToEmail = email; 
+        final emailToken = data['user']['emailToken'];
+
+        print(emailToken);
+
+        sendEmail(email, emailToken);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()), 
@@ -44,6 +51,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     }catch(e){
       print(e.toString());
+    }
+  }
+
+  Future<void> sendEmail(String email, String emailToken) async {
+    final url = Uri.parse('http://192.168.1.79:5000/api/auth/sendEmail');
+    final response = await post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'emailToken': emailToken
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Email sent successfully');
+    } else {
+      throw Exception('Failed to send email');
     }
   }
 
