@@ -42,7 +42,7 @@ const SearchPage = () => {
         withCredentials: true
       });
       const movies = Array.isArray(response.data) ? response.data : [];
-      console.log('Search results:', movies); // Log search results
+      console.log('Search results:', movies); 
       setAllMovies(movies);
       setShowingAllMovies(false);
       setErrorMessage('');
@@ -78,7 +78,6 @@ const SearchPage = () => {
 
       console.log('Movie added to poll:', response.data);
 
-      // Save movie to localStorage
       const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
       if (!existingMovies.includes(movieIDNumber)) {
         existingMovies.push(movieIDNumber);
