@@ -13,7 +13,7 @@ function RegisterPage() {
       const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({ email, name, password }),
       });
