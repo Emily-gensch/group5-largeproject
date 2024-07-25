@@ -16,9 +16,8 @@ const SearchPage = () => {
     const fetchMovies = async () => {
       try {
         const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/displayMovies', {}, {
-          //withCredentials: true, // This ensures cookies are sent with the request
+          //withCredentials: true, // Ensure cookies are sent if needed
         });
-
         setAllMovies(response.data);
         setErrorMessage('');
       } catch (error) {
@@ -32,14 +31,14 @@ const SearchPage = () => {
   }, []);
 
   const handleSearch = async () => {
-    if (searchTerm === '') {
+    if (searchTerm.trim() === '') {
       setShowingAllMovies(true);
     } else {
       try {
         const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/searchMovie', {
           search: searchTerm,
         }, {
-          withCredentials: true,
+          //withCredentials: true, // Ensure cookies are sent if needed
         });
 
         setAllMovies(response.data);
@@ -58,6 +57,11 @@ const SearchPage = () => {
     const partyID = localStorage.getItem('partyID');
     const userId = localStorage.getItem('userId');
   
+    if (!partyID || !userId) {
+      setErrorMessage('Party ID or User ID is missing.');
+      return;
+    }
+
     const movieIDNumber = Number(movieID);
   
     if (isNaN(movieIDNumber)) {
@@ -72,7 +76,7 @@ const SearchPage = () => {
         partyID,
         userId,
       }, {
-        withCredentials: true,
+        //withCredentials: true, // Ensure cookies are sent if needed
       });
 
       // Save movie to localStorage
@@ -83,7 +87,7 @@ const SearchPage = () => {
       }
       console.log('Movie added to poll:', response.data);
     } catch (error) {
-      console.error('Fetch error:', error);
+      console.error('Failed to add movie to poll:', error);
       setErrorMessage('Failed to add movie to poll. Please try again later.');
     }
   };

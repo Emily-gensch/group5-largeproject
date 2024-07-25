@@ -8,7 +8,7 @@ html, body {
 
 /* Container for the registration page */
 .register-container {
-  position: relative;
+  position: absolute; /* Ensure it covers the full viewport */
   width: 100vw; /* Full viewport width */
   height: 100vh; /* Full viewport height */
   display: flex;
@@ -38,7 +38,6 @@ html, body {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
-  margin-top: 40px; /* Adjust margin to center the box if needed */
 }
 
 /* Title style */
