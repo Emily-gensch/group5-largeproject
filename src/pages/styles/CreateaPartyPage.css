@@ -1,35 +1,47 @@
+/* Ensure no margin or padding affects the container */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* Prevent scrollbars */
+}
+
+/* Container for the create group page */
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #313338;
-  color: #000000;
+  background: url('./Landingpage2.jpg') no-repeat center center;
+  background-size: cover; /* Adjust image to cover the container */
   font-family: 'Inter', sans-serif;
   margin: 0;
 }
 
+/* Style for the create group box */
 #createGroupDiv {
   width: 400px;
   padding: 40px;
-  background-color: #A51F1F; 
+  background-color: #A51F1F; /* Red background for the create group box */
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
   margin-top: 40px;
 }
 
+/* Inner heading style */
 .inner-heading {
-  color: #FFF3E8; 
+  color: #FFF3E8; /* Heading text color */
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
 }
 
+/* Input styles */
 .inputField {
   width: 100%;
   height: 50px;
-  background-color: #F0F0F0;
+  background-color: #F0F0F0; /* Input background color */
   border-radius: 8px;
   border: none;
   padding: 0 15px;
@@ -38,11 +50,12 @@
   box-sizing: border-box;
 }
 
+/* Button styles */
 .buttons {
   width: 100%;
   height: 50px;
-  background-color: #FFF3E8;
-  color: #A51F1F;
+  background-color: #FFF3E8; /* Button background color */
+  color: #A51F1F; /* Button text color */
   border: none;
   border-radius: 8px;
   font-size: 18px;
@@ -50,26 +63,30 @@
   margin-top: 10px;
 }
 
+/* Button hover effect */
 .buttons:hover {
   background-color: #E0E0E0;
 }
 
+/* Message style */
 .message {
-  color: #000000;
+  color: #000000; /* Message text color */
   font-size: 14px;
   margin-top: 10px;
 }
 
+/* Link styles */
 a {
-  color: #FFD700;
+  color: #FFD700; /* Link color */
   text-decoration: none;
 }
 
 #signupLink {
-  text-decoration: underline;
+  text-decoration: underline; /* Underline for signup link */
   color: #FFD700;
 }
 
+/* Popup style */
 .popup {
   position: fixed;
   top: 50%;
@@ -80,7 +97,7 @@ a {
   padding: 20px;
   z-index: 1000;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  color: #000000; /* Text color set to black */
+  color: #000000; /* Popup text color */
 }
 
 .popup button {

@@ -1,16 +1,33 @@
-/* Register.css */
+/* Ensure no margin or padding affects the container */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* Prevent scrollbars */
+}
 
-/* Set the background color of the entire page */
-body {
-  background-color: black; /* Fully black background for the entire page */
-  margin: 0; /* Remove default margin */
-  font-family: 'Inter', sans-serif; /* Set the font-family for the page */
+/* Container for the registration page */
+.register-container {
+  position: relative;
+  width: 100vw; /* Full viewport width */
+  height: 100vh; /* Full viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('./Landingpage2.jpg') no-repeat center center;
+  background-size: cover; /* Adjust image to cover container */
+  background-repeat: no-repeat; /* Prevent repeating the image */
+  background-position: center; /* Center the image */
+  font-family: 'Inter', sans-serif;
 }
 
 /* Style for the container */
 .container {
   text-align: center;
   color: #FFF3E8; /* Text color inside the container */
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background for readability */
+  padding: 40px;
+  border-radius: 10px;
 }
 
 /* Style for the registration box */
