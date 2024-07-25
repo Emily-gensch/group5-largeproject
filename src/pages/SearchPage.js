@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './styles/SearchPage.css';
 
@@ -8,7 +8,6 @@ const SearchPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [allMovies, setAllMovies] = useState([]);
   const [showingAllMovies, setShowingAllMovies] = useState(true);
-  const navigate = useNavigate();
   const [pollID, setPollID] = useState(localStorage.getItem('pollID') || '');
   const [partyID, setPartyID] = useState(localStorage.getItem('partyID') || '');
 
@@ -16,12 +15,13 @@ const SearchPage = () => {
     const fetchMovies = async () => {
       try {
         const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/displayMovies', {}, {
-          //withCredentials: true, // Ensure cookies are sent if needed
+          withCredentials: true,
         });
+        console.log('Fetched movies:', response.data);
         setAllMovies(response.data);
         setErrorMessage('');
       } catch (error) {
-        console.error('Fetch movies error:', error);
+        console.error('Fetch movies error:', error.message);
         setErrorMessage('Failed to fetch movies. Please try again later.');
         setAllMovies([]);
       }
@@ -38,14 +38,14 @@ const SearchPage = () => {
         const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/searchMovie', {
           search: searchTerm,
         }, {
-          //withCredentials: true, // Ensure cookies are sent if needed
+          withCredentials: true,
         });
-
+        console.log('Search results:', response.data);
         setAllMovies(response.data);
         setShowingAllMovies(false);
         setErrorMessage('');
       } catch (error) {
-        console.error('Search error:', error);
+        console.error('Search error:', error.message);
         setErrorMessage('Search failed. Please try again later.');
         setAllMovies([]);
         setShowingAllMovies(true);
@@ -56,38 +56,37 @@ const SearchPage = () => {
   const handleAddToPoll = async (movieID) => {
     const partyID = localStorage.getItem('partyID');
     const userId = localStorage.getItem('userId');
-  
+
     if (!partyID || !userId) {
       setErrorMessage('Party ID or User ID is missing.');
       return;
     }
 
     const movieIDNumber = Number(movieID);
-  
+
     if (isNaN(movieIDNumber)) {
       console.error('Invalid movie ID:', movieID);
       setErrorMessage('Invalid movie ID.');
       return;
     }
-  
+
     try {
       const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/poll/addMovieToPoll', {
         movieID: movieIDNumber,
         partyID,
         userId,
       }, {
-        //withCredentials: true, // Ensure cookies are sent if needed
+        withCredentials: true,
       });
+      console.log('Movie added to poll:', response.data);
 
-      // Save movie to localStorage
       const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
       if (!existingMovies.includes(movieIDNumber)) {
         existingMovies.push(movieIDNumber);
         localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
       }
-      console.log('Movie added to poll:', response.data);
     } catch (error) {
-      console.error('Failed to add movie to poll:', error);
+      console.error('Failed to add movie to poll:', error.message);
       setErrorMessage('Failed to add movie to poll. Please try again later.');
     }
   };
