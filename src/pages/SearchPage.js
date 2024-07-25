@@ -14,7 +14,7 @@ const SearchPage = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/displayMovies', {}, {
+        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, {
           withCredentials: true,
         });
         console.log('Fetched movies:', response.data);
@@ -35,7 +35,7 @@ const SearchPage = () => {
       setShowingAllMovies(true);
     } else {
       try {
-        const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/searchMovie', {
+        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
           search: searchTerm,
         }, {
           withCredentials: true,
