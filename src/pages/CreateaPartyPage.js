@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from 'axios'; // Import axios
 import './styles/CreateaPartyPage.css';
 
 const CreateaPartyPage = () => {
-  const [groupName, setGroupName] = useState(''); // For setting the party name
+  const [groupName, setGroupName] = useState(''); // This is for setting the party name
   const [message, setMessage] = useState('');
   const [userId, setUserId] = useState('');
   const [partyCode, setPartyCode] = useState('');
@@ -22,21 +22,19 @@ const CreateaPartyPage = () => {
 
   const createGroup = async (partyName, userId) => {
     try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/create', {
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/create', {
         partyName,
         userId
       });
 
-      console.log('Response data:', response.data); // Debug response
-
-      const data = response.data;
-      if (data.partyInviteCode) {
+      if (response.status === 200) {
+        const data = response.data;
+        console.log('Group created:', data);
         setPartyCode(data.partyInviteCode); // Set party code to state
         setMessage('Group created successfully!');
         setShowPopup(true); // Show popup
       } else {
-        console.error('Party code not found in response');
-        setMessage('Error: Party code not received.');
+        throw new Error(response.data.message || 'Unknown error occurred');
       }
     } catch (error) {
       console.error('Error creating group:', error);
@@ -55,7 +53,7 @@ const CreateaPartyPage = () => {
 
   const handleClosePopup = () => {
     setShowPopup(false);
-    navigate('/join'); 
+    navigate('/join');
   };
 
   return (
@@ -84,14 +82,11 @@ const CreateaPartyPage = () => {
       </div>
 
       {showPopup && (
-        <>
-          <div className="popup-overlay" onClick={handleClosePopup}></div>
-          <div className="popup">
-            <p>Group created successfully!</p>
-            <p>Group Code: <strong>{partyCode}</strong></p>
-            <button onClick={handleClosePopup}>OK</button>
-          </div>
-        </>
+        <div className="popup">
+          <p>Group created successfully!</p>
+          <p>Group Code: <strong>{partyCode}</strong></p>
+          <button onClick={handleClosePopup}>OK</button>
+        </div>
       )}
     </div>
   );

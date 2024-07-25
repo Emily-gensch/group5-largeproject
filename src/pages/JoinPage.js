@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';  // Import axios
+import axios from 'axios'; // Import axios
 import './styles/JoinPage.css';
 
 const JoinPage = () => {
@@ -21,6 +21,7 @@ const JoinPage = () => {
       setPartyInviteCode(code);
     }
 
+    // Fetch user ID from local storage
     const storedUserId = localStorage.getItem('userId');
     if (storedUserId) {
       setUserId(storedUserId);
@@ -32,10 +33,12 @@ const JoinPage = () => {
   const handleJoinParty = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post(
-        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/joinParty',
-        { partyInviteCode, userID: userId }
-      );
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/joinParty', {
+        partyInviteCode,
+        userId
+      }, {
+        withCredentials: true // Include credentials with the request
+      });
 
       const result = response.data;
 
@@ -44,30 +47,29 @@ const JoinPage = () => {
           navigate('/home');
         } else {
           setMessage(`Successfully joined the party! Party ID: ${result.partyID}`);
-
-          localStorage.setItem('partyID', result.partyID);
-
-          const pollResponse = await axios.post(
-            'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/startPoll',
-            { partyID: result.partyID }
-          );
+          
+          // Create poll after joining the party
+          const pollResponse = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/startPoll', {
+            partyID: result.partyID
+          });
 
           const pollData = pollResponse.data;
           if (pollResponse.status === 200) {
-            localStorage.setItem('pollID', pollData.pollID); 
+            localStorage.setItem('pollID', pollData.pollID);
+            setMessage('Poll started successfully!');
             navigate('/home');
           } else {
-            setMessage(`Error creating poll: ${pollData.message}`);
+            setMessage(`Error creating poll: ${pollData.error || 'Unknown error'}`);
           }
         }
       } else {
         setMessage(`Error: ${result.message || result.error}`);
       }
     } catch (error) {
-      setMessage(`Error: ${error.toString()}`);
+      setMessage(`Error: ${error.response?.data?.message || error.message}`);
     }
   };
-
+  
   return (
     <div className="container">
       <div id="joinDiv">
