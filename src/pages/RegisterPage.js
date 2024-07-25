@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import './styles/Register.css';
 
 function RegisterPage() {
@@ -7,6 +8,7 @@ function RegisterPage() {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate(); // Add useNavigate hook
 
   const register = async (email, name, password) => {
     try {
@@ -28,10 +30,12 @@ function RegisterPage() {
       if (registerResponse.status === 201) {
         console.log('Registration successful');
         setMessage('Registration successful. Please check your email to verify your account.');
-        navigate("/wait");
-
+        
         // After successful registration, send the email verification
         await sendVerificationEmail(email);
+        
+        // Redirect to /wait page
+        navigate("/wait");
       } else {
         console.log('Registration failed');
         console.log('Registration error:', registerResponse.data.message);

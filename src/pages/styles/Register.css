@@ -21,7 +21,7 @@ body {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
-  margin-top: 40px; /* Adjust margin to center the box if needed */
+  margin: 40px auto; /* Center the box horizontally and adjust top margin */
 }
 
 /* Title style */
@@ -88,4 +88,12 @@ a {
 
 a:hover {
   text-decoration: underline; /* Link hover effect */
+}
+
+/* Media query for mobile responsiveness */
+@media (max-width: 600px) {
+  #registerDiv {
+    width: 90%;
+    padding: 20px;
+  }
 }
