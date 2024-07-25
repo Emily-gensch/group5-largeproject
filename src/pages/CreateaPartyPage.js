@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './styles/CreateaPartyPage.css';
 
 const CreateaPartyPage = () => {
@@ -26,25 +27,22 @@ const CreateaPartyPage = () => {
     }
 
     try {
-      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ partyName: groupName, userId }), // Send userId with the request
-      });
+      const response = await axios.post(
+        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/create',
+        { partyName: groupName, userId },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
 
-      const result = await response.json();
-      if (response.ok) {
-        setPartyCode(result.party.partyInviteCode); // Store the party code
+      if (response.status === 200) {
+        setPartyCode(response.data.party.partyInviteCode); // Store the party code
         setMessage('Group created successfully!');
         setShowPopup(true); // Show the popup
       } else {
-        setMessage(`Error: ${result.message}`);
+        setMessage(`Error: ${response.data.message}`);
       }
     } catch (error) {
       console.error('Error creating group:', error); // Log error for debugging
-      setMessage(`Error: ${error.toString()}`);
+      setMessage(`Error: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -57,36 +55,29 @@ const CreateaPartyPage = () => {
     setShowPopup(false); // Hide the popup
   
     try {
-      // No need to send movieID here if it's not used yet
-      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/startPoll', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          partyID: partyCode, // Just send partyCode
-        }),
-      });
-  
-      if (!response.ok) {
-        const responseText = await response.text();
-        console.error('Error starting poll:', responseText);
+      const response = await axios.post(
+        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/startPoll',
+        { partyID: partyCode }, // Just send partyCode
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+
+      if (response.status === 200) {
+        console.log(response.data.message);
+        
+        // Store the pollID in localStorage
+        localStorage.setItem('pollID', response.data.pollID);
+        
+        navigate('/home'); // Redirect to the HomePage
+      } else {
+        console.error('Error starting poll:', response.data);
         throw new Error('Failed to start poll');
       }
-  
-      const result = await response.json();
-      console.log(result.message);
-      
-      // Store the pollID in localStorage
-      localStorage.setItem('pollID', result.pollID);
-      
-      navigate('/home'); // Redirect to the HomePage
     } catch (error) {
       console.error('Error starting poll:', error);
       setMessage('Failed to start poll. Please try again later.');
     }
   };
-  
+
   return (
     <div className="container">
       <div id="createGroupDiv">

@@ -15,7 +15,7 @@ function RegisterPage() {
       const response = await axios.post(
         'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register',
         { email, name, password },
-        { headers: { 'Content-Type': 'application/json' } } // Ensure correct header
+        { headers: { 'Content-Type': 'application/json' } }
       );
 
       console.log('Response:', response); // Log response for debugging
