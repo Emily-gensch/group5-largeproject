@@ -19,6 +19,8 @@ if (process.env.NODE_ENV !== 'test') {
   mongoose
     .connect(url, {
       dbName: 'party-database',
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     })
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.log(err));
@@ -33,7 +35,7 @@ const Movie = require('./models/Movie');
 
 app.use(
   cors({
-    origin: 'http://localhost:5002',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5002',
     credentials: true,
   })
 );
@@ -53,7 +55,7 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60,
       sameSite: 'Lax',
-      secure: false,
+      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
     },
   })
 );
