@@ -222,7 +222,7 @@ app.post('/api/sendResetPassEmail', async (req, res) => {
     };
 });
 
-// Reset password 
+// Reset password verify and redirect
 // RESET_PASSWORD_PAGE needed
 // can probably use the changepassword page
 app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
@@ -273,6 +273,39 @@ app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
         </body>
       </html>
     `);
+  }
+});
+
+// reset password with email
+app.post('/api/resetPass', async (req, res) => {
+  const { email, newPassword, validatePassword } = req.body;
+  const passwordRegex =
+    /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,32}$/;
+
+  if (newPassword !== validatePassword) {
+    return res.status(400).json({ error: 'Passwords must match' });
+  }
+  if (!passwordRegex.test(newPassword)) {
+    return res.status(400).json({ error: 'Weak password' });
+  }
+
+  try {
+    //const user = await User.findById(userID);
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const isSamePassword = bcrypt.compareSync(newPassword, user.password);
+    if (isSamePassword) {
+      return res
+        .status(400)
+        .json({ error: 'Password matches current password' });
+    }
+    user.password = bcrypt.hashSync(newPassword, 8);
+    await user.save();
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
   }
 });
 
