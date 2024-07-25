@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './styles/Register.css';
 
 function RegisterPage() {
@@ -6,7 +6,6 @@ function RegisterPage() {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [token, setToken] = useState('');
 
   const register = async (email, name, password) => {
     try {
@@ -14,61 +13,25 @@ function RegisterPage() {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'application/json', // Ensure Content-Type header is set
         },
         body: JSON.stringify({ email, name, password }),
       });
 
       const data = await response.json();
-      console.log('Registration response:', response);
-      console.log('Registration data:', data);
 
       if (response.ok) {
-        console.log('Registration successful');
         setMessage('Registration successful');
-        localStorage.setItem('token', data.token); // Store the token in localStorage
         // Redirect to the join page or login page
         window.location.href = '/join'; // Example: Redirect to '/join' page
-
-  };
-
-  const fetchUserAccount = async (token) => {
-    try {
-      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/user', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('User account data:', data);
-        // Handle user account data
       } else {
-        throw new Error('Failed to fetch user account');
+        setMessage('Registration failed'); // Inform user of failure
       }
     } catch (error) {
-      console.error('Error fetching user account:', error);
+      console.error('Error during registration:', error);
+      setMessage('Registration failed'); // Inform user of failure
     }
   };
-
-  useEffect(() => {
-    const fetchToken = async () => {
-      try {
-        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/token');
-        if (response.ok) {
-          const data = await response.json();
-          setToken(data.token);
-          fetchUserAccount(data.token);
-        } else {
-          throw new Error('Failed to fetch token');
-        }
-      } catch (error) {
-        console.error('Error fetching token:', error);
-      }
-    };
-
-    fetchToken();
-  }, []);
 
   return (
     <div className="container">
