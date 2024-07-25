@@ -25,15 +25,15 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Mongoose Models
-const User = require('./Project-API/src/models/User');
-const Party = require('./Project-API/src/models/Party');
-const Poll = require('./Project-API/src/models/Poll');
-const PartyGuest = require('./Project-API/src/models/PartyMembers');
-const Movie = require('./Project-API/src/models/Movie');
+const User = require('./src/models/User');
+const Party = require('./src/models/Party');
+const Poll = require('./src/models/Poll');
+const PartyGuest = require('./src/models/PartyMembers');
+const Movie = require('./src/models/Movie');
 
 app.use(
   cors({
-    origin: 'http://localhost:5002',
+    origin: ['http://localhost:5002', 'http://group5cop4331.com'],
     credentials: true,
   })
 );
@@ -53,15 +53,15 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60,
       sameSite: 'Lax',
-      secure: false,
+      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
     },
   })
 );
 
 // Routes
-const authRouter = require('./Project-API/src/routes/auth');
-const partyRouter = require('./Project-API/src/routes/party');
-const pollRouter = require('./Project-API/src/routes/poll');
+const authRouter = require('./src/routes/auth');
+const partyRouter = require('./src/routes/party');
+const pollRouter = require('./src/routes/poll');
 
 app.use('/api/auth', authRouter);
 app.use('/api/party', partyRouter);
