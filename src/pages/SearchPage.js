@@ -12,12 +12,14 @@ const SearchPage = () => {
     const fetchMovies = async () => {
       try {
         const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, { withCredentials: true });
-        console.log('Fetch movies response:', response.data); // Log the response data
+        console.log('Fetch movies response:', response); // Log the full response object
 
-        if (Array.isArray(response.data)) {
+        // Validate the response data format
+        if (response.data && Array.isArray(response.data)) {
           setAllMovies(response.data);
           setErrorMessage('');
         } else {
+          console.error('Invalid data format:', response.data); // Log invalid format
           throw new Error('Invalid data format');
         }
       } catch (error) {
@@ -38,13 +40,15 @@ const SearchPage = () => {
 
     try {
       const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', { search: searchTerm }, { withCredentials: true });
-      console.log('Search movies response:', response.data); // Log the response data
+      console.log('Search movies response:', response); // Log the full response object
 
-      if (Array.isArray(response.data)) {
+      // Validate the response data format
+      if (response.data && Array.isArray(response.data)) {
         setAllMovies(response.data);
         setShowingAllMovies(false);
         setErrorMessage('');
       } else {
+        console.error('Invalid data format:', response.data); // Log invalid format
         throw new Error('Invalid data format');
       }
     } catch (error) {
