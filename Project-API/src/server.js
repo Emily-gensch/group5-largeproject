@@ -224,9 +224,9 @@ app.post('/api/sendResetPassEmail', async (req, res) => {
 
 // Reset password 
 // RESET_PASSWORD_PAGE needed
+// can probably use the changepassword page
 app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
   const { passToken, email} = req.params;
-
   try {
     // Verifying the JWT token 
     jwt.verify(passToken, 'PassTokenKey', function(err, decoded) {
@@ -236,17 +236,18 @@ app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
             <body>
               <h2>Reset password failed</h2>
               <p>The link you clicked is invalid or has expired. </p>
-              <p><a href="http://localhost:5000/RESET_PASSWORD_PAGE">Go to Login Page</a></p>
+              <p><a href="http://localhost:3000/login">Go to Login Page</a></p>
             </body>
           </html>
         `);
       }
+      let url = new URL("http://localhost:3000/RESET_PASSWORD_PAGE?email="+email);
       res.status(200).send(`
         <html>
           <head>
             <title>Redirecting to another page</title>
             <!-- Redirecting to another page using meta tag -->
-            <meta http-equiv="refresh" content="1; url = "http://localhost:5000/RESET_PASSWORD_PAGE" />
+            <meta http-equiv="refresh" content="1; url = ${url} " />
           </head>
           <body>
             <h3>
@@ -255,8 +256,8 @@ app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
             <p><strong>Note:</strong> If your browser supports Refresh, you'll be
               redirected to the Reset Password Page. 
             </p>
-            <p>f you are not redirected in 5 seconds, click the link below:
-              <a href="http://localhost:5000/RESET_PASSWORD_PAGE" target="_blank">click here</a>
+            <p>If you are not redirected in 5 seconds, click the link below:
+              <a href = ${url}  target="_blank">click here</a>
             </p>
           </body>
           </html>`
