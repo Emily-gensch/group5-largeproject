@@ -81,8 +81,30 @@ a {
   z-index: 1000;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   color: #000000; /* Text color set to black */
+  border-radius: 8px; /* Rounded corners for the popup */
 }
 
 .popup button {
   margin-top: 10px;
+  background-color: #A51F1F; /* Button background color */
+  color: #FFF3E8; /* Button text color */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.popup button:hover {
+  background-color: #911c1c; /* Darker shade on hover */
+}
+
+/* Add an overlay for better visibility */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3); /* Semi-transparent black overlay */
+  z-index: 999; /* Just below the popup */
 }

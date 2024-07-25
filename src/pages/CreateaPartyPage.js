@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './styles/CreateaPartyPage.css';
+import './CreateaPartyPage.css';
 
 const CreateaPartyPage = () => {
-  const [groupName, setGroupName] = useState(''); // This is for setting the party name
+  const [groupName, setGroupName] = useState(''); // For setting the party name
   const [message, setMessage] = useState('');
   const [userId, setUserId] = useState('');
   const [partyCode, setPartyCode] = useState('');
@@ -84,11 +84,14 @@ const CreateaPartyPage = () => {
       </div>
 
       {showPopup && (
-        <div className="popup">
-          <p>Group created successfully!</p>
-          <p>Group Code: <strong>{partyCode}</strong></p>
-          <button onClick={handleClosePopup}>OK</button>
-        </div>
+        <>
+          <div className="popup-overlay" onClick={handleClosePopup}></div>
+          <div className="popup">
+            <p>Group created successfully!</p>
+            <p>Group Code: <strong>{partyCode}</strong></p>
+            <button onClick={handleClosePopup}>OK</button>
+          </div>
+        </>
       )}
     </div>
   );
