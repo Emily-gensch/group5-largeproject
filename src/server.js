@@ -35,7 +35,7 @@ const Movie = require('./models/Movie');
 
 app.use(
   cors({
-    origin:['https://socialmoviebackend-4584a07ae955.herokuapp.com'],
+    origin: 'https://themoviesocial-a63e6cbb1f61.herokuapp.com', // Replace with your frontend URL
     credentials: true,
   })
 );
@@ -107,7 +107,6 @@ app.post('/api/displayWatchedMovies', async (req, res) => {
 });
 
 // Search movies
-// Search movies
 app.post('/api/searchMovie', async (req, res) => {
   const { search } = req.body;
   try {
@@ -118,19 +117,6 @@ app.post('/api/searchMovie', async (req, res) => {
   }
 });
 
-// Display user account
-app.post('/api/userAccount', async (req, res) => {
-  const { userID } = req.body;
-  try {
-    const user = await User.findById(userID);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    res.status(200).json(user);
-  } catch (e) {
-    res.status(500).json({ error: e.toString() });
-  }
-});
 // Display user account
 app.post('/api/userAccount', async (req, res) => {
   const { userId } = req.body;
@@ -187,7 +173,6 @@ app.post('/api/changePassword', async (req, res) => {
     res.status(500).json({ error: e.toString() });
   }
 });
-
 
 // Start the server
 const PORT = process.env.PORT || 5001;
