@@ -18,21 +18,22 @@ function RegisterPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        withCredentials: true, // If needed for cross-origin requests
+        withCredentials: true,
       });
 
       console.log('Registration response:', response);
       console.log('Registration data:', response.data);
 
-      if (response.status === 201) { // Check for 201 status code
+      if (response.status === 200) {
         console.log('Registration successful');
         setMessage('Registration successful. Please check your email to verify your account.');
-        // Assuming no token is returned, so removing the token storage line
+        // You may not want to immediately redirect here
+        localStorage.setItem('token', response.data.token);
         window.location.href = '/wait'; 
       } else {
         console.log('Registration failed');
-        console.log('Registration error:', response.data.message || 'No error message');
-        setMessage(`Registration failed: ${response.data.message || 'Unknown error'}`);
+        console.log('Registration error:', response.data.error);
+        setMessage(`Registration failed: ${response.data.error}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
