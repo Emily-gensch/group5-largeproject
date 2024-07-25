@@ -16,7 +16,7 @@ const SearchPage = () => {
     const fetchMovies = async () => {
       try {
         const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/displayMovies', {}, {
-          withCredentials: true, // This ensures cookies are sent with the request
+          //withCredentials: true, // This ensures cookies are sent with the request
         });
 
         setAllMovies(response.data);
@@ -58,7 +58,6 @@ const SearchPage = () => {
     const partyID = localStorage.getItem('partyID');
     const userId = localStorage.getItem('userId');
   
-    // Ensure movieID is a number
     const movieIDNumber = Number(movieID);
   
     if (isNaN(movieIDNumber)) {
