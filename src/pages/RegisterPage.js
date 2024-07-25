@@ -8,11 +8,10 @@ function RegisterPage() {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Ensure you have this line
+  const navigate = useNavigate();
 
   const register = async (email, name, password) => {
     try {
-      // First, register the user
       const registerResponse = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
         email,
         name,
@@ -24,30 +23,24 @@ function RegisterPage() {
         withCredentials: true,
       });
 
-      console.log('Registration response:', registerResponse);
-      console.log('Registration data:', registerResponse.data);
-
-      if (registerResponse.status === 201) {
-        console.log('Registration successful');
-        setMessage('Registration successful. Please check your email to verify your account.');
-        navigate("/wait");
-
-        // After successful registration, send the email verification
-        await sendVerificationEmail(email);
+      if (registerResponse.headers['content-type'].includes('application/json')) {
+        const data = registerResponse.data;
+        if (registerResponse.status === 201) {
+          setMessage('Registration successful. Please check your email to verify your account.');
+          navigate("/wait");
+          await sendVerificationEmail(email);
+        } else {
+          setMessage(`Registration failed: ${data.message || 'Unknown error occurred'}`);
+        }
       } else {
-        console.log('Registration failed');
-        setMessage(`Registration failed: ${registerResponse.data.message || 'Unknown error occurred'}`);
+        setMessage('Unexpected response format. Please contact support.');
       }
     } catch (error) {
-      console.error('Registration error:', error);
       if (error.response) {
-        // Server responded with a status other than 2xx
         setMessage(`Registration failed: ${error.response.data.message || 'Unknown error occurred'}`);
       } else if (error.request) {
-        // Request was made but no response received
         setMessage('Registration failed: No response from server');
       } else {
-        // Something else went wrong
         setMessage(`Registration failed: ${error.message || 'Unknown error occurred'}`);
       }
     }
@@ -64,26 +57,22 @@ function RegisterPage() {
         withCredentials: true,
       });
 
-      console.log('Email sending response:', response);
-      console.log('Email sending data:', response.data);
-
-      if (response.status === 200) {
-        console.log('Verification email sent successfully');
-        setMessage('Verification email sent successfully.');
+      if (response.headers['content-type'].includes('application/json')) {
+        const data = response.data;
+        if (response.status === 200) {
+          setMessage('Verification email sent successfully.');
+        } else {
+          setMessage(`Failed to send verification email: ${data.message || 'Unknown error occurred'}`);
+        }
       } else {
-        console.log('Failed to send verification email');
-        setMessage(`Failed to send verification email: ${response.data.message || 'Unknown error occurred'}`);
+        setMessage('Unexpected response format. Please contact support.');
       }
     } catch (error) {
-      console.error('Error sending verification email:', error);
       if (error.response) {
-        // Server responded with a status other than 2xx
         setMessage(`Failed to send verification email: ${error.response.data.message || 'Unknown error occurred'}`);
       } else if (error.request) {
-        // Request was made but no response received
         setMessage('Failed to send verification email: No response from server');
       } else {
-        // Something else went wrong
         setMessage(`Failed to send verification email: ${error.message || 'Unknown error occurred'}`);
       }
     }
