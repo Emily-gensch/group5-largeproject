@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './styles/SearchPage.css';
 
@@ -7,27 +8,19 @@ const SearchPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [allMovies, setAllMovies] = useState([]);
   const [showingAllMovies, setShowingAllMovies] = useState(true);
+  const navigate = useNavigate();
+  const [pollID, setPollID] = useState(localStorage.getItem('pollID') || '');
+  const [partyID, setPartyID] = useState(localStorage.getItem('partyID') || '');
 
-  // Fetch all movies on component mount
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.post(
-          'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies',
-          {},
-          { withCredentials: true }
-        );
-        
-        console.log('Fetch movies response:', response); // Log the full response object
+        const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/displayMovies', {}, {
+          withCredentials: true, // This ensures cookies are sent with the request
+        });
 
-        // Validate the response data format
-        if (response.data && Array.isArray(response.data)) {
-          setAllMovies(response.data);
-          setErrorMessage('');
-        } else {
-          console.error('Invalid data format:', response.data); // Log invalid format
-          throw new Error('Invalid data format');
-        }
+        setAllMovies(response.data);
+        setErrorMessage('');
       } catch (error) {
         console.error('Fetch movies error:', error);
         setErrorMessage('Failed to fetch movies. Please try again later.');
@@ -38,51 +31,69 @@ const SearchPage = () => {
     fetchMovies();
   }, []);
 
-  // Handle search input and perform search
   const handleSearch = async () => {
-    if (searchTerm.trim() === '') {
+    if (searchTerm === '') {
       setShowingAllMovies(true);
-      return;
-    }
+    } else {
+      try {
+        const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/searchMovie', {
+          search: searchTerm,
+        }, {
+          withCredentials: true,
+        });
 
-    try {
-      const response = await axios.post(
-        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie',
-        { search: searchTerm },
-        { withCredentials: true }
-      );
-
-      console.log('Search movies response:', response); // Log the full response object
-
-      // Validate the response data format
-      if (response.data && Array.isArray(response.data)) {
         setAllMovies(response.data);
         setShowingAllMovies(false);
         setErrorMessage('');
-      } else {
-        console.error('Invalid data format:', response.data); // Log invalid format
-        throw new Error('Invalid data format');
+      } catch (error) {
+        console.error('Search error:', error);
+        setErrorMessage('Search failed. Please try again later.');
+        setAllMovies([]);
+        setShowingAllMovies(true);
       }
-    } catch (error) {
-      console.error('Search error:', error);
-      setErrorMessage('Search failed. Please try again later.');
-      setAllMovies([]);
-      setShowingAllMovies(true);
     }
   };
 
-  // Filter movies based on search term
+  const handleAddToPoll = async (movieID) => {
+    const partyID = localStorage.getItem('partyID');
+    const userId = localStorage.getItem('userId');
+  
+    // Ensure movieID is a number
+    const movieIDNumber = Number(movieID);
+  
+    if (isNaN(movieIDNumber)) {
+      console.error('Invalid movie ID:', movieID);
+      setErrorMessage('Invalid movie ID.');
+      return;
+    }
+  
+    try {
+      const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/poll/addMovieToPoll', {
+        movieID: movieIDNumber,
+        partyID,
+        userId,
+      }, {
+        withCredentials: true,
+      });
+
+      // Save movie to localStorage
+      const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
+      if (!existingMovies.includes(movieIDNumber)) {
+        existingMovies.push(movieIDNumber);
+        localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
+      }
+      console.log('Movie added to poll:', response.data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      setErrorMessage('Failed to add movie to poll. Please try again later.');
+    }
+  };
+
   const filteredMovies = searchTerm
     ? allMovies.filter((movie) =>
         movie.title.toLowerCase().startsWith(searchTerm.toLowerCase())
       )
     : allMovies;
-
-  // Handle movie click event
-  const handleMovieClick = (movieId) => {
-    console.log(`Clicked movie with ID: ${movieId}`);
-    // Example: window.location.href = `/movie/${movieId}`;
-  };
 
   return (
     <div className="search-page-container">
@@ -103,16 +114,32 @@ const SearchPage = () => {
           {filteredMovies.length === 0 ? (
             <div className="no-results">No movies available.</div>
           ) : (
-            filteredMovies.map((movie) => (
-              <div
-                key={movie._id} // Ensure this matches the actual ID field in your movie object
-                className="movie-box"
-                onClick={() => handleMovieClick(movie._id)}
-              >
+            filteredMovies.map((movie, index) => (
+              <div key={index} className="movie-box">
                 <div className="movie-title">{movie.title}</div>
+                <button
+                  className="add-button"
+                  onClick={() => handleAddToPoll(movie.movieID)}
+                >
+                  Add To Poll
+                </button>
               </div>
             ))
           )}
+        </div>
+      </div>
+      <div className="navigation-bar">
+        <div className="nav-item current-page">
+          <Link to="/search">Search</Link>
+        </div>
+        <div className="nav-item">
+          <Link to="/vote">Vote</Link>
+        </div>
+        <div className="nav-item">
+          <Link to="/home">Home</Link>
+        </div>
+        <div className="nav-item">
+          <Link to="/profile">Profile</Link>
         </div>
       </div>
     </div>

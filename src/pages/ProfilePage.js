@@ -20,7 +20,7 @@ const ProfilePage = () => {
       const fetchUserDetails = async () => {
         try {
           const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/userAccount', {
-            userID: userId,
+            userId: userId,
           });
 
           if (response.status === 200) {
