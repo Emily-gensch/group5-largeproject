@@ -26,16 +26,17 @@ function RegisterPage() {
 
       if (response.status === 200) {
         console.log('Registration successful');
-        setMessage('Registration successful');
-        localStorage.setItem('token', response.data.token); // Store the token in localStorage
-        //window.location.href = '/wait'; 
+        setMessage('Registration successful. Please check your email to verify your account.');
+        localStorage.setItem('token', response.data.token);
+        window.location.href = '/wait'; 
       } else {
         console.log('Registration failed');
-        setMessage(`Registration failed: ${response.data.error || 'An unknown error occurred'}`);
+        console.log('Registration error:', response.data.error);
+        setMessage(`Registration failed: ${response.data.error}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage(`Registration failed: ${error.response?.data?.error || 'An unknown error occurred'}`);
+      setMessage('Registration failed');
     }
   };
 
