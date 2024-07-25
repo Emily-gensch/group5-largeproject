@@ -8,8 +8,6 @@ const SearchPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [allMovies, setAllMovies] = useState([]);
   const [showingAllMovies, setShowingAllMovies] = useState(true);
-  const [pollID, setPollID] = useState(localStorage.getItem('pollID') || '');
-  const [partyID, setPartyID] = useState(localStorage.getItem('partyID') || '');
 
   const apiUrl = 'https://socialmoviebackend-4584a07ae955.herokuapp.com'; // Adjust this URL as needed
 
@@ -19,8 +17,8 @@ const SearchPage = () => {
         const response = await axios.post(`${apiUrl}/api/displayMovies`, {}, {
           withCredentials: true
         });
-        // Ensure response.data is always an array
         const movies = Array.isArray(response.data) ? response.data : [];
+        console.log('Fetched movies:', movies); // Log fetched movies
         setAllMovies(movies);
         setErrorMessage('');
       } catch (error) {
@@ -44,6 +42,7 @@ const SearchPage = () => {
         withCredentials: true
       });
       const movies = Array.isArray(response.data) ? response.data : [];
+      console.log('Search results:', movies); // Log search results
       setAllMovies(movies);
       setShowingAllMovies(false);
       setErrorMessage('');
