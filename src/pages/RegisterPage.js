@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import './styles/Register.css';
-import { post } from '../api'; 
 
 function RegisterPage() {
   const [registerUsername, setRegisterUsername] = useState('');
@@ -10,23 +9,26 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      const response = await post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
-        email,
-        name,
-        password,
+      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify({ email, name, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         setMessage('Registration successful');
-        window.location.href = '/join';
+        window.location.href = '/join'; 
       } else {
-        setMessage('Registration failed');
+        setMessage('Registration failed'); 
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      setMessage('Registration failed');
+      setMessage('Registration failed'); 
     }
   };
 
