@@ -61,8 +61,7 @@ function RegisterPage() {
       if (response.status === 200) {
         console.log('Verification email sent');
       } else {
-        const sendEmailError = response.data.error || 'Failed to send verification email';
-        setMessage(`Failed to send verification email: ${sendEmailError}`);
+        setMessage(`Failed to send verification email: ${response.data.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Send email error:', error);
