@@ -4,7 +4,7 @@ const CheckSession = () => {
   const [sessionData, setSessionData] = useState(null);
   const [message, setMessage] = useState('');
 
-  /*useEffect(() => {
+  useEffect(() => {
     const fetchSession = async () => {
       try {
         const response = await fetch('http://localhost:5001/api/check-session', {
@@ -25,7 +25,7 @@ const CheckSession = () => {
     };
 
     fetchSession();
-  }, []); */
+  }, []); 
 
   return (
     <div>
