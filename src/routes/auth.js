@@ -11,10 +11,13 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: process.env.EMAIL_USER, // Replace with your environment variable
-    pass: process.env.EMAIL_PASS, // Replace with your environment variable
+    user: process.env.EMAIL_USER, // Environment variable for email user
+    pass: process.env.EMAIL_PASS, // Environment variable for email password
   },
 });
+
+// Base URL from environment variable
+const BASE_URL = process.env.BASE_URL; // Ensure this is defined in your environment variables
 
 // Register
 router.post('/register', async (req, res) => {
@@ -29,17 +32,17 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ message: 'Invalid email format' });
   }
 
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return res.status(400).json({ message: 'Email already in use' });
-  }
-
-  const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,32}$/;
-  if (!passwordRegex.test(password)) {
-    return res.status(400).json({ message: 'Password does not meet criteria' });
-  }
-
   try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,32}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({ message: 'Password does not meet criteria' });
+    }
+
     const emailToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1d' });
     const hashedPassword = bcrypt.hashSync(password, 8);
     const newUser = new User({
@@ -57,12 +60,18 @@ router.post('/register', async (req, res) => {
       from: `"Your App Name" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Email Verification',
-      text: `Hi there! Please verify your email by clicking the link below:\n\n${process.env.BASE_URL}/api/auth/verifyEmail/${emailToken}\n\nThank you!`,
+      text: `Hi there! Please verify your email by clicking the link below:\n\n${BASE_URL}/api/auth/verifyEmail/${emailToken}\n\nThank you!`,
     };
 
-    await transporter.sendMail(mailOptions);
-    res.status(201).json({ message: 'User registered successfully, please check your email to verify your account.' });
+    try {
+      await transporter.sendMail(mailOptions);
+      res.status(201).json({ message: 'User registered successfully, please check your email to verify your account.' });
+    } catch (mailError) {
+      console.error('Error sending verification email:', mailError);
+      res.status(500).json({ message: 'User registered, but failed to send verification email' });
+    }
   } catch (e) {
+    console.error('Error in registration process:', e);
     res.status(500).json({ message: 'Server error', error: e.message });
   }
 });
@@ -93,12 +102,18 @@ router.post('/resendVerification', async (req, res) => {
       from: `"Your App Name" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Email Verification',
-      text: `Hi there! Please verify your email by clicking the link below:\n\n${process.env.BASE_URL}/api/auth/verifyEmail/${emailToken}\n\nThank you!`,
+      text: `Hi there! Please verify your email by clicking the link below:\n\n${BASE_URL}/api/auth/verifyEmail/${emailToken}\n\nThank you!`,
     };
 
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: 'Verification email sent successfully' });
+    try {
+      await transporter.sendMail(mailOptions);
+      res.status(200).json({ message: 'Verification email sent successfully' });
+    } catch (mailError) {
+      console.error('Error sending verification email:', mailError);
+      res.status(500).json({ message: 'Failed to send verification email' });
+    }
   } catch (e) {
+    console.error('Error in resend verification process:', e);
     res.status(500).json({ message: 'Server error', error: e.message });
   }
 });
@@ -119,6 +134,7 @@ router.get('/verifyEmail/:emailToken', async (req, res) => {
 
     res.status(200).send('Email verified successfully');
   } catch (e) {
+    console.error('Error verifying email:', e);
     res.status(500).send(e.message);
   }
 });
@@ -143,11 +159,13 @@ router.post('/login', async (req, res) => {
     req.session.email = user.email;
     req.session.save((err) => {
       if (err) {
+        console.error('Session save error:', err);
         return res.status(500).json({ message: 'Session save error', error: err.message });
       }
       res.status(200).json({ message: 'Login successful', userId: user._id });
     });
   } catch (err) {
+    console.error('Error during login:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
