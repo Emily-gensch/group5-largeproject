@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Import axios
 import './styles/CreateaPartyPage.css';
 
 const CreateaPartyPage = () => {
@@ -20,26 +19,22 @@ const CreateaPartyPage = () => {
     }
   }, []);
 
-  const createGroup = async (partyName, userId) => {
-    try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/create', {
-        partyName,
-        userId
-      });
-
-      if (response.status === 200) {
-        const data = response.data;
-        console.log('Group created:', data);
-        setPartyCode(data.partyInviteCode); // Set party code to state
-        setMessage('Group created successfully!');
-        setShowPopup(true); // Show popup
-      } else {
-        throw new Error(response.data.message || 'Unknown error occurred');
-      }
-    } catch (error) {
-      console.error('Error creating group:', error);
-      setMessage('Error: Failed to create group. Please try again later.');
+  // Function to generate a random party code
+  const generatePartyCode = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += characters.charAt(Math.floor(Math.random() * characters.length));
     }
+    return code;
+  };
+
+  const createGroup = (partyName, userId) => {
+    const newPartyCode = generatePartyCode();
+    setPartyCode(newPartyCode); // Set the generated party code to state
+    setMessage('Group created successfully!');
+    setShowPopup(true); // Show popup
+    // Here you could also save the party details to local storage or state if needed
   };
 
   const handleSubmit = (event) => {
