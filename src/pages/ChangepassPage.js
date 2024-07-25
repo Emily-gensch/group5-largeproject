@@ -29,7 +29,7 @@ const ChangePasswordPage = () => {
     try {
       console.log('User ID:', userId); // Debugging line
 
-      const response = await fetch('http://localhost:5001/api/changePassword', {
+      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/changePassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

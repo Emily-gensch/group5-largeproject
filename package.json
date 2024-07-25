@@ -2,7 +2,7 @@
   "name": "frontend_web",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:3000",
+  "proxy": "https://socialmoviebackend-4584a07ae955.herokuapp.com/",
   "homepage": "http://myapp.local",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
@@ -12,10 +12,12 @@
     "body-parser": "^1.20.2",
     "common": "^0.2.5",
     "cors": "^2.8.5",
+    "debug": "^4.3.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "js-cookie": "^3.0.5",
+    "node": "^22.5.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.24.0",
@@ -48,6 +50,12 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@babel/core": "^7.24.9",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/preset-env": "^7.24.8",
+    "@babel/preset-react": "^7.24.7",
+    "@rollup/plugin-babel": "^6.0.4",
+    "workbox-build": "^7.1.1",
+    "workbox-webpack-plugin": "^7.1.0"
   }
 }

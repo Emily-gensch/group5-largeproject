@@ -26,7 +26,7 @@ const CreateaPartyPage = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5001/api/party/create', {
+      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,11 +53,40 @@ const CreateaPartyPage = () => {
     handleCreateGroup(groupName);
   };
 
-  const handleClosePopup = () => {
+  const handleClosePopup = async () => {
     setShowPopup(false); // Hide the popup
-    navigate('/home'); // Redirect to the HomePage
+  
+    try {
+      // No need to send movieID here if it's not used yet
+      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/startPoll', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          partyID: partyCode, // Just send partyCode
+        }),
+      });
+  
+      if (!response.ok) {
+        const responseText = await response.text();
+        console.error('Error starting poll:', responseText);
+        throw new Error('Failed to start poll');
+      }
+  
+      const result = await response.json();
+      console.log(result.message);
+      
+      // Store the pollID in localStorage
+      localStorage.setItem('pollID', result.pollID);
+      
+      navigate('/home'); // Redirect to the HomePage
+    } catch (error) {
+      console.error('Error starting poll:', error);
+      setMessage('Failed to start poll. Please try again later.');
+    }
   };
-
+  
   return (
     <div className="container">
       <div id="createGroupDiv">

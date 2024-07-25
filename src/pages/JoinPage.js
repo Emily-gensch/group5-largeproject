@@ -32,7 +32,7 @@ const JoinPage = () => {
   const handleJoinParty = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch('http://localhost:5001/api/party/joinParty', {
+      const response = await fetch('hhttps://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/joinParty', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,8 +49,11 @@ const JoinPage = () => {
         } else {
           setMessage(`Successfully joined the party! Party ID: ${result.partyID}`);
 
+          // Store the partyID in local storage
+          localStorage.setItem('partyID', result.partyID);
+
           // Create poll after joining the party
-          const pollResponse = await fetch('http://localhost:5001/api/poll/startPoll', {
+          const pollResponse = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/startPoll', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

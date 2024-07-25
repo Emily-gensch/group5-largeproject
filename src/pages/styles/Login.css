@@ -1,7 +1,5 @@
-/* styles/Login.css */
-
 body {
-    background-color: #313338;
+    background-color: #fafbff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -12,7 +10,7 @@ body {
   
   .container {
     text-align: center;
-    color: #FFF3E8;
+    color: #060300;
   }
   
   #loginDiv {

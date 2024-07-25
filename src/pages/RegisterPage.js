@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './styles/Register.css';
 
 function RegisterPage() {
@@ -6,41 +6,89 @@ function RegisterPage() {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [token, setToken] = useState('');
 
   const register = async (email, name, password) => {
     try {
-      const response = await fetch('http://localhost:5001/api/auth/register', {
+      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email, name, password }),
       });
 
       const data = await response.json();
+      console.log('Registration response:', response);
+      console.log('Registration data:', data);
 
       if (response.ok) {
-        console.log('Registration response:', response);
-        console.log('Registration data:', data);
-
-        setMessage('Registration successful. You will be redirected to the waiting page.');
-        window.location.href = '/wait'; // Redirect to waiting page
+        console.log('Registration successful');
+        setMessage('Registration successful');
+        localStorage.setItem('token', data.token); // Store the token in localStorage
+        // Redirect to the join page or login page
+        window.location.href = '/join'; // Example: Redirect to '/join' page
+      } else if (response.status === 400) {
+        console.log('Registration failed: Bad Request');
+        console.log('Registration error:', data.error);
+        setMessage(`Registration failed: ${data.error}`);
       } else {
-        setMessage(`Registration failed: ${data.message || 'Unknown error'}`);
+        console.log('Registration failed');
+        console.log('Registration error:', data.error);
+        setMessage(`Registration failed: ${data.error}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage(`Registration failed due to an unexpected error: ${error.message}`);
+      setMessage('Registration failed');
     }
   };
+
+  const fetchUserAccount = async (token) => {
+    try {
+      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/user', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('User account data:', data);
+        // Handle user account data
+      } else {
+        throw new Error('Failed to fetch user account');
+      }
+    } catch (error) {
+      console.error('Error fetching user account:', error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/token');
+        if (response.ok) {
+          const data = await response.json();
+          setToken(data.token);
+          fetchUserAccount(data.token);
+        } else {
+          throw new Error('Failed to fetch token');
+        }
+      } catch (error) {
+        console.error('Error fetching token:', error);
+      }
+    };
+
+    fetchToken();
+  }, []);
 
   return (
     <div className="container">
       <div id="registerDiv">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            register(registerEmail, registerUsername, registerPassword);
-          }}
-        >
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          register(registerEmail, registerUsername, registerPassword);
+        }}>
           <span id="inner-title">REGISTER</span><br />
           <input
             type="text"

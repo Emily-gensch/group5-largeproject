@@ -214,7 +214,10 @@ router.post('/startPoll', async (req, res) => {
   console.log(`Starting poll for partyID: ${partyID}, movieID: ${movieID}`);
 
   try {
-    const newPoll = new Poll({ partyID, movieID });
+    const newPoll = new Poll({
+      partyID,
+      movies: [{ movieID, votes: 0 }],
+    });
     await newPoll.save();
     res.status(201).json({
       pollID: newPoll._id,

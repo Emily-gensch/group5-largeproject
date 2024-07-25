@@ -1,86 +1,91 @@
+/* Register.css */
+
+/* Set the background color of the entire page */
 body {
-  background-color: #313338;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  font-family: 'Inter', sans-serif;
+  background-color: black; /* Fully black background for the entire page */
+  margin: 0; /* Remove default margin */
+  font-family: 'Inter', sans-serif; /* Set the font-family for the page */
 }
 
+/* Style for the container */
 .container {
   text-align: center;
+  color: #FFF3E8; /* Text color inside the container */
 }
 
-#welcomeHeader {
-  margin-top: 50px;
-  color: #FFD700; 
-  font-size: 2.5em; 
-  font-weight: bold;
-}
-
+/* Style for the registration box */
 #registerDiv {
   width: 400px;
   padding: 40px;
-  background-color: #A51F1F; 
+  background-color: #A51F1F; /* Red background for the registration box */
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
-  margin-top: 40px;
+  margin-top: 40px; /* Adjust margin to center the box if needed */
 }
 
+/* Title style */
 #inner-title {
   font-size: 24px;
   font-weight: bold;
-  color: #FFF3E8; 
+  color: #FFF3E8;
   margin-bottom: 20px;
 }
 
+/* Input styles */
 input[type="text"],
 input[type="email"],
-input[type="password"],
-input[type="submit"],
-a {
+input[type="password"] {
   width: 100%;
   height: 50px;
+  background-color: #F0F0F0; /* Background color for input fields */
+  color: #000; /* Text color in input fields */
   border-radius: 8px;
+  border: none;
+  padding: 0 15px;
   margin-bottom: 10px;
   font-size: 16px;
   box-sizing: border-box;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-  background-color: #F0F0F0; 
-  border: none;
-  padding: 0 15px;
+/* Placeholder styles */
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+  color: #B0B0B0; /* Placeholder color */
 }
 
+/* Submit button style */
 #registerButton {
-  background-color: #FFF3E8; 
-  color: #A51F1F;
+  width: 100%;
+  height: 50px;
+  background-color: #FFF3E8; /* Button background color */
+  color: #A51F1F; /* Button text color */
   border: none;
+  border-radius: 8px;
   font-size: 18px;
   cursor: pointer;
   margin-top: 10px;
 }
 
+/* Button hover style */
 #registerButton:hover {
-  background-color: #E0E0E0; 
+  background-color: #E0E0E0; /* Hover background color */
 }
 
+/* Result message style */
 #registerResult {
-  color: #000000;
+  color: #FFD700; /* Result message color */
   font-size: 14px;
   margin-top: 10px;
 }
 
+/* Link styles */
 a {
-  color: #FFD700; 
-  text-decoration: none; 
+  color: #FFD700; /* Link color */
+  text-decoration: none;
 }
 
 a:hover {
-  text-decoration: underline; 
+  text-decoration: underline; /* Link hover effect */
 }

@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './styles/HomePage.css';
 
 const HomePage = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [groupMembers, setGroupMembers] = useState([]);
   const [error, setError] = useState(null);
+  const [partyName, setPartyName] = useState('');
+  const [hostName, setHostName] = useState('');
+  const [topVotedMovie, setTopVotedMovie] = useState('');
+
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const partyID = queryParams.get('partyID');
+  const userID = queryParams.get('userID'); // Retrieve userID from query parameters
 
   useEffect(() => {
-    const fetchGroupMembers = async () => {
+    const fetchGroupData = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/getPartyMembers', {
+        const response = await fetch(`https://socialmoviebackend-4584a07ae955.herokuapp.com/home?partyID=${partyID}&userID=${userID}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -18,30 +26,33 @@ const HomePage = () => {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch group members');
+          throw new Error('Failed to fetch group data');
         }
 
         const data = await response.json();
-        setGroupMembers(data.members || []);
+        setPartyName(data.partyName || '');
+        setHostName(data.hostName || '');
+        setTopVotedMovie(data.topVotedMovie || 'No votes yet');
+        setGroupMembers(data.guests || []);
         setError(null);
       } catch (error) {
-        console.error('Fetch group members error:', error);
-        setError('Failed to fetch group members. Please try again later.');
+        console.error('Fetch group data error:', error);
+        setError('Failed to fetch group data. Please try again later.');
       }
     };
 
-    fetchGroupMembers();
-  }, []);
+    if (partyID && userID) {
+      fetchGroupData();
+    }
+  }, [partyID, userID]);
 
   const handleClosePopup = () => {
     setShowPopup(false);
   };
 
-  const groupName = "Welcome to 'Large Project'";
-
   return (
     <div className="home-page-container">
-      <div className="large-project-header">{groupName}</div>
+      <div className="large-project-header">Welcome to {partyName}</div>
       <div className="content">
         <div className="group-members">
           <h2>Group Members</h2>
@@ -63,7 +74,7 @@ const HomePage = () => {
         </div>
         <div className="group-picks">
           <h2>Group's Top Picks</h2>
-          {/* Placeholder for Group's Top Picks content */}
+          <div className="top-movie">{topVotedMovie}</div>
         </div>
       </div>
       <div className="navigation-bar">

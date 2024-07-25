@@ -21,7 +21,7 @@ const ProfilePage = () => {
     } else {
       const fetchUserDetails = async () => {
         try {
-          const userResponse = await fetch('http://localhost:5001/api/userAccount', {
+          const userResponse = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/userAccount', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
