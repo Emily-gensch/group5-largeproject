@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios'; // Import axios
+import axios from 'axios';
 import './styles/SearchPage.css';
 
 const SearchPage = () => {
@@ -13,10 +13,9 @@ const SearchPage = () => {
     const fetchMovies = async () => {
       try {
         const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, {
-          withCredentials: true // Include credentials with the request
+          withCredentials: true
         });
-
-        console.log('Fetched movies:', response.data); // Log response data
+        console.log('Fetched movies:', response.data); // Log the response
         setAllMovies(response.data);
         setErrorMessage('');
       } catch (error) {
@@ -39,10 +38,10 @@ const SearchPage = () => {
       const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
         search: searchTerm
       }, {
-        withCredentials: true // Include credentials with the request
+        withCredentials: true
       });
 
-      console.log('Search results:', response.data); // Log search results
+      console.log('Search results:', response.data); // Log the search results
       setAllMovies(response.data);
       setShowingAllMovies(false);
       setErrorMessage('');
@@ -54,43 +53,6 @@ const SearchPage = () => {
     }
   };
 
-  const handleAddToPoll = async (movieID) => {
-    const partyID = localStorage.getItem('partyID');
-    const userId = localStorage.getItem('userId');
-  
-    // Ensure movieID is a number
-    const movieIDNumber = Number(movieID);
-  
-    if (isNaN(movieIDNumber)) {
-      console.error('Invalid movie ID:', movieID);
-      setErrorMessage('Invalid movie ID.');
-      return;
-    }
-  
-    try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/addMovieToPoll', {
-        movieID: movieIDNumber,
-        partyID,
-        userId
-      }, {
-        withCredentials: true // Include credentials with the request
-      });
-  
-      console.log('Movie added to poll:', response.data);
-  
-      // Save movie to localStorage
-      const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
-      if (!existingMovies.includes(movieIDNumber)) {
-        existingMovies.push(movieIDNumber);
-        localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
-      }
-    } catch (error) {
-      console.error('Add to poll error:', error);
-      setErrorMessage('Failed to add movie to poll. Please try again later.');
-    }
-  };
-
-  // Adjust the filtering logic to ensure case-insensitive comparison
   const filteredMovies = showingAllMovies
     ? allMovies
     : allMovies.filter((movie) =>
