@@ -17,7 +17,10 @@ const storedMoviesSchema = new mongoose.Schema({
   watchedStatus: { type: Boolean, default: false },
 });
 
-// Create the StoredMovies model
-const StoredMovies = mongoose.model('StoredMovies', storedMoviesSchema);
+const StoredMovies = mongoose.model(
+  'StoredMovies',
+  storedMoviesSchema,
+  'storedmovies'
+);
 
 module.exports = StoredMovies;

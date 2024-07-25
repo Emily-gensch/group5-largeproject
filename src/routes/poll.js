@@ -61,7 +61,7 @@ router.post('/addMovieToPoll', async (req, res) => {
   const { movieID } = req.body;
   const userID = req.session.userId;
   if (!userID) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: 'userID not found' });
   }
 
   try {
