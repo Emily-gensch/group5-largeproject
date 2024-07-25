@@ -90,7 +90,7 @@ router.post('/sendEmail', async (req, res) => {
       text: `Hi! There, You have recently visited 
             our website and entered your email.
             Please follow the given link to verify your email
-            https://localhost:5000/verifyEmail/${emailToken} 
+            https://socialmoviebackend-4584a07ae955.herokuapp.com/verifyEmail/${emailToken} 
             Thanks`,
     })
     .then(() => {

@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://socialmoviebackend-4584a07ae955.herokuapp.com/api';
 
 const handleResponse = async (response) => {
   if (!response.ok) {
@@ -24,7 +24,7 @@ export const register = async (email, name, password) => {
 // The generate token is stored for the specific user for later use that requires stricter authentication.
 export const login = async (email, password) => {
   console.log('Sending login request', { email, password });
-  const response = await fetch('http://localhost:5000/api/auth/login', {
+  const response = await fetch('hhttps://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ const getToken = async () => {
 // Creates a party. POST request that requires a party name. Token is required from the user (they have to be logged in) in order to create a party.
 // getToken() function is used to retrieve the current users token.
 export const createParty = async (partyName) => {
-  const response = await fetch('http://localhost:5000/api/party/create', {
+  const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

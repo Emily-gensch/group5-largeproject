@@ -7,7 +7,7 @@ const CheckSession = () => {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/check-session', {
+        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/check-session', {
           method: 'GET',
           credentials: 'include',
         });
