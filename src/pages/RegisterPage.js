@@ -28,6 +28,7 @@ function RegisterPage() {
       if (registerResponse.status === 201) {
         console.log('Registration successful');
         setMessage('Registration successful. Please check your email to verify your account.');
+        navigate("/wait");
 
         // After successful registration, send the email verification
         await sendVerificationEmail(email);
