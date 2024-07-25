@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './styles/Register.css';
+import { post } from './api'; // Import the post function
 
 function RegisterPage() {
   const [registerUsername, setRegisterUsername] = useState('');
@@ -9,26 +10,30 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify({ email, name, password }),
+      const response = await post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
+        email,
+        name,
+        password,
       });
 
-      const data = await response.json();
+      // Check if response is JSON
+      const contentType = response.headers.get('Content-Type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
 
-      if (response.ok) {
-        setMessage('Registration successful');
-        window.location.href = '/join'; 
+        if (response.ok) {
+          setMessage('Registration successful');
+          window.location.href = '/join';
+        } else {
+          setMessage(data.message || 'Registration failed');
+        }
       } else {
-        setMessage('Registration failed'); 
+        console.error('Unexpected response type:', contentType);
+        setMessage('Unexpected response type');
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      setMessage('Registration failed'); 
+      setMessage('Registration failed');
     }
   };
 
