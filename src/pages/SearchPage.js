@@ -12,8 +12,12 @@ const SearchPage = () => {
     const fetchMovies = async () => {
       try {
         const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, { withCredentials: true });
-        setAllMovies(response.data);
-        setErrorMessage('');
+        if (response.status === 200) {
+          setAllMovies(response.data);
+          setErrorMessage('');
+        } else {
+          setErrorMessage('Failed to fetch movies. Please try again later.');
+        }
       } catch (error) {
         console.error('Fetch movies error:', error);
         setErrorMessage('Failed to fetch movies. Please try again later.');
@@ -25,21 +29,27 @@ const SearchPage = () => {
   }, []);
 
   const handleSearch = async () => {
-    // Search movies using Axios
-    if (searchTerm === '') {
+    if (searchTerm.trim() === '') {
       setShowingAllMovies(true);
-    } else {
-      try {
-        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', { search: searchTerm }, { withCredentials: true });
+      return;
+    }
+
+    try {
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', { search: searchTerm }, { withCredentials: true });
+      if (response.status === 200) {
         setAllMovies(response.data);
         setShowingAllMovies(false);
         setErrorMessage('');
-      } catch (error) {
-        console.error('Search error:', error);
+      } else {
         setErrorMessage('Search failed. Please try again later.');
         setAllMovies([]);
         setShowingAllMovies(true);
       }
+    } catch (error) {
+      console.error('Search error:', error);
+      setErrorMessage('Search failed. Please try again later.');
+      setAllMovies([]);
+      setShowingAllMovies(true);
     }
   };
 
@@ -50,9 +60,8 @@ const SearchPage = () => {
     : allMovies;
 
   const handleMovieClick = (movieId) => {
-    // Handle movie click event, e.g., navigate to movie details page
-    // Example: window.location.href = `/movie/${movieId}`;
     console.log(`Clicked movie with ID: ${movieId}`);
+    // Example: window.location.href = `/movie/${movieId}`;
   };
 
   return (
@@ -76,9 +85,9 @@ const SearchPage = () => {
           ) : (
             filteredMovies.map((movie) => (
               <div
-                key={movie.id} // Assuming each movie has a unique 'id' property
+                key={movie._id} // Ensure this matches the actual ID field in your movie object
                 className="movie-box"
-                onClick={() => handleMovieClick(movie.id)}
+                onClick={() => handleMovieClick(movie._id)}
               >
                 <div className="movie-title">{movie.title}</div>
               </div>
