@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import './styles/SearchPage.css';
 
 const SearchPage = () => {
@@ -8,21 +6,20 @@ const SearchPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [allMovies, setAllMovies] = useState([]);
   const [showingAllMovies, setShowingAllMovies] = useState(true);
-  const navigate = useNavigate();
-  const [pollID, setPollID] = useState(localStorage.getItem('pollID') || '');
-  const [partyID, setPartyID] = useState(localStorage.getItem('partyID') || '');
 
   useEffect(() => {
+    // Simplified fetch movies logic
     const fetchMovies = async () => {
       try {
-        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, {
+        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          withCredentials: true,
+          credentials: 'include',
         });
-
-        setAllMovies(response.data);
+        const data = await response.json();
+        setAllMovies(data);
         setErrorMessage('');
       } catch (error) {
         console.error('Fetch movies error:', error);
@@ -35,20 +32,21 @@ const SearchPage = () => {
   }, []);
 
   const handleSearch = async () => {
+    // Simplified search logic
     if (searchTerm === '') {
       setShowingAllMovies(true);
     } else {
       try {
-        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
-          search: searchTerm,
-        }, {
+        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          withCredentials: true,
+          body: JSON.stringify({ search: searchTerm }),
+          credentials: 'include',
         });
-
-        setAllMovies(response.data);
+        const data = await response.json();
+        setAllMovies(data);
         setShowingAllMovies(false);
         setErrorMessage('');
       } catch (error) {
@@ -57,45 +55,6 @@ const SearchPage = () => {
         setAllMovies([]);
         setShowingAllMovies(true);
       }
-    }
-  };
-
-  const handleAddToPoll = async (movieID) => {
-    const partyID = localStorage.getItem('partyID');
-    const userId = localStorage.getItem('userId');
-
-    // Ensure movieID is a number
-    const movieIDNumber = Number(movieID);
-
-    if (isNaN(movieIDNumber)) {
-      console.error('Invalid movie ID:', movieID);
-      setErrorMessage('Invalid movie ID.');
-      return;
-    }
-
-    try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/addMovieToPoll', {
-        movieID: movieIDNumber,
-        partyID,
-        userId,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true,
-      });
-
-      console.log('Movie added to poll:', response.data);
-
-      // Save movie to localStorage
-      const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
-      if (!existingMovies.includes(movieIDNumber)) {
-        existingMovies.push(movieIDNumber);
-        localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
-      }
-    } catch (error) {
-      console.error('Error adding movie to poll:', error);
-      setErrorMessage('Failed to add movie to poll. Please try again later.');
     }
   };
 
@@ -127,29 +86,9 @@ const SearchPage = () => {
             filteredMovies.map((movie, index) => (
               <div key={index} className="movie-box">
                 <div className="movie-title">{movie.title}</div>
-                <button
-                  className="add-button"
-                  onClick={() => handleAddToPoll(movie.movieID)}
-                >
-                  Add To Poll
-                </button>
               </div>
             ))
           )}
-        </div>
-      </div>
-      <div className="navigation-bar">
-        <div className="nav-item current-page">
-          <Link to="/search">Search</Link>
-        </div>
-        <div className="nav-item">
-          <Link to="/vote">Vote</Link>
-        </div>
-        <div className="nav-item">
-          <Link to="/home">Home</Link>
-        </div>
-        <div className="nav-item">
-          <Link to="/profile">Profile</Link>
         </div>
       </div>
     </div>

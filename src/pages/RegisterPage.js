@@ -1,34 +1,34 @@
 import React, { useState } from 'react';
-import './styles/Register.css'; 
+import './styles/Register.css';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
 
 function RegisterPage() {
   const [registerUsername, setRegisterUsername] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate(); // Hook for navigation
 
-const register = async (email, name, password) => {
-  try {
-    const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
-      email,
-      name,
-      password,
-    });
+  const register = async (email, name, password) => {
+    try {
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
+        email,
+        name,
+        password,
+      });
 
-    if (response.status === 200) {
-      setMessage('Registration successful');
-      window.location.href = '/login';
-    } else {
-      setMessage(response.data.message || 'Registration failed');
+      if (response.status === 201) {
+        setMessage('Registration successful. Please check your email to verify your account.');
+        navigate('/wait'); // Redirect to waiting page
+      } else {
+        setMessage(response.data.message || 'Registration failed');
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      setMessage('Registration failed');
     }
-  } catch (error) {
-    console.error('Error during registration:', error);
-    setMessage('Registration failed');
-  }
-};
-
+  };
 
   return (
     <div className="container">
