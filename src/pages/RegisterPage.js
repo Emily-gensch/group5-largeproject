@@ -27,9 +27,8 @@ function RegisterPage() {
       if (response.status === 200) {
         console.log('Registration successful');
         setMessage('Registration successful. Please check your email to verify your account.');
-        // You may not want to immediately redirect here
-        localStorage.setItem('token', response.data.token);
-        window.location.href = '/wait'; 
+        // Redirecting to a wait page or login page
+        // window.location.href = '/wait'; 
       } else {
         console.log('Registration failed');
         console.log('Registration error:', response.data.error);

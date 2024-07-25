@@ -7,9 +7,7 @@ const nodemailer = require('nodemailer');
 
 // Configuration for Nodemailer
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  service: 'gmail', // Use 'gmail' for Gmail or configure according to your email provider
   auth: {
     user: process.env.EMAIL_USER, // Environment variable for email user
     pass: process.env.EMAIL_PASS, // Environment variable for email password
@@ -76,6 +74,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Resend Verification
 router.post('/resendVerification', async (req, res) => {
   const { email } = req.body;
 
@@ -118,7 +117,7 @@ router.post('/resendVerification', async (req, res) => {
   }
 });
 
-// Verify email route
+// Verify Email
 router.get('/verifyEmail/:emailToken', async (req, res) => {
   const { emailToken } = req.params;
   try {
