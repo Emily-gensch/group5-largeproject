@@ -66,10 +66,8 @@ router.post('/create', async (req, res) => {
   const userID = req.session.userId;
 
   if (!userID) {
-    return res.status(401).json({ message: 'userID not found' });
+    return res.status(401).json({ message: 'UserID not found' });
   }
-
-  console.log(partyName);
 
   try {
     const existingParty = await Party.findOne({ hostID: userID });
@@ -109,6 +107,7 @@ router.post('/create', async (req, res) => {
       message: 'Party, Poll, and Membership created successfully',
       party: savedParty,
       poll: savedPoll,
+      inviteCode: partyInviteCode, // Add the invite code here
     });
   } catch (err) {
     console.error('Error creating party, poll, and membership:', err);
