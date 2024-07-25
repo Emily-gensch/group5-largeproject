@@ -52,7 +52,7 @@ const HomePage = () => {
 
   return (
     <div className="home-page-container">
-      <div className="large-project-header">Welcome to {partyName}</div>
+      <div className="large-project-header">Welcome to The Movie Social </div>
       <div className="content">
         <div className="group-members">
           <h2>Group Members</h2>
