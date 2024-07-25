@@ -43,52 +43,57 @@ router.post('/register', async (req, res) => {
     await newUser.save();
 
     // Send verification email
-    await sendVerificationEmail(email, emailToken);
+    const sendEmailResponse = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendEmail', {
+      email,
+      emailToken,
+    });
 
-    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.' });
+    res.status(201).json({ message: 'User registered successfully, please check your email to verify your account.' });
   } catch (e) {
     res.status(500).json({ message: 'Server error', error: e.toString() });
   }
 });
 
-// Function to send verification email
-const sendVerificationEmail = async (email, emailToken) => {
+// Send email route
+router.post('/sendEmail', async (req, res) => {
+  const { email, emailToken } = req.body;
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
     secure: true,
     auth: {
-      user: 'your-email@gmail.com', // Update with your email
-      pass: 'your-email-password', // Update with your email password
+      user: 'joanndinzey@gmail.com',
+      pass: 'ocdr fxxd iggz vysi', // Replace with environment variable in production
     },
   });
 
-  await transporter.sendMail({
-    from: '"Your Project" <your-email@gmail.com>',
+  const mailOptions = {
+    from: '"Your App Name" <joanndinzey@gmail.com>',
     to: email,
     subject: 'Email Verification',
-    text: `Hi! You have recently registered on our website. Please follow the link to verify your email:
-      https://yourdomain.com/verifyEmail/${emailToken}
-      Thanks!`,
-  });
-};
-
-// Verify Email
-router.get('/verifyEmail/:emailToken', async (req, res) => {
-  const { emailToken } = req.params;
+    text: `Hi there! Please verify your email by clicking the link below:\n\nhttp://localhost:5001/api/auth/verifyEmail/${emailToken}\n\nThank you!`,
+  };
 
   try {
-    const decoded = jwt.verify(emailToken, 'ourSecretKey');
-    const user = await User.findOne({ emailToken });
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Verification email sent' });
+  } catch (err) {
+    res.status(500).json({ error: err.toString() });
+  }
+});
 
+// Verify email route
+router.get('/verifyEmail/:emailToken', async (req, res) => {
+  const { emailToken } = req.params;
+  try {
+    const user = await User.findOne({ emailToken });
     if (!user) {
       return res.status(401).send('Email verification failed: Invalid Token');
     }
 
-    await User.updateOne(
-      { emailToken },
-      { $set: { emailVerifStatus: 1, emailToken: '' } }
-    );
+    user.emailVerifStatus = 1;
+    user.emailToken = '';
+    await user.save();
 
     res.status(200).send('Email verified successfully');
   } catch (e) {
