@@ -12,11 +12,13 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
-        email,
-        name,
-        password,
-      });
+      const response = await axios.post(
+        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register',
+        { email, name, password },
+        { headers: { 'Content-Type': 'application/json' } } // Ensure correct header
+      );
+
+      console.log('Response:', response); // Log response for debugging
 
       if (response.status === 201) {
         setMessage('Registration successful. Please check your email to verify your account.');
@@ -25,8 +27,9 @@ function RegisterPage() {
         setMessage(response.data.message || 'Registration failed');
       }
     } catch (error) {
-      console.error('Error during registration:', error);
-      setMessage('Registration failed');
+      // Log detailed error information for debugging
+      console.error('Error during registration:', error.response ? error.response.data : error.message);
+      setMessage(error.response?.data?.message || 'Registration failed');
     }
   };
 

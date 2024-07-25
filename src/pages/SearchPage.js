@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './styles/SearchPage.css';
 
 const SearchPage = () => {
@@ -8,18 +9,10 @@ const SearchPage = () => {
   const [showingAllMovies, setShowingAllMovies] = useState(true);
 
   useEffect(() => {
-    // Simplified fetch movies logic
     const fetchMovies = async () => {
       try {
-        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-        const data = await response.json();
-        setAllMovies(data);
+        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, { withCredentials: true });
+        setAllMovies(response.data);
         setErrorMessage('');
       } catch (error) {
         console.error('Fetch movies error:', error);
@@ -32,21 +25,13 @@ const SearchPage = () => {
   }, []);
 
   const handleSearch = async () => {
-    // Simplified search logic
+    // Search movies using Axios
     if (searchTerm === '') {
       setShowingAllMovies(true);
     } else {
       try {
-        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ search: searchTerm }),
-          credentials: 'include',
-        });
-        const data = await response.json();
-        setAllMovies(data);
+        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', { search: searchTerm }, { withCredentials: true });
+        setAllMovies(response.data);
         setShowingAllMovies(false);
         setErrorMessage('');
       } catch (error) {
@@ -63,6 +48,12 @@ const SearchPage = () => {
         movie.title.toLowerCase().startsWith(searchTerm.toLowerCase())
       )
     : allMovies;
+
+  const handleMovieClick = (movieId) => {
+    // Handle movie click event, e.g., navigate to movie details page
+    // Example: window.location.href = `/movie/${movieId}`;
+    console.log(`Clicked movie with ID: ${movieId}`);
+  };
 
   return (
     <div className="search-page-container">
@@ -83,8 +74,12 @@ const SearchPage = () => {
           {filteredMovies.length === 0 ? (
             <div className="no-results">No movies available.</div>
           ) : (
-            filteredMovies.map((movie, index) => (
-              <div key={index} className="movie-box">
+            filteredMovies.map((movie) => (
+              <div
+                key={movie.id} // Assuming each movie has a unique 'id' property
+                className="movie-box"
+                onClick={() => handleMovieClick(movie.id)}
+              >
                 <div className="movie-title">{movie.title}</div>
               </div>
             ))
