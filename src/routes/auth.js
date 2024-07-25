@@ -5,6 +5,17 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 
+// Configuration for Nodemailer
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER, // Replace with your environment variable
+    pass: process.env.EMAIL_PASS, // Replace with your environment variable
+  },
+});
+
 // Register
 router.post('/register', async (req, res) => {
   const { email, name, password } = req.body;
@@ -23,14 +34,13 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ message: 'Email already in use' });
   }
 
-  const passwordRegex =
-    /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,32}$/;
+  const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,32}$/;
   if (!passwordRegex.test(password)) {
     return res.status(400).json({ message: 'Password does not meet criteria' });
   }
 
   try {
-    const emailToken = jwt.sign({ email }, 'ourSecretKey', { expiresIn: '1d' });
+    const emailToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1d' });
     const hashedPassword = bcrypt.hashSync(password, 8);
     const newUser = new User({
       name,
@@ -43,42 +53,17 @@ router.post('/register', async (req, res) => {
     await newUser.save();
 
     // Send verification email
-    const sendEmailResponse = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendEmail', {
-      email,
-      emailToken,
-    });
+    const mailOptions = {
+      from: `"Your App Name" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Email Verification',
+      text: `Hi there! Please verify your email by clicking the link below:\n\n${process.env.BASE_URL}/api/auth/verifyEmail/${emailToken}\n\nThank you!`,
+    };
 
+    await transporter.sendMail(mailOptions);
     res.status(201).json({ message: 'User registered successfully, please check your email to verify your account.' });
   } catch (e) {
-    res.status(500).json({ message: 'Server error', error: e.toString() });
-  }
-});
-
-// Send email route
-router.post('/sendEmail', async (req, res) => {
-  const { email, emailToken } = req.body;
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: 'joanndinzey@gmail.com',
-      pass: 'ocdr fxxd iggz vysi', // Replace with environment variable in production
-    },
-  });
-
-  const mailOptions = {
-    from: '"Your App Name" <joanndinzey@gmail.com>',
-    to: email,
-    subject: 'Email Verification',
-    text: `Hi there! Please verify your email by clicking the link below:\n\nhttp://localhost:5001/api/auth/verifyEmail/${emailToken}\n\nThank you!`,
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: 'Verification email sent' });
-  } catch (err) {
-    res.status(500).json({ error: err.toString() });
+    res.status(500).json({ message: 'Server error', error: e.message });
   }
 });
 
@@ -86,8 +71,9 @@ router.post('/sendEmail', async (req, res) => {
 router.get('/verifyEmail/:emailToken', async (req, res) => {
   const { emailToken } = req.params;
   try {
-    const user = await User.findOne({ emailToken });
-    if (!user) {
+    const decoded = jwt.verify(emailToken, process.env.JWT_SECRET);
+    const user = await User.findOne({ email: decoded.email });
+    if (!user || user.emailToken !== emailToken) {
       return res.status(401).send('Email verification failed: Invalid Token');
     }
 
@@ -97,7 +83,7 @@ router.get('/verifyEmail/:emailToken', async (req, res) => {
 
     res.status(200).send('Email verified successfully');
   } catch (e) {
-    res.status(500).send(e.toString());
+    res.status(500).send(e.message);
   }
 });
 
@@ -121,7 +107,7 @@ router.post('/login', async (req, res) => {
     req.session.email = user.email;
     req.session.save((err) => {
       if (err) {
-        return res.status(500).json({ message: 'Session save error', error: err });
+        return res.status(500).json({ message: 'Session save error', error: err.message });
       }
       res.status(200).json({ message: 'Login successful', userId: user._id });
     });
