@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import './styles/Register.css'; 
-import axios from 'axios';
-
+import './styles/Register.css';
 
 function RegisterPage() {
   const [registerUsername, setRegisterUsername] = useState('');
@@ -9,26 +7,39 @@ function RegisterPage() {
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
 
-const register = async (email, name, password) => {
-  try {
-    const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
-      email,
-      name,
-      password,
-    });
+  const register = async (email, name, password) => {
+    try {
+      const response = await fetch('http://localhost:5001/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, name, password }),
+      });
 
-    if (response.status === 200) {
-      setMessage('Registration successful');
-      window.location.href = '/login';
-    } else {
-      setMessage(response.data.message || 'Registration failed');
+      const data = await response.json();
+      console.log('Registration response:', response);
+      console.log('Registration data:', data);
+
+      if (response.ok) {
+        console.log('Registration successful');
+        setMessage('Registration successful');
+        localStorage.setItem('token', data.token); // Store the token in localStorage
+        window.location.href = '/join'; 
+      } else if (response.status === 400) {
+        console.log('Registration failed: Bad Request');
+        console.log('Registration error:', data.error);
+        setMessage(`Registration failed: ${data.error}`);
+      } else {
+        console.log('Registration failed');
+        console.log('Registration error:', data.error);
+        setMessage(`Registration failed: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setMessage('Registration failed');
     }
-  } catch (error) {
-    console.error('Error during registration:', error);
-    setMessage('Registration failed');
-  }
-};
-
+  };
 
   return (
     <div className="container">
