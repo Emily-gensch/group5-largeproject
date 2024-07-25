@@ -30,75 +30,67 @@ router.post('/register', async (req, res) => {
   }
 
   try {
-    const emailToken = jwt.sign({ data: 'Token Data' }, 'ourSecretKey');
+    const emailToken = jwt.sign({ email }, 'ourSecretKey', { expiresIn: '1d' });
     const hashedPassword = bcrypt.hashSync(password, 8);
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
       status: 0,
-      emailToken: emailToken,
+      emailToken,
       emailVerifStatus: 0,
     });
     await newUser.save();
-    res
-      .status(201)
-      .json({ message: 'User registered successfully', user: newUser });
+
+    // Send verification email
+    await sendVerificationEmail(email, emailToken);
+
+    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.' });
   } catch (e) {
     res.status(500).json({ message: 'Server error', error: e.toString() });
   }
 });
 
-//TODO: Add email verification api. Need to alter database
-// sendEmail
-router.post('/sendEmail', async (req, res) => {
-  const { email, emailToken } = req.body;
+// Function to send verification email
+const sendVerificationEmail = async (email, emailToken) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
     secure: true,
     auth: {
-      user: 'joanndinzey@gmail.com',
-      pass: 'ocdr fxxd iggz vysi',
+      user: 'your-email@gmail.com', // Update with your email
+      pass: 'your-email-password', // Update with your email password
     },
   });
-  transporter
-    .sendMail({
-      from: '"largeproject " <joanndinzey@gmail.com>',
-      to: email,
-      subject: 'Email Verification',
-      text: `Hi! There, You have recently visited 
-            our website and entered your email.
-            Please follow the given link to verify your email
-            https://socialmoviebackend-4584a07ae955.herokuapp.com/verifyEmail/${emailToken} 
-            Thanks`,
-    })
-    .then(() => {
-      res.status(200).json({ message: 'email sent' });
-    })
-    .catch((err) => {
-      res.status(500).json({ error: e.toString() });
-    });
-});
 
-// verifyEmail
+  await transporter.sendMail({
+    from: '"Your Project" <your-email@gmail.com>',
+    to: email,
+    subject: 'Email Verification',
+    text: `Hi! You have recently registered on our website. Please follow the link to verify your email:
+      https://yourdomain.com/verifyEmail/${emailToken}
+      Thanks!`,
+  });
+};
+
+// Verify Email
 router.get('/verifyEmail/:emailToken', async (req, res) => {
   const { emailToken } = req.params;
-  const db = client.db('party-database');
+
   try {
-    const user = await db
-      .collection('users')
-      .findOne({ emailToken: emailToken });
+    const decoded = jwt.verify(emailToken, 'ourSecretKey');
+    const user = await User.findOne({ emailToken });
+
     if (!user) {
-      res.status(401).send('Email verification failed: Invalid Token');
-    } else {
-      const query = { emailToken: emailToken };
-      var newValue = { $set: { emailVerifStatus: 1 } };
-      db.collection('users').updateOne(query, newValue);
-      newValue = { $set: { emailToken: '' } };
-      db.collection('users').updateOne(query, newValue);
-      res.status(200).send('Email verifified successfully');
+      return res.status(401).send('Email verification failed: Invalid Token');
     }
+
+    await User.updateOne(
+      { emailToken },
+      { $set: { emailVerifStatus: 1, emailToken: '' } }
+    );
+
+    res.status(200).send('Email verified successfully');
   } catch (e) {
     res.status(500).send(e.toString());
   }
@@ -115,18 +107,16 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // if (user.emailVerifStatus === 0) {
-    //   return res.status(401).json({ message: 'Email not verified' });
-    // }
+    if (user.emailVerifStatus === 0) {
+      return res.status(401).json({ message: 'Email not verified' });
+    }
 
     // Set session
     req.session.userId = user._id;
     req.session.email = user.email;
     req.session.save((err) => {
       if (err) {
-        return res
-          .status(500)
-          .json({ message: 'Session save error', error: err });
+        return res.status(500).json({ message: 'Session save error', error: err });
       }
       res.status(200).json({ message: 'Login successful', userId: user._id });
     });
@@ -135,6 +125,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Check Session
 router.get('/check-session', (req, res) => {
   if (req.session.userId) {
     res.status(200).json({

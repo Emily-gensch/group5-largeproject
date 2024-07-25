@@ -10,14 +10,12 @@ const ProfilePage = () => {
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
   const [redirectAfterConfirm, setRedirectAfterConfirm] = useState('');
   const navigate = useNavigate();
-
-  // Fetch userID and partyID from local storage
   const userId = localStorage.getItem('userId');
   const partyID = localStorage.getItem('partyID');
 
+
   useEffect(() => {
     if (!userId) {
-      // Redirect to login if no userId is found
       navigate('/login');
     } else {
       const fetchUserDetails = async () => {
@@ -54,7 +52,7 @@ const ProfilePage = () => {
     if (confirmed) {
       localStorage.removeItem('userId');
       localStorage.removeItem('partyID');
-      navigate('/'); // Redirect to home or login page
+      navigate('/'); 
     }
     setShowLogoutConfirmation(false);
   };
