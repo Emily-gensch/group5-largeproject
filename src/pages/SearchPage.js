@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './styles/SearchPage.css';
 
@@ -8,7 +8,6 @@ const SearchPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [allMovies, setAllMovies] = useState([]);
   const [showingAllMovies, setShowingAllMovies] = useState(true);
-  const navigate = useNavigate();
   const [pollID, setPollID] = useState(localStorage.getItem('pollID') || '');
   const [partyID, setPartyID] = useState(localStorage.getItem('partyID') || '');
 
@@ -20,8 +19,9 @@ const SearchPage = () => {
         const response = await axios.post(`${apiUrl}/api/displayMovies`, {}, {
           withCredentials: true
         });
-        console.log('Fetched movies:', response.data);
-        setAllMovies(response.data);
+        // Ensure response.data is always an array
+        const movies = Array.isArray(response.data) ? response.data : [];
+        setAllMovies(movies);
         setErrorMessage('');
       } catch (error) {
         console.error('Fetch movies error:', error);
@@ -34,22 +34,24 @@ const SearchPage = () => {
   }, []);
 
   const handleSearch = async () => {
-    if (searchTerm === '') {
+    if (searchTerm.trim() === '') {
       setShowingAllMovies(true);
-    } else {
-      try {
-        const response = await axios.post(`${apiUrl}/api/searchMovie`, { search: searchTerm }, {
-          withCredentials: true
-        });
-        setAllMovies(response.data);
-        setShowingAllMovies(false);
-        setErrorMessage('');
-      } catch (error) {
-        console.error('Search error:', error);
-        setErrorMessage('Search failed. Please try again later.');
-        setAllMovies([]);
-        setShowingAllMovies(true);
-      }
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${apiUrl}/api/searchMovie`, { search: searchTerm }, {
+        withCredentials: true
+      });
+      const movies = Array.isArray(response.data) ? response.data : [];
+      setAllMovies(movies);
+      setShowingAllMovies(false);
+      setErrorMessage('');
+    } catch (error) {
+      console.error('Search error:', error);
+      setErrorMessage('Search failed. Please try again later.');
+      setAllMovies([]);
+      setShowingAllMovies(true);
     }
   };
 
@@ -84,14 +86,14 @@ const SearchPage = () => {
         localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
       }
     } catch (error) {
-      console.error('Fetch error:', error);
+      console.error('Add to poll error:', error);
       setErrorMessage('Failed to add movie to poll. Please try again later.');
     }
   };
 
   const filteredMovies = searchTerm
     ? allMovies.filter((movie) =>
-        movie.title.toLowerCase().startsWith(searchTerm.toLowerCase())
+        movie.title.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : allMovies;
 
@@ -114,8 +116,8 @@ const SearchPage = () => {
           {filteredMovies.length === 0 ? (
             <div className="no-results">No movies available.</div>
           ) : (
-            filteredMovies.map((movie, index) => (
-              <div key={index} className="movie-box">
+            filteredMovies.map((movie) => (
+              <div key={movie._id} className="movie-box">
                 <div className="movie-title">{movie.title}</div>
                 <button
                   className="add-button"
