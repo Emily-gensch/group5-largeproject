@@ -12,7 +12,6 @@ const app = express();
 // MongoDB connection
 const url = process.env.MONGO_URI_PARTY;
 
-
 app.use(cors({
   origin: 'https://themoviesocial-a63e6cbb1f61.herokuapp.com', // Set your allowed origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Set allowed methods

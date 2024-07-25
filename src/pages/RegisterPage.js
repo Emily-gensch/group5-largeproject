@@ -1,89 +1,134 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import './styles/Register.css';
+import './styles/SearchPage.css';
 
-function RegisterPage() {
-  const [registerUsername, setRegisterUsername] = useState('');
-  const [registerEmail, setRegisterEmail] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
-  const [message, setMessage] = useState('');
+const SearchPage = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [allMovies, setAllMovies] = useState([]);
+  const [showingAllMovies, setShowingAllMovies] = useState(true);
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
 
-  const register = async (email, name, password) => {
+  const apiUrl = 'https://socialmoviebackend-4584a07ae955.herokuapp.com'; 
+
+  const fetchMovies = async () => {
     try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
-        email,
-        name,
-        password,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true,
+      const response = await axios.post(`${apiUrl}/api/displayMovies`, {}, {
+        withCredentials: true
       });
-
-      console.log('Registration response:', response);
-      console.log('Registration data:', response.data);
-
-      if (response.status === 200) {
-        console.log('Registration successful');
-        setMessage('Registration successful. Please check your email to verify your account.');
-        // You may not want to immediately redirect here
-        localStorage.setItem('token', response.data.token);
-        window.location.href = '/wait'; 
-      } else {
-        console.log('Registration failed');
-        console.log('Registration error:', response.data.error);
-        setMessage(`Registration failed: ${response.data.error}`);
-      }
+      const movies = Array.isArray(response.data) ? response.data : [];
+      setAllMovies(movies);
+      setErrorMessage('');
     } catch (error) {
-      console.error('Registration error:', error);
-      setMessage('Registration failed');
+      console.error('Fetch movies error:', error);
+      setErrorMessage('Failed to fetch movies. Please try again later.');
+      setAllMovies([]);
     }
   };
 
+  const searchMovies = async (query) => {
+    const url = `${apiUrl}/api/searchMovie`;
+    const headers = { 'Content-Type': 'application/json' };
+    const body = JSON.stringify({ search: query.trim() });
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body,
+      });
+
+      if (response.ok) {
+        const jsonResponse = await response.json();
+        return jsonResponse;
+      } else {
+        console.error('Search error:', response.status, await response.text());
+        return [];
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      return [];
+    }
+  };
+
+  const handleSearch = useCallback((query) => {
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    const timeout = setTimeout(async () => {
+      if (query.trim() === '') {
+        setShowingAllMovies(true);
+        return;
+      }
+
+      const movies = await searchMovies(query);
+      setAllMovies(movies);
+      setShowingAllMovies(false);
+      setErrorMessage('');
+    }, 300); // debounce time in milliseconds
+
+    setDebounceTimeout(timeout);
+  }, [debounceTimeout]);
+
+  useEffect(() => {
+    fetchMovies(); // Fetch all movies on component mount
+  }, []);
+
+  const filteredMovies = searchTerm
+    ? allMovies.filter((movie) =>
+        movie.title.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : allMovies;
+
   return (
-    <div className="container">
-      <div id="registerDiv">
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          register(registerEmail, registerUsername, registerPassword);
-        }}>
-          <span id="inner-title">REGISTER</span><br />
-          <input
-            type="text"
-            id="registerUsername"
-            placeholder="Username"
-            value={registerUsername}
-            onChange={(e) => setRegisterUsername(e.target.value)}
-          /><br />
-          <input
-            type="email"
-            id="registerEmail"
-            placeholder="Email"
-            value={registerEmail}
-            onChange={(e) => setRegisterEmail(e.target.value)}
-          /><br />
-          <input
-            type="password"
-            id="registerPassword"
-            placeholder="Password"
-            value={registerPassword}
-            onChange={(e) => setRegisterPassword(e.target.value)}
-          /><br />
-          <input
-            type="submit"
-            id="registerButton"
-            className="buttons"
-            value="Register"
-          />
-        </form>
-        <span id="registerResult">{message}</span>
-        <div>
-          <span>If you already have an account, <a href="/login">Login</a></span>
+    <div className="search-page-container">
+      <h1 className="search-header">Search Movies</h1>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search movies..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            handleSearch(e.target.value);
+          }}
+        />
+      </div>
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
+      <div className="movie-list">
+        <h2>{showingAllMovies ? 'All Movies' : 'Search Results'}</h2>
+        <div className="movie-grid">
+          {filteredMovies.length === 0 ? (
+            <div className="no-results">No movies available.</div>
+          ) : (
+            filteredMovies.map((movie) => (
+              <div key={movie._id} className="movie-box">
+                <div className="movie-title">{movie.title}</div>
+                <button
+                  className="add-button"
+                  onClick={() => handleAddToPoll(movie._id)}
+                >
+                  Add To Poll
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+      <div className="navigation-bar">
+        <div className="nav-item current-page">
+          <Link to="/search">Search</Link>
+        </div>
+        <div className="nav-item">
+          <Link to="/vote">Vote</Link>
+        </div>
+        <div className="nav-item">
+          <Link to="/home">Home</Link>
+        </div>
+        <div className="nav-item">
+          <Link to="/profile">Profile</Link>
         </div>
       </div>
     </div>
   );
-}
+};
 
-export default RegisterPage;
+export default SearchPage;
