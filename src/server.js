@@ -35,7 +35,7 @@ const Movie = require('./models/Movie');
 
 app.use(
   cors({
-    origin: 'https://socialmoviebackend-4584a07ae955.herokuapp.com',
+    origin:['http://localhost:5002/','https://socialmoviebackend-4584a07ae955.herokuapp.com'],
     credentials: true,
   })
 );
