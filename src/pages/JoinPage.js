@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';  // Import axios
 import './styles/JoinPage.css';
 
 const JoinPage = () => {
@@ -32,18 +33,14 @@ const JoinPage = () => {
   const handleJoinParty = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch('hhttps://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/joinParty', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ partyInviteCode, userId }),
-        credentials: 'include',
-      });
+      const response = await axios.post(
+        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/joinParty',
+        { partyInviteCode, userID: userId }
+      );
 
-      const result = await response.json();
+      const result = response.data;
 
-      if (response.ok) {
+      if (response.status === 200) {
         if (result.userAlreadyInParty) {
           navigate('/home');
         } else {
@@ -53,16 +50,13 @@ const JoinPage = () => {
           localStorage.setItem('partyID', result.partyID);
 
           // Create poll after joining the party
-          const pollResponse = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/startPoll', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ partyID: result.partyID }), // Pass partyID to create poll
-          });
+          const pollResponse = await axios.post(
+            'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/startPoll',
+            { partyID: result.partyID }
+          );
 
-          const pollData = await pollResponse.json();
-          if (pollResponse.ok) {
+          const pollData = pollResponse.data;
+          if (pollResponse.status === 200) {
             localStorage.setItem('pollID', pollData.pollID); // Store poll ID
             navigate('/home');
           } else {

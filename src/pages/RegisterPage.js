@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './styles/Register.css'; 
+import './styles/Register.css';
 import axios from 'axios';
 
 function RegisterPage() {
@@ -10,7 +10,7 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      // Register the user
+      // Register user
       const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
         email,
         name,
@@ -18,16 +18,18 @@ function RegisterPage() {
       });
 
       if (response.status === 201) {
-        // Registration successful, send verification email
-        const { emailToken } = response.data.user;  // Assuming the email token is returned from your backend
-
-        await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendEmail', {
+        // Send verification email
+        const emailResponse = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendEmail', {
           email,
-          emailToken,
+          emailToken: response.data.user.emailToken, // Get emailToken from response
         });
 
-        setMessage('Registration successful. Please check your email to verify your account.');
-        window.location.href = '/login';  // Redirect to login page
+        if (emailResponse.status === 200) {
+          setMessage('Registration successful. Please check your email to verify your account.');
+          setTimeout(() => window.location.href = '/login', 3000); // Redirect after 3 seconds
+        } else {
+          setMessage('Registration successful, but failed to send verification email.');
+        }
       } else {
         setMessage(response.data.message || 'Registration failed');
       }
@@ -51,6 +53,7 @@ function RegisterPage() {
             placeholder="Username"
             value={registerUsername}
             onChange={(e) => setRegisterUsername(e.target.value)}
+            required
           /><br />
           <input
             type="email"
@@ -58,6 +61,7 @@ function RegisterPage() {
             placeholder="Email"
             value={registerEmail}
             onChange={(e) => setRegisterEmail(e.target.value)}
+            required
           /><br />
           <input
             type="password"
@@ -65,6 +69,7 @@ function RegisterPage() {
             placeholder="Password"
             value={registerPassword}
             onChange={(e) => setRegisterPassword(e.target.value)}
+            required
           /><br />
           <input
             type="submit"
