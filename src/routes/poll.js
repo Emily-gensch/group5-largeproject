@@ -1,148 +1,252 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import './styles/SearchPage.css';
+const express = require('express');
+const mongoose = require('mongoose');
+const Poll = require('../models/Poll');
+const Party = require('../models/Party');
+const Movie = require('../models/Movie');
+const PartyMembers = require('../models/PartyMembers');
+const StoredMovies = require('../models/StoredMovies');
+const router = express.Router();
 
-const SearchPage = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [allMovies, setAllMovies] = useState([]);
-  const [showingAllMovies, setShowingAllMovies] = useState(true);
-  const [pollID, setPollID] = useState(localStorage.getItem('pollID') || '');
-  const [partyID, setPartyID] = useState(localStorage.getItem('partyID') || '');
+// Vote Page using query parameter
+// Example: http://localhost:5000/api/poll/votePage?pollID=66980dc3b03ee5fdec99ffde
+router.get('/votePage', async (req, res) => {
+  const userID = req.session.userId;
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, {
-          withCredentials: true,
-        });
+  if (!userID) {
+    return res.status(401).json({ message: 'userID not found in session' });
+  }
 
-        setAllMovies(response.data);
-        setErrorMessage('');
-      } catch (error) {
-        console.error('Fetch movies error:', error);
-        setErrorMessage('Failed to fetch movies. Please try again later.');
-        setAllMovies([]);
-      }
-    };
-
-    fetchMovies();
-  }, []);
-
-  const handleSearch = async () => {
-    if (searchTerm === '') {
-      setShowingAllMovies(true);
-    } else {
-      try {
-        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', { search: searchTerm }, {
-          withCredentials: true,
-        });
-
-        setAllMovies(response.data);
-        setShowingAllMovies(false);
-        setErrorMessage('');
-      } catch (error) {
-        console.error('Search error:', error);
-        setErrorMessage('Search failed. Please try again later.');
-        setAllMovies([]);
-        setShowingAllMovies(true);
-      }
+  try {
+    const partyMember = await PartyMembers.findOne({ userID }).populate(
+      'partyID'
+    );
+    if (!partyMember) {
+      return res.status(404).json({ message: 'Party not found for user' });
     }
-  };
 
-  const handleAddToPoll = async (movieID) => {
-    const partyID = localStorage.getItem('partyID');
-    const userId = localStorage.getItem('userId');
-    
-    const movieIDNumber = Number(movieID);
-  
-    if (isNaN(movieIDNumber)) {
-      console.error('Invalid movie ID:', movieID);
-      setErrorMessage('Invalid movie ID.');
-      return;
+    const partyID = partyMember.partyID._id;
+
+    const storedMovies = await StoredMovies.find({ partyID }).populate(
+      'movieID'
+    );
+    if (!storedMovies || storedMovies.length === 0) {
+      return res
+        .status(404)
+        .json({ error: 'No stored movies found for this party' });
     }
-  
-    try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/addMovieToPoll', 
-        { movieID: movieIDNumber, partyID, userId },
-        { withCredentials: true }
-      );
-  
-      if (response.status === 201) {
-        console.log('Movie added to poll:', response.data);
-  
-        // Save movie to localStorage
-        const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
-        if (!existingMovies.includes(movieIDNumber)) {
-          existingMovies.push(movieIDNumber);
-          localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
-        }
-      } else {
-        console.error('Error adding movie to poll:', response.data.error);
-        setErrorMessage(response.data.error || 'Failed to add movie to poll.');
-      }
-    } catch (error) {
-      console.error('Axios error:', error);
-      setErrorMessage('Failed to add movie to poll. Please try again later.');
+
+    const moviesWithDetails = storedMovies.map((movieEntry) => ({
+      _id: movieEntry.movieID._id,
+      title: movieEntry.movieID.title,
+      votes: movieEntry.votes,
+      watchedStatus: movieEntry.watchedStatus,
+      genre: movieEntry.movieID.genre,
+      description: movieEntry.movieID.description,
+    }));
+
+    res.status(200).json({ movies: moviesWithDetails });
+  } catch (err) {
+    console.error('Error fetching vote page:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Add movie to Poll
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
+
+router.post('/addMovieToPoll', async (req, res) => {
+  const { movieID } = req.body;
+  const userID = req.session.userId;
+  if (!userID) {
+    return res.status(401).json({ message: 'userID not found' });
+  }
+
+  try {
+    const party = await Party.findOne({ hostID: userID });
+
+    if (!party) {
+      console.log('Party not found for userID:', userID);
+      return res.status(404).json({ error: 'Party not found for this user' });
     }
-  };
 
-  const filteredMovies = searchTerm
-    ? allMovies.filter((movie) =>
-        movie.title.toLowerCase().startsWith(searchTerm.toLowerCase())
-      )
-    : allMovies;
+    const partyID = party._id;
 
-  return (
-    <div className="search-page-container">
-      <h1 className="search-header">Search Movies</h1>
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search movies..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <button onClick={handleSearch}>Search</button>
-      </div>
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
-      <div className="movie-list">
-        <h2>{showingAllMovies ? 'All Movies' : 'Search Results'}</h2>
-        <div className="movie-grid">
-          {filteredMovies.length === 0 ? (
-            <div className="no-results">No movies available.</div>
-          ) : (
-            filteredMovies.map((movie, index) => (
-              <div key={index} className="movie-box">
-                <div className="movie-title">{movie.title}</div>
-                <button
-                  className="add-button"
-                  onClick={() => handleAddToPoll(movie.movieID)}
-                >
-                  Add To Poll
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-      <div className="navigation-bar">
-        <div className="nav-item current-page">
-          <Link to="/search">Search</Link>
-        </div>
-        <div className="nav-item">
-          <Link to="/vote">Vote</Link>
-        </div>
-        <div className="nav-item">
-          <Link to="/home">Home</Link>
-        </div>
-        <div className="nav-item">
-          <Link to="/profile">Profile</Link>
-        </div>
-      </div>
-    </div>
+    if (!mongoose.Types.ObjectId.isValid(partyID)) {
+      console.log('Invalid party ID:', partyID);
+      return res.status(400).json({ error: 'Invalid party ID' });
+    }
+
+    if (typeof movieID !== 'number') {
+      console.log('Invalid movie ID type:', movieID);
+      return res.status(400).json({ error: 'Invalid movie ID' });
+    }
+
+    const movie = await Movie.findOne({ movieID: movieID });
+    if (!movie) {
+      console.log('Movie not found for movieID:', movieID);
+      return res.status(404).json({ error: 'Movie not found' });
+    }
+
+    const existingStoredMovie = await StoredMovies.findOne({
+      movieID: movie._id,
+      partyID: partyID,
+    });
+    if (existingStoredMovie) {
+      console.log('Movie already in storedMovies:', movieID);
+      return res.status(400).json({ error: 'Movie already in storedMovies' });
+    }
+
+    const storedMovie = new StoredMovies({
+      userID: userID,
+      movieID: movie._id,
+      partyID: partyID,
+      votes: 0,
+      watchedStatus: false,
+    });
+
+    await storedMovie.save();
+
+    res.status(201).json({
+      message: 'Movie added to storedMovies successfully',
+      storedMovie,
+    });
+  } catch (e) {
+    console.error('Error adding movie to storedMovies:', e);
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+// Upvote movie
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
+
+router.post('/upvoteMovie', async (req, res) => {
+  const { partyID, movieID } = req.body;
+  console.log(`Upvoting movie for partyID: ${partyID}, movieID: ${movieID}`);
+
+  try {
+    const partyObjectId = mongoose.Types.ObjectId(partyID);
+
+    const poll = await Poll.findOne({ partyID: partyObjectId });
+    if (!poll) {
+      return res.status(404).json({ error: 'Poll not found for this party' });
+    }
+
+    const movieEntry = poll.movies.find((movie) => movie.movieID === movieID);
+    if (!movieEntry) {
+      return res.status(404).json({ error: 'Movie not found in poll' });
+    }
+
+    movieEntry.votes += 1;
+    await poll.save();
+
+    res
+      .status(200)
+      .json({ message: 'Movie upvoted successfully', votes: movieEntry.votes });
+  } catch (err) {
+    console.error('Error upvoting movie:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Remove movie from poll
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
+
+router.delete('/removeMovie', async (req, res) => {
+  const { partyID, movieID } = req.body;
+  console.log(
+    `Removing movie from poll for partyID: ${partyID}, movieID: ${movieID}`
   );
-};
 
-export default SearchPage;
+  try {
+    const partyObjectId = mongoose.Types.ObjectId(partyID);
+
+    const poll = await Poll.findOne({ partyID: partyObjectId });
+    if (!poll) {
+      console.log('Poll not found for partyID:', partyID);
+      return res.status(404).json({ error: 'Poll not found for this party' });
+    }
+
+    const movieIndex = poll.movies.findIndex(
+      (movie) => movie.movieID === movieID
+    );
+    if (movieIndex === -1) {
+      console.log('Movie not found in poll:', movieID);
+      return res.status(404).json({ error: 'Movie not found in poll' });
+    }
+
+    poll.movies.splice(movieIndex, 1);
+    await poll.save();
+
+    res.status(200).json({ message: 'Movie removed from poll successfully' });
+  } catch (err) {
+    console.error('Error removing movie from poll:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Mark movie as watched
+// Example: {
+//     "partyID": "66980dc3b03ee5fdec99ffdc",
+//     "movieID": 3
+// }
+
+router.post('/markWatched', async (req, res) => {
+  const { movieID, partyID } = req.body;
+  console.log(
+    `Marking movie as watched for movieID: ${movieID}, partyID: ${partyID}`
+  );
+
+  try {
+    const partyObjectId = mongoose.Types.ObjectId(partyID);
+
+    const poll = await Poll.findOne({ partyID: partyObjectId });
+    if (!poll) {
+      console.log('Poll not found for partyID:', partyID);
+      return res.status(404).json({ error: 'Poll not found' });
+    }
+
+    const movieEntry = poll.movies.find((movie) => movie.movieID === movieID);
+    if (!movieEntry) {
+      console.log('Movie not found in poll:', movieID);
+      return res.status(404).json({ error: 'Movie not found in poll' });
+    }
+
+    movieEntry.watchedStatus = true;
+    await poll.save();
+
+    res.status(200).json({ message: 'Movie marked as watched successfully' });
+  } catch (err) {
+    console.error('Error marking movie as watched:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Start poll
+router.post('/startPoll', async (req, res) => {
+  const { partyID, movieID } = req.body;
+  console.log(`Starting poll for partyID: ${partyID}, movieID: ${movieID}`);
+
+  try {
+    const newPoll = new Poll({ partyID, movieID });
+    await newPoll.save();
+    res.status(201).json({
+      pollID: newPoll._id,
+      partyID,
+      message: 'Poll started successfully',
+    });
+  } catch (e) {
+    console.error('Error starting poll:', e);
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
+module.exports = router;
