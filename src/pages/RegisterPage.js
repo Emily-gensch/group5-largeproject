@@ -1,52 +1,56 @@
 import React, { useState } from 'react';
-import './styles/Register.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './styles/Register.css';
 
 function RegisterPage() {
   const [registerUsername, setRegisterUsername] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
-  const register = async (email, name, password) => {
+  const handleRegister = async (event) => {
+    event.preventDefault();
+
     try {
-      const response = await axios.post(
-        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register',
-        { email, name, password },
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/register', {
+        email: registerEmail,
+        name: registerUsername,
+        password: registerPassword
+      });
 
-      console.log('Response:', response); // Log response for debugging
+      // Log the response status and data for debugging
+      console.log('Response Status:', response.status);
+      console.log('Response Data:', response.data);
 
-      if (response.status === 201) {
-        setMessage('Registration successful. Please check your email to verify your account.');
-        navigate('/wait'); // Redirect to waiting page
+      if (response.status === 200) {
+        // Registration successful
+        console.log('Registration successful:', response.data);
+        setMessage('Registration successful! Please check your email for verification.');
+        setTimeout(() => navigate('/login'), 2000); // Redirect after a short delay
       } else {
-        setMessage(response.data.message || 'Registration failed');
+        console.error('Registration error:', response.data.message);
+        setMessage(response.data.message || 'Registration failed. Please try again.'); // Display error message
       }
     } catch (error) {
-      // Log detailed error information for debugging
-      console.error('Error during registration:', error.response ? error.response.data : error.message);
-      setMessage(error.response?.data?.message || 'Registration failed');
+      console.error('Unexpected error:', error);
+      setMessage('An unexpected error occurred. Please try again later.'); // Display generic error message
     }
   };
 
   return (
     <div className="container">
       <div id="registerDiv">
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          register(registerEmail, registerUsername, registerPassword);
-        }}>
-          <span id="inner-title">REGISTER</span><br />
+        <h2 id="inner-title">REGISTER</h2>
+        <form onSubmit={handleRegister}>
           <input
             type="text"
             id="registerUsername"
             placeholder="Username"
             value={registerUsername}
             onChange={(e) => setRegisterUsername(e.target.value)}
+            required
           /><br />
           <input
             type="email"
@@ -54,6 +58,7 @@ function RegisterPage() {
             placeholder="Email"
             value={registerEmail}
             onChange={(e) => setRegisterEmail(e.target.value)}
+            required
           /><br />
           <input
             type="password"
@@ -61,15 +66,17 @@ function RegisterPage() {
             placeholder="Password"
             value={registerPassword}
             onChange={(e) => setRegisterPassword(e.target.value)}
+            required
           /><br />
-          <input
+          <button
             type="submit"
             id="registerButton"
             className="buttons"
-            value="Register"
-          />
+          >
+            Register
+          </button>
         </form>
-        <span id="registerResult">{message}</span>
+        {message && <span id="registerResult">{message}</span>}
         <div>
           <span>If you already have an account, <a href="/login">Login</a></span>
         </div>
