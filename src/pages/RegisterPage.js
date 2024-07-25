@@ -26,7 +26,14 @@ function RegisterPage() {
       if (response.status === 201) {
         setMessage('Registration successful. Please check your email to verify your account.');
         const emailToken = response.data.emailToken;
-        await sendVerificationEmail(email, emailToken);
+
+        // Ensure emailToken is present
+        if (emailToken) {
+          await sendVerificationEmail(email, emailToken);
+        } else {
+          setMessage('Email token is missing.');
+        }
+
         window.location.href = '/wait';
       } else {
         setMessage(`Registration failed: ${response.data.error || 'Unknown error'}`);
