@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './styles/ProfilePage.css';
 
 const ProfilePage = () => {
@@ -21,21 +22,17 @@ const ProfilePage = () => {
     } else {
       const fetchUserDetails = async () => {
         try {
-          const userResponse = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/userAccount', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userID: userId }),
+          const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/userAccount', {
+            userID: userId,
           });
 
-          if (!userResponse.ok) {
+          if (response.status === 200) {
+            const userData = response.data;
+            setUsername(userData.name);
+            setEmail(userData.email);
+          } else {
             throw new Error('Failed to fetch user account');
           }
-
-          const userData = await userResponse.json();
-          setUsername(userData.name);
-          setEmail(userData.email);
         } catch (error) {
           console.error('Error fetching user details:', error);
         }
@@ -65,20 +62,16 @@ const ProfilePage = () => {
   const confirmLeaveGroup = async (confirmed) => {
     if (confirmed && partyID) {
       try {
-        const response = await fetch('http://localhost:5001/api/leaveParty', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userID: userId, partyID }),
+        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/leaveParty', {
+          userID: userId,
+          partyID,
         });
 
-        if (response.ok) {
+        if (response.status === 200) {
           console.log('Left group successfully');
           setRedirectAfterConfirm('/join');
         } else {
-          const result = await response.json();
-          console.error('Error leaving group:', result.error);
+          console.error('Error leaving group:', response.data.error);
         }
       } catch (error) {
         console.error('Error leaving group:', error);

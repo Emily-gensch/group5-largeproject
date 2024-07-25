@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './styles/SearchPage.css';
 
 const SearchPage = () => {
@@ -14,22 +15,14 @@ const SearchPage = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {
-          method: 'POST',
+        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, {
           headers: {
             'Content-Type': 'application/json',
           },
-          credentials: 'include',
+          withCredentials: true,
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch movies');
-        }
-
-        const data = await response.json();
-        console.log('Fetched movies:', data);
-        setAllMovies(data);
+        setAllMovies(response.data);
         setErrorMessage('');
       } catch (error) {
         console.error('Fetch movies error:', error);
@@ -46,22 +39,16 @@ const SearchPage = () => {
       setShowingAllMovies(true);
     } else {
       try {
-        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
-          method: 'POST',
+        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
+          search: searchTerm,
+        }, {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ search: searchTerm }),
-          credentials: 'include',
+          withCredentials: true,
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Search request failed');
-        }
-
-        const data = await response.json();
-        setAllMovies(data);
+        setAllMovies(response.data);
         setShowingAllMovies(false);
         setErrorMessage('');
       } catch (error) {
@@ -76,47 +63,41 @@ const SearchPage = () => {
   const handleAddToPoll = async (movieID) => {
     const partyID = localStorage.getItem('partyID');
     const userId = localStorage.getItem('userId');
-  
+
     // Ensure movieID is a number
     const movieIDNumber = Number(movieID);
-  
+
     if (isNaN(movieIDNumber)) {
       console.error('Invalid movie ID:', movieID);
       setErrorMessage('Invalid movie ID.');
       return;
     }
-  
+
     try {
-      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/addMovieToPoll', {
-        method: 'POST',
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/addMovieToPoll', {
+        movieID: movieIDNumber,
+        partyID,
+        userId,
+      }, {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ movieID: movieIDNumber, partyID, userId }),
-        credentials: 'include',
+        withCredentials: true,
       });
-  
-      const result = await response.json();
-  
-      if (response.ok) {
-        console.log('Movie added to poll:', result);
-  
-        // Save movie to localStorage
-        const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
-        if (!existingMovies.includes(movieIDNumber)) {
-          existingMovies.push(movieIDNumber);
-          localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
-        }
-      } else {
-        console.error('Error adding movie to poll:', result.error);
-        setErrorMessage(result.error || 'Failed to add movie to poll.');
+
+      console.log('Movie added to poll:', response.data);
+
+      // Save movie to localStorage
+      const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
+      if (!existingMovies.includes(movieIDNumber)) {
+        existingMovies.push(movieIDNumber);
+        localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
       }
     } catch (error) {
-      console.error('Fetch error:', error);
+      console.error('Error adding movie to poll:', error);
       setErrorMessage('Failed to add movie to poll. Please try again later.');
     }
   };
-  
 
   const filteredMovies = searchTerm
     ? allMovies.filter((movie) =>

@@ -21,7 +21,6 @@ const JoinPage = () => {
       setPartyInviteCode(code);
     }
 
-    // Fetch user ID from local storage
     const storedUserId = localStorage.getItem('userId');
     if (storedUserId) {
       setUserId(storedUserId);
@@ -46,10 +45,8 @@ const JoinPage = () => {
         } else {
           setMessage(`Successfully joined the party! Party ID: ${result.partyID}`);
 
-          // Store the partyID in local storage
           localStorage.setItem('partyID', result.partyID);
 
-          // Create poll after joining the party
           const pollResponse = await axios.post(
             'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/startPoll',
             { partyID: result.partyID }
@@ -57,7 +54,7 @@ const JoinPage = () => {
 
           const pollData = pollResponse.data;
           if (pollResponse.status === 200) {
-            localStorage.setItem('pollID', pollData.pollID); // Store poll ID
+            localStorage.setItem('pollID', pollData.pollID); 
             navigate('/home');
           } else {
             setMessage(`Error creating poll: ${pollData.message}`);
