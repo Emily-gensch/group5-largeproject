@@ -12,7 +12,7 @@ const SearchPage = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.post('http://localhost:5001/api/displayMovies', {}, {
+        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, {
           withCredentials: true // Include credentials with the request
         });
 
@@ -33,7 +33,7 @@ const SearchPage = () => {
       setShowingAllMovies(true);
     } else {
       try {
-        const response = await axios.post('http://localhost:5001/api/searchMovie', {
+        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
           search: searchTerm
         }, {
           withCredentials: true // Include credentials with the request
@@ -65,7 +65,7 @@ const SearchPage = () => {
     }
   
     try {
-      const response = await axios.post('http://localhost:5001/api/poll/addMovieToPoll', {
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/addMovieToPoll', {
         movieID: movieIDNumber,
         partyID,
         userId

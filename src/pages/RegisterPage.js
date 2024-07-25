@@ -10,7 +10,7 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      const response = await axios.post('http://localhost:5001/api/auth/register', {
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
         email,
         name,
         password,
