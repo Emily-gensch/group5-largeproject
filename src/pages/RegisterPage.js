@@ -10,7 +10,7 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
+      const response = await axios.post('http://localhost:5001/api/auth/register', {
         email,
         name,
         password,
@@ -26,18 +26,16 @@ function RegisterPage() {
 
       if (response.status === 200) {
         console.log('Registration successful');
-        setMessage('Registration successful. Please check your email to verify your account.');
-        // You may not want to immediately redirect here
-        localStorage.setItem('token', response.data.token);
-        window.location.href = '/wait'; 
+        setMessage('Registration successful');
+        localStorage.setItem('token', response.data.token); // Store the token in localStorage
+        window.location.href = '/join'; 
       } else {
         console.log('Registration failed');
-        console.log('Registration error:', response.data.error);
-        setMessage(`Registration failed: ${response.data.error}`);
+        setMessage(`Registration failed: ${response.data.error || 'An unknown error occurred'}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage('Registration failed');
+      setMessage(`Registration failed: ${error.response?.data?.error || 'An unknown error occurred'}`);
     }
   };
 
