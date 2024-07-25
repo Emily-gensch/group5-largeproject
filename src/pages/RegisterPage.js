@@ -28,19 +28,7 @@ function RegisterPage() {
         localStorage.setItem('token', data.token); // Store the token in localStorage
         // Redirect to the join page or login page
         window.location.href = '/join'; // Example: Redirect to '/join' page
-      } else if (response.status === 400) {
-        console.log('Registration failed: Bad Request');
-        console.log('Registration error:', data.error);
-        setMessage(`Registration failed: ${data.error}`);
-      } else {
-        console.log('Registration failed');
-        console.log('Registration error:', data.error);
-        setMessage(`Registration failed: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      setMessage('Registration failed');
-    }
+
   };
 
   const fetchUserAccount = async (token) => {
