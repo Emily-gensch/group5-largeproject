@@ -9,11 +9,11 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
+      const response = await post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json', // Ensure Content-Type header is set
+          'Content-Type': 'application/json', 
         },
         body: JSON.stringify({ email, name, password }),
       });
@@ -22,14 +22,13 @@ function RegisterPage() {
 
       if (response.ok) {
         setMessage('Registration successful');
-        // Redirect to the join page or login page
-        window.location.href = '/join'; // Example: Redirect to '/join' page
+        window.location.href = '/join'; 
       } else {
-        setMessage('Registration failed'); // Inform user of failure
+        setMessage('Registration failed'); 
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      setMessage('Registration failed'); // Inform user of failure
+      setMessage('Registration failed'); 
     }
   };
 
