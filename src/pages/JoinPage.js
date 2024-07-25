@@ -57,7 +57,7 @@ const JoinPage = () => {
           if (pollResponse.status === 200) {
             localStorage.setItem('pollID', pollData.pollID);
             setMessage('Poll started successfully!');
-            navigate('/home');
+            navigate('/');
           } else {
             setMessage(`Error creating poll: ${pollData.error || 'Unknown error'}`);
           }
