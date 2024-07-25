@@ -27,7 +27,6 @@ function RegisterPage() {
         setMessage('Registration successful. Please check your email to verify your account.');
         const emailToken = response.data.emailToken;
 
-        // Ensure emailToken is present
         if (emailToken) {
           await sendVerificationEmail(email, emailToken);
         } else {
