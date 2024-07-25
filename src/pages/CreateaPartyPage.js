@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './CreateaPartyPage.css';
+import './styles/CreateaPartyPage.css';
 
 const CreateaPartyPage = () => {
   const [groupName, setGroupName] = useState(''); // For setting the party name

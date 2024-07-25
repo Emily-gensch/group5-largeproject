@@ -26,8 +26,7 @@ const ProfilePage = () => {
           if (response.status === 200) {
             const userData = response.data;
             setUsername(userData.name);
-            // Set email from localStorage if not fetched from API
-            setEmail(localStorage.getItem('email') || userData.email);
+            setEmail(userData.email); // Fetch and set email from API
           } else {
             throw new Error('Failed to fetch user account');
           }
@@ -53,7 +52,7 @@ const ProfilePage = () => {
       localStorage.removeItem('userId');
       localStorage.removeItem('partyID');
       localStorage.removeItem('email'); // Clear email from localStorage
-      navigate('/'); 
+      navigate('/');
     }
     setShowLogoutConfirmation(false);
   };
