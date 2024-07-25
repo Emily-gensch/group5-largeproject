@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            margin: 50px auto;
+            padding: 20px;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Email Verification</h1>
+        <p id="message">Please wait while we verify your email...</p>
+    </div>
+    <script>
+        // Extract the token from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const emailToken = urlParams.get('token');
+
+        if (emailToken) {
+            // Make an API call to verify the email
+            fetch(`https://cod-destined-secondly.ngrok-free.app/verifyEmail/${emailToken}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('message').innerText = data;
+                })
+                .catch(error => {
+                    document.getElementById('message').innerText = 'An error occurred while verifying your email. Please try again later.';
+                    console.error('Error:', error);
+                });
+        } else {
+            document.getElementById('message').innerText = 'Invalid verification link.';
+        }
+    </script>
+</body>
+</html>
