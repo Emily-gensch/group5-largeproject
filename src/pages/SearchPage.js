@@ -16,6 +16,7 @@ const SearchPage = () => {
           withCredentials: true // Include credentials with the request
         });
 
+        console.log('Fetched movies:', response.data); // Log response data
         setAllMovies(response.data);
         setErrorMessage('');
       } catch (error) {
@@ -31,23 +32,25 @@ const SearchPage = () => {
   const handleSearch = async () => {
     if (searchTerm.trim() === '') {
       setShowingAllMovies(true);
-    } else {
-      try {
-        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
-          search: searchTerm
-        }, {
-          withCredentials: true // Include credentials with the request
-        });
+      return;
+    }
 
-        setAllMovies(response.data);
-        setShowingAllMovies(false);
-        setErrorMessage('');
-      } catch (error) {
-        console.error('Search error:', error);
-        setErrorMessage('Search failed. Please try again later.');
-        setAllMovies([]);
-        setShowingAllMovies(true);
-      }
+    try {
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
+        search: searchTerm
+      }, {
+        withCredentials: true // Include credentials with the request
+      });
+
+      console.log('Search results:', response.data); // Log search results
+      setAllMovies(response.data);
+      setShowingAllMovies(false);
+      setErrorMessage('');
+    } catch (error) {
+      console.error('Search error:', error);
+      setErrorMessage('Search failed. Please try again later.');
+      setAllMovies([]);
+      setShowingAllMovies(true);
     }
   };
 
