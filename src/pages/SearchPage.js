@@ -15,7 +15,6 @@ const SearchPage = () => {
         const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, {
           withCredentials: true
         });
-        console.log('Fetched movies:', response.data); // Log the response
         setAllMovies(response.data);
         setErrorMessage('');
       } catch (error) {
@@ -29,35 +28,67 @@ const SearchPage = () => {
   }, []);
 
   const handleSearch = async () => {
-    if (searchTerm.trim() === '') {
+    if (searchTerm === '') {
       setShowingAllMovies(true);
+    } else {
+      try {
+        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
+          search: searchTerm
+        }, {
+          withCredentials: true
+        });
+
+        setAllMovies(response.data);
+        setShowingAllMovies(false);
+        setErrorMessage('');
+      } catch (error) {
+        console.error('Search error:', error);
+        setErrorMessage('Search failed. Please try again later.');
+        setAllMovies([]);
+        setShowingAllMovies(true);
+      }
+    }
+  };
+
+  const handleAddToPoll = async (movieID) => {
+    const partyID = localStorage.getItem('partyID');
+    const userId = localStorage.getItem('userId');
+
+    const movieIDNumber = Number(movieID);
+
+    if (isNaN(movieIDNumber)) {
+      console.error('Invalid movie ID:', movieID);
+      setErrorMessage('Invalid movie ID.');
       return;
     }
 
     try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
-        search: searchTerm
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/addMovieToPoll', {
+        movieID: movieIDNumber,
+        partyID,
+        userId
       }, {
         withCredentials: true
       });
 
-      console.log('Search results:', response.data); // Log the search results
-      setAllMovies(response.data);
-      setShowingAllMovies(false);
-      setErrorMessage('');
+      console.log('Movie added to poll:', response.data);
+
+      const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
+      if (!existingMovies.includes(movieIDNumber)) {
+        existingMovies.push(movieIDNumber);
+        localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
+      }
     } catch (error) {
-      console.error('Search error:', error);
-      setErrorMessage('Search failed. Please try again later.');
-      setAllMovies([]);
-      setShowingAllMovies(true);
+      console.error('Fetch error:', error);
+      setErrorMessage('Failed to add movie to poll. Please try again later.');
     }
   };
 
-  const filteredMovies = showingAllMovies
-    ? allMovies
-    : allMovies.filter((movie) =>
-        movie.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const filteredMovies = searchTerm
+    ? allMovies.filter((movie) =>
+        movie.title.toLowerCase().startsWith(searchTerm.toLowerCase())
+      )
+    : allMovies;
 
   return (
     <div className="search-page-container">
