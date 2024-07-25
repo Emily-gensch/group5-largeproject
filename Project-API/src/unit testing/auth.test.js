@@ -1,10 +1,10 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-dotenv.config();
 const dotenv = require('dotenv');
 const app = require('../server');
 const User = require('../models/User');
 
+dotenv.config();
 jest.setTimeout(10000);
 
 describe('Auth API', () => {
