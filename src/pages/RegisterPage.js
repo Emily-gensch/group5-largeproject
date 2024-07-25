@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import './styles/Register.css';
 
 function RegisterPage() {
@@ -8,12 +7,10 @@ function RegisterPage() {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Add useNavigate hook
 
   const register = async (email, name, password) => {
     try {
-      // First, register the user
-      const registerResponse = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
         email,
         name,
         password,
@@ -24,54 +21,23 @@ function RegisterPage() {
         withCredentials: true,
       });
 
-      console.log('Registration response:', registerResponse);
-      console.log('Registration data:', registerResponse.data);
+      console.log('Registration response:', response);
+      console.log('Registration data:', response.data);
 
-      if (registerResponse.status === 201) {
+      if (response.status === 200) {
         console.log('Registration successful');
         setMessage('Registration successful. Please check your email to verify your account.');
-        
-        // After successful registration, send the email verification
-        await sendVerificationEmail(email);
-        
-        // Redirect to /wait page
-        navigate("/wait");
+        // You may not want to immediately redirect here
+        localStorage.setItem('token', response.data.token);
+        window.location.href = '/wait'; 
       } else {
         console.log('Registration failed');
-        console.log('Registration error:', registerResponse.data.message);
-        setMessage(`Registration failed: ${registerResponse.data.message}`);
+        console.log('Registration error:', response.data.error);
+        setMessage(`Registration failed: ${response.data.error}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage('Registration failed: An error occurred');
-    }
-  };
-
-  const sendVerificationEmail = async (email) => {
-    try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendVerificationEmail', {
-        email,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true,
-      });
-
-      console.log('Email sending response:', response);
-      console.log('Email sending data:', response.data);
-
-      if (response.status === 200) {
-        console.log('Verification email sent successfully');
-        setMessage('Verification email sent successfully.');
-      } else {
-        console.log('Failed to send verification email');
-        console.log('Email sending error:', response.data.message);
-        setMessage(`Failed to send verification email: ${response.data.message}`);
-      }
-    } catch (error) {
-      console.error('Error sending verification email:', error);
-      setMessage('Failed to send verification email');
+      setMessage('Registration failed');
     }
   };
 
