@@ -8,10 +8,16 @@ const SearchPage = () => {
   const [allMovies, setAllMovies] = useState([]);
   const [showingAllMovies, setShowingAllMovies] = useState(true);
 
+  // Fetch all movies on component mount
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, { withCredentials: true });
+        const response = await axios.post(
+          'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies',
+          {},
+          { withCredentials: true }
+        );
+        
         console.log('Fetch movies response:', response); // Log the full response object
 
         // Validate the response data format
@@ -32,6 +38,7 @@ const SearchPage = () => {
     fetchMovies();
   }, []);
 
+  // Handle search input and perform search
   const handleSearch = async () => {
     if (searchTerm.trim() === '') {
       setShowingAllMovies(true);
@@ -39,7 +46,12 @@ const SearchPage = () => {
     }
 
     try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', { search: searchTerm }, { withCredentials: true });
+      const response = await axios.post(
+        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie',
+        { search: searchTerm },
+        { withCredentials: true }
+      );
+
       console.log('Search movies response:', response); // Log the full response object
 
       // Validate the response data format
@@ -59,12 +71,14 @@ const SearchPage = () => {
     }
   };
 
+  // Filter movies based on search term
   const filteredMovies = searchTerm
     ? allMovies.filter((movie) =>
         movie.title.toLowerCase().startsWith(searchTerm.toLowerCase())
       )
     : allMovies;
 
+  // Handle movie click event
   const handleMovieClick = (movieId) => {
     console.log(`Clicked movie with ID: ${movieId}`);
     // Example: window.location.href = `/movie/${movieId}`;
