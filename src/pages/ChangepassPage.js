@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import './styles/ChangepassPage.css';
 
 const ChangePasswordPage = () => {
@@ -29,24 +30,15 @@ const ChangePasswordPage = () => {
     try {
       console.log('User ID:', userId); // Debugging line
 
-      const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/changePassword', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userID: userId, // Use actual user ID from local storage
-          currentPassword,
-          newPassword,
-          validatePassword: confirmNewPassword,
-        }),
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/changePassword', {
+        userID: userId, // Use actual user ID from local storage
+        currentPassword,
+        newPassword,
+        validatePassword: confirmNewPassword,
       });
 
-      const data = await response.json();
-      if (!response.ok) {
-        console.log('Response Error Data:', data); // Debugging line
-        setError(data.error || 'Failed to change password.');
-      } else {
+      const data = response.data;
+      if (response.status === 200) {
         setSuccessMessage(data.message);
         setCurrentPassword('');
         setNewPassword('');
@@ -55,6 +47,8 @@ const ChangePasswordPage = () => {
         setTimeout(() => {
           window.location.href = '/profile';
         }, 2000); // Redirect after 2 seconds
+      } else {
+        setError(data.error || 'Failed to change password.');
       }
     } catch (error) {
       console.error('Change password error:', error);

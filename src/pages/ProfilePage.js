@@ -13,7 +13,6 @@ const ProfilePage = () => {
   const userId = localStorage.getItem('userId');
   const partyID = localStorage.getItem('partyID');
 
-
   useEffect(() => {
     if (!userId) {
       navigate('/login');
