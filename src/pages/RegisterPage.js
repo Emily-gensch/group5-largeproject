@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './styles/Register.css';
-import { post } from './api'; 
+import { post } from '../api'; 
 
 function RegisterPage() {
   const [registerUsername, setRegisterUsername] = useState('');
