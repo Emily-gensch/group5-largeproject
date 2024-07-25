@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './styles/SearchPage.css';
 
@@ -8,13 +8,19 @@ const SearchPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [allMovies, setAllMovies] = useState([]);
   const [showingAllMovies, setShowingAllMovies] = useState(true);
+  const navigate = useNavigate();
+  const [pollID, setPollID] = useState(localStorage.getItem('pollID') || '');
+  const [partyID, setPartyID] = useState(localStorage.getItem('partyID') || '');
+
+  const apiUrl = 'https://socialmoviebackend-4584a07ae955.herokuapp.com'; // Adjust this URL as needed
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, {
+        const response = await axios.post(`${apiUrl}/api/displayMovies`, {}, {
           withCredentials: true
         });
+        console.log('Fetched movies:', response.data);
         setAllMovies(response.data);
         setErrorMessage('');
       } catch (error) {
@@ -32,12 +38,9 @@ const SearchPage = () => {
       setShowingAllMovies(true);
     } else {
       try {
-        const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
-          search: searchTerm
-        }, {
+        const response = await axios.post(`${apiUrl}/api/searchMovie`, { search: searchTerm }, {
           withCredentials: true
         });
-
         setAllMovies(response.data);
         setShowingAllMovies(false);
         setErrorMessage('');
@@ -54,6 +57,7 @@ const SearchPage = () => {
     const partyID = localStorage.getItem('partyID');
     const userId = localStorage.getItem('userId');
 
+    // Ensure movieID is a number
     const movieIDNumber = Number(movieID);
 
     if (isNaN(movieIDNumber)) {
@@ -63,7 +67,7 @@ const SearchPage = () => {
     }
 
     try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/addMovieToPoll', {
+      const response = await axios.post(`${apiUrl}/api/poll/addMovieToPoll`, {
         movieID: movieIDNumber,
         partyID,
         userId
@@ -73,6 +77,7 @@ const SearchPage = () => {
 
       console.log('Movie added to poll:', response.data);
 
+      // Save movie to localStorage
       const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
       if (!existingMovies.includes(movieIDNumber)) {
         existingMovies.push(movieIDNumber);
@@ -112,20 +117,25 @@ const SearchPage = () => {
             filteredMovies.map((movie, index) => (
               <div key={index} className="movie-box">
                 <div className="movie-title">{movie.title}</div>
-                <button onClick={() => handleAddToPoll(movie._id)}>Add to Poll</button>
+                <button
+                  className="add-button"
+                  onClick={() => handleAddToPoll(movie._id)}
+                >
+                  Add To Poll
+                </button>
               </div>
             ))
           )}
         </div>
       </div>
       <div className="navigation-bar">
-        <div className="nav-item">
+        <div className="nav-item current-page">
           <Link to="/search">Search</Link>
         </div>
         <div className="nav-item">
           <Link to="/vote">Vote</Link>
         </div>
-        <div className="nav-item current-page">
+        <div className="nav-item">
           <Link to="/home">Home</Link>
         </div>
         <div className="nav-item">
