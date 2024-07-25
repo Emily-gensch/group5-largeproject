@@ -11,8 +11,7 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      // Call the registration API
-      const registerResponse = await axios.post(
+      const response = await axios.post(
         'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register',
         { email, name, password },
         {
@@ -21,16 +20,15 @@ function RegisterPage() {
         }
       );
 
-      console.log('Registration response:', registerResponse);
-      console.log('Registration data:', registerResponse.data);
+      console.log('Registration response:', response);
+      console.log('Registration data:', response.data);
 
-      if (registerResponse.status === 201) {
-        // Successful registration
+      if (response.status === 201) {
         console.log('Registration successful');
         setMessage('Registration successful. Please check your email to verify your account.');
 
-        // Extract the email token from the response if necessary
-        const emailToken = registerResponse.data.emailToken;
+        // Extract the email token from the response
+        const emailToken = response.data.emailToken;
 
         // Call the email verification API
         await sendVerificationEmail(email, emailToken);
@@ -38,20 +36,18 @@ function RegisterPage() {
         // Redirect or update the UI
         window.location.href = '/wait';
       } else {
-        // Registration failed
         console.log('Registration failed');
-        console.log('Registration error:', registerResponse.data.error);
-        setMessage(`Registration failed: ${registerResponse.data.error}`);
+        console.log('Registration error:', response.data.error);
+        setMessage(`Registration failed: ${response.data.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage('Registration failed');
+      setMessage(`Registration failed: ${error.response?.data?.error || 'Unknown error'}`);
     }
   };
 
   const sendVerificationEmail = async (email, emailToken) => {
     try {
-      // Call the email verification API
       const response = await axios.post(
         'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendEmail',
         { email, emailToken },
@@ -69,11 +65,11 @@ function RegisterPage() {
       } else {
         console.log('Failed to send verification email');
         console.log('Send email error:', response.data.error);
-        setMessage(`Failed to send verification email: ${response.data.error}`);
+        setMessage(`Failed to send verification email: ${response.data.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Send email error:', error);
-      setMessage('Failed to send verification email');
+      setMessage(`Failed to send verification email: ${error.response?.data?.error || 'Unknown error'}`);
     }
   };
 
