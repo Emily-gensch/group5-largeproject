@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom'; // Import Link
+import { Link } from 'react-router-dom';
 import './styles/Register.css';
 
 function RegisterPage() {
@@ -24,25 +24,17 @@ function RegisterPage() {
       console.log('Registration data:', response.data);
 
       if (response.status === 201) {
-        console.log('Registration successful');
         setMessage('Registration successful. Please check your email to verify your account.');
-
-        // Extract the email token from the response
         const emailToken = response.data.emailToken;
-
-        // Call the email verification API
         await sendVerificationEmail(email, emailToken);
-
-        // Redirect or update the UI
         window.location.href = '/wait';
       } else {
-        console.log('Registration failed');
-        console.log('Registration error:', response.data.error);
         setMessage(`Registration failed: ${response.data.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage(`Registration failed: ${error.response?.data?.error || 'Unknown error'}`);
+      const errorMessage = error.response?.data?.error || 'Registration failed';
+      setMessage(`Registration failed: ${errorMessage}`);
     }
   };
 
@@ -63,13 +55,13 @@ function RegisterPage() {
       if (response.status === 200) {
         console.log('Verification email sent');
       } else {
-        console.log('Failed to send verification email');
-        console.log('Send email error:', response.data.error);
-        setMessage(`Failed to send verification email: ${response.data.error || 'Unknown error'}`);
+        const sendEmailError = response.data.error || 'Failed to send verification email';
+        setMessage(`Failed to send verification email: ${sendEmailError}`);
       }
     } catch (error) {
       console.error('Send email error:', error);
-      setMessage(`Failed to send verification email: ${error.response?.data?.error || 'Unknown error'}`);
+      const sendEmailError = error.response?.data?.error || 'Failed to send verification email';
+      setMessage(`Failed to send verification email: ${sendEmailError}`);
     }
   };
 
