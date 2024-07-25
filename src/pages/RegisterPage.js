@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './styles/Register.css';
 
 function RegisterPage() {
@@ -9,35 +10,27 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      const response = await fetch('http://localhost:5001/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, name, password }),
+      const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/auth/register', {
+        email,
+        name,
+        password
       });
 
-      const data = await response.json();
       console.log('Registration response:', response);
-      console.log('Registration data:', data);
+      console.log('Registration data:', response.data);
 
-      if (response.ok) {
+      if (response.status === 200) {
         console.log('Registration successful');
         setMessage('Registration successful');
-        localStorage.setItem('token', data.token); // Store the token in localStorage
+        localStorage.setItem('token', response.data.token); // Store the token in localStorage
         window.location.href = '/join'; 
-      } else if (response.status === 400) {
-        console.log('Registration failed: Bad Request');
-        console.log('Registration error:', data.error);
-        setMessage(`Registration failed: ${data.error}`);
       } else {
         console.log('Registration failed');
-        console.log('Registration error:', data.error);
-        setMessage(`Registration failed: ${data.error}`);
+        setMessage(`Registration failed: ${response.data.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage('Registration failed');
+      setMessage(`Registration failed: ${error.response?.data?.error || 'Unknown error'}`);
     }
   };
 

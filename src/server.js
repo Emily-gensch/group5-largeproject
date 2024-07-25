@@ -12,6 +12,18 @@ const app = express();
 // MongoDB connection
 const url = process.env.MONGO_URI_PARTY;
 
+
+app.use(cors({
+  origin: 'https://themoviesocial-a63e6cbb1f61.herokuapp.com', // Set your allowed origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Set allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Set allowed headers
+}));
+
+app.get('/api/some-endpoint', (req, res) => {
+  res.json({ message: 'This is a CORS-enabled endpoint' });
+});
+
+
 mongoose.set('strictQuery', true);
 
 if (process.env.NODE_ENV !== 'test') {
@@ -33,12 +45,6 @@ const Poll = require('./models/Poll');
 const PartyGuest = require('./models/PartyMembers');
 const Movie = require('./models/Movie');
 
-app.use(
-  cors({
-    origin: 'https://themoviesocial-a63e6cbb1f61.herokuapp.com', // Replace with your frontend URL
-    credentials: true,
-  })
-);
 app.use(bodyParser.json());
 app.use(express.json());
 
