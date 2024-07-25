@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import './styles/Register.css';
+import { useNavigate } from 'react-router-dom';
 
 function RegisterPage() {
   const [registerUsername, setRegisterUsername] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Add useNavigate hook
+  const navigate = useNavigate(); // Ensure you have this line
 
   const register = async (email, name, password) => {
     try {
@@ -30,20 +30,26 @@ function RegisterPage() {
       if (registerResponse.status === 201) {
         console.log('Registration successful');
         setMessage('Registration successful. Please check your email to verify your account.');
-        
+        navigate("/wait");
+
         // After successful registration, send the email verification
         await sendVerificationEmail(email);
-        
-        // Redirect to /wait page
-        navigate("/wait");
       } else {
         console.log('Registration failed');
-        console.log('Registration error:', registerResponse.data.message);
-        setMessage(`Registration failed: ${registerResponse.data.message}`);
+        setMessage(`Registration failed: ${registerResponse.data.message || 'Unknown error occurred'}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage('Registration failed: An error occurred');
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        setMessage(`Registration failed: ${error.response.data.message || 'Unknown error occurred'}`);
+      } else if (error.request) {
+        // Request was made but no response received
+        setMessage('Registration failed: No response from server');
+      } else {
+        // Something else went wrong
+        setMessage(`Registration failed: ${error.message || 'Unknown error occurred'}`);
+      }
     }
   };
 
@@ -66,12 +72,20 @@ function RegisterPage() {
         setMessage('Verification email sent successfully.');
       } else {
         console.log('Failed to send verification email');
-        console.log('Email sending error:', response.data.message);
-        setMessage(`Failed to send verification email: ${response.data.message}`);
+        setMessage(`Failed to send verification email: ${response.data.message || 'Unknown error occurred'}`);
       }
     } catch (error) {
       console.error('Error sending verification email:', error);
-      setMessage('Failed to send verification email');
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        setMessage(`Failed to send verification email: ${error.response.data.message || 'Unknown error occurred'}`);
+      } else if (error.request) {
+        // Request was made but no response received
+        setMessage('Failed to send verification email: No response from server');
+      } else {
+        // Something else went wrong
+        setMessage(`Failed to send verification email: ${error.message || 'Unknown error occurred'}`);
+      }
     }
   };
 
