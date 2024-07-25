@@ -41,9 +41,11 @@ router.post('/register', async (req, res) => {
       emailVerifStatus: 0,
     });
     await newUser.save();
-    res
-      .status(201)
-      .json({ message: 'User registered successfully', user: newUser });
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: newUser,
+      emailToken: emailToken,
+    });
   } catch (e) {
     res.status(500).json({ message: 'Server error', error: e.toString() });
   }

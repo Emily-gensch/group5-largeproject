@@ -35,7 +35,7 @@ const Movie = require('./src/models/Movie');
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5002',
+    origin: ['http://localhost:5002', 'http://group5cop4331.com/'],
     credentials: true,
   })
 );
@@ -55,7 +55,7 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60,
       sameSite: 'Lax',
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      secure: process.env.NODE_ENV === 'production',
     },
   })
 );
