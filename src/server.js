@@ -107,6 +107,7 @@ app.post('/api/displayWatchedMovies', async (req, res) => {
 });
 
 // Search movies
+// Search movies
 app.post('/api/searchMovie', async (req, res) => {
   const { search } = req.body;
   try {
@@ -117,6 +118,19 @@ app.post('/api/searchMovie', async (req, res) => {
   }
 });
 
+// Display user account
+app.post('/api/userAccount', async (req, res) => {
+  const { userID } = req.body;
+  try {
+    const user = await User.findById(userID);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.status(200).json(user);
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
 // Display user account
 app.post('/api/userAccount', async (req, res) => {
   const { userId } = req.body;
