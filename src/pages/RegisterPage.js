@@ -28,7 +28,7 @@ function RegisterPage() {
         console.log('Registration successful');
         setMessage('Registration successful');
         localStorage.setItem('token', response.data.token); // Store the token in localStorage
-        window.location.href = '/join'; 
+        window.location.href = '/wait'; 
       } else {
         console.log('Registration failed');
         setMessage(`Registration failed: ${response.data.error || 'An unknown error occurred'}`);

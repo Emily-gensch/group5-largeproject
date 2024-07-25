@@ -67,6 +67,42 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.post('/resendVerification', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.emailVerifStatus === 1) {
+      return res.status(400).json({ message: 'Email already verified' });
+    }
+
+    const emailToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    user.emailToken = emailToken;
+    await user.save();
+
+    const mailOptions = {
+      from: `"Your App Name" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Email Verification',
+      text: `Hi there! Please verify your email by clicking the link below:\n\n${process.env.BASE_URL}/api/auth/verifyEmail/${emailToken}\n\nThank you!`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Verification email sent successfully' });
+  } catch (e) {
+    res.status(500).json({ message: 'Server error', error: e.message });
+  }
+});
+
 // Verify email route
 router.get('/verifyEmail/:emailToken', async (req, res) => {
   const { emailToken } = req.params;
