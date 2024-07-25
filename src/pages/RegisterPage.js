@@ -26,13 +26,7 @@ function RegisterPage() {
       if (response.status === 201) {
         setMessage('Registration successful. Please check your email to verify your account.');
         const emailToken = response.data.emailToken;
-
-        if (emailToken) {
-          await sendVerificationEmail(email, emailToken);
-        } else {
-          setMessage('Email token is missing.');
-        }
-
+        await sendVerificationEmail(email, emailToken);
         window.location.href = '/wait';
       } else {
         setMessage(`Registration failed: ${response.data.error || 'Unknown error'}`);
@@ -61,7 +55,8 @@ function RegisterPage() {
       if (response.status === 200) {
         console.log('Verification email sent');
       } else {
-        setMessage(`Failed to send verification email: ${response.data.error || 'Unknown error'}`);
+        const sendEmailError = response.data.error || 'Failed to send verification email';
+        setMessage(`Failed to send verification email: ${sendEmailError}`);
       }
     } catch (error) {
       console.error('Send email error:', error);
