@@ -92,8 +92,6 @@ const ProfilePage = () => {
             <div className="profile-placeholder">Profile</div>
           </div>
           <div className="profile-info">
-            <div className="username">Name: {username}</div>
-            <div className="email">Email: {email}</div>
           </div>
         </div>
         <div className="button-space">
