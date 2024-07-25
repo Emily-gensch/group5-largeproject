@@ -8,11 +8,13 @@ const SearchPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [allMovies, setAllMovies] = useState([]);
   const [showingAllMovies, setShowingAllMovies] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [pollID, setPollID] = useState(localStorage.getItem('pollID') || '');
   const [partyID, setPartyID] = useState(localStorage.getItem('partyID') || '');
 
   useEffect(() => {
     const fetchMovies = async () => {
+      setLoading(true);
       try {
         const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {}, {
           withCredentials: true,
@@ -24,6 +26,8 @@ const SearchPage = () => {
         console.error('Fetch movies error:', error.message);
         setErrorMessage('Failed to fetch movies. Please try again later.');
         setAllMovies([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -34,6 +38,7 @@ const SearchPage = () => {
     if (searchTerm.trim() === '') {
       setShowingAllMovies(true);
     } else {
+      setLoading(true);
       try {
         const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
           search: searchTerm,
@@ -49,6 +54,8 @@ const SearchPage = () => {
         setErrorMessage('Search failed. Please try again later.');
         setAllMovies([]);
         setShowingAllMovies(true);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -71,7 +78,7 @@ const SearchPage = () => {
     }
 
     try {
-      const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/poll/addMovieToPoll', {
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/poll/addMovieToPoll', {
         movieID: movieIDNumber,
         partyID,
         userId,
@@ -109,6 +116,7 @@ const SearchPage = () => {
         />
         <button onClick={handleSearch}>Search</button>
       </div>
+      {loading && <div className="loading-message">Loading...</div>}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       <div className="movie-list">
         <h2>{showingAllMovies ? 'All Movies' : 'Search Results'}</h2>

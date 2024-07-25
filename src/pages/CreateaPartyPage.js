@@ -27,11 +27,17 @@ const CreateaPartyPage = () => {
         userId
       });
 
+      console.log('Response data:', response.data); // Debug response
+
       const data = response.data;
-      console.log('Group created:', data);
-      setPartyCode(data.partyInviteCode); // Set party code to state
-      setMessage('Group created successfully!');
-      setShowPopup(true); // Show popup
+      if (data.partyInviteCode) {
+        setPartyCode(data.partyInviteCode); // Set party code to state
+        setMessage('Group created successfully!');
+        setShowPopup(true); // Show popup
+      } else {
+        console.error('Party code not found in response');
+        setMessage('Error: Party code not received.');
+      }
     } catch (error) {
       console.error('Error creating group:', error);
       setMessage('Error: Failed to create group. Please try again later.');

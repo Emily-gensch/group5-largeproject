@@ -63,13 +63,13 @@ router.post('/EditPartyName', async (req, res) => {
 // Create party
 router.post('/create', async (req, res) => {
   const { partyName } = req.body;
-  const userID = req.session.userId; // Retrieve userID from the session
-
-  console.log(userID);
+  const userID = req.session.userId;
 
   if (!userID) {
     return res.status(401).json({ message: 'userID not found' });
   }
+
+  console.log(partyName);
 
   try {
     const existingParty = await Party.findOne({ hostID: userID });
@@ -86,21 +86,32 @@ router.post('/create', async (req, res) => {
       partyInviteCode,
     });
 
-    await newParty.save();
+    const savedParty = await newParty.save();
 
     const newPoll = new Poll({
-      partyID: newParty._id,
-      movies: [],
+      pollID: Date.now(),
+      partyID: savedParty._id,
+      movieID: null,
+      votes: 0,
+      watchedStatus: false,
     });
 
-    await newPoll.save();
+    const savedPoll = await newPoll.save();
+
+    const newMember = new PartyMembers({
+      userID: userID,
+      partyID: savedParty._id,
+    });
+
+    await newMember.save();
 
     res.status(201).json({
-      message: 'Party and Poll created successfully',
-      party: newParty,
-      poll: newPoll,
+      message: 'Party, Poll, and Membership created successfully',
+      party: savedParty,
+      poll: savedPoll,
     });
   } catch (err) {
+    console.error('Error creating party, poll, and membership:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });

@@ -13,7 +13,12 @@ function RegisterPage() {
       const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
         email,
         name,
-        password
+        password,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
       });
 
       console.log('Registration response:', response);
@@ -26,11 +31,12 @@ function RegisterPage() {
         window.location.href = '/join'; 
       } else {
         console.log('Registration failed');
-        setMessage(`Registration failed: ${response.data.error || 'Unknown error'}`);
+        console.log('Registration error:', response.data.error);
+        setMessage(`Registration failed: ${response.data.error}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage(`Registration failed: ${error.response?.data?.error || 'Unknown error'}`);
+      setMessage('Registration failed');
     }
   };
 
