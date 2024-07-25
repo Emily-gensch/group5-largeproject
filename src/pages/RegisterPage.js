@@ -2,33 +2,40 @@ import React, { useState } from 'react';
 import './styles/Register.css'; 
 import axios from 'axios';
 
-
 function RegisterPage() {
   const [registerUsername, setRegisterUsername] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
 
-const register = async (email, name, password) => {
-  try {
-    const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
-      email,
-      name,
-      password,
-    });
+  const register = async (email, name, password) => {
+    try {
+      // Register the user
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
+        email,
+        name,
+        password,
+      });
 
-    if (response.status === 200) {
-      setMessage('Registration successful');
-      window.location.href = '/join';
-    } else {
-      setMessage(response.data.message || 'Registration failed');
+      if (response.status === 201) {
+        // Registration successful, send verification email
+        const { emailToken } = response.data.user;  // Assuming the email token is returned from your backend
+
+        await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendEmail', {
+          email,
+          emailToken,
+        });
+
+        setMessage('Registration successful. Please check your email to verify your account.');
+        window.location.href = '/login';  // Redirect to login page
+      } else {
+        setMessage(response.data.message || 'Registration failed');
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      setMessage('Registration failed');
     }
-  } catch (error) {
-    console.error('Error during registration:', error);
-    setMessage('Registration failed');
-  }
-};
-
+  };
 
   return (
     <div className="container">
