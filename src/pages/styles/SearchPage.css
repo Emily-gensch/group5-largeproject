@@ -1,3 +1,4 @@
+/* Ensure the container is displaying content */
 .search-page-container {
   display: flex;
   flex-direction: column;
@@ -6,9 +7,10 @@
   background-color: #313338;
   color: #fff3e8;
   height: 100vh;
-  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-y: auto;
 }
 
+/* Flexbox for the search bar */
 .search-bar {
   width: 100%;
   max-width: 800px;
@@ -34,9 +36,10 @@
   cursor: pointer;
 }
 
+/* Movie list styling */
 .movie-list {
   width: 100%;
-  max-width: 1000px; /* Increase max-width to allow more space */
+  max-width: 1000px;
   margin-bottom: 20px;
 }
 
@@ -49,10 +52,10 @@
 
 .movie-box {
   background-color: #a51f1f;
-  padding: 30px; /* Increase padding for larger boxes */
+  padding: 30px;
   border-radius: 8px;
   text-align: center;
-  width: calc(25% - 20px); /* Increase width to make boxes larger */
+  width: calc(25% - 20px);
   box-sizing: border-box;
   transition: transform 0.3s;
 }
@@ -62,7 +65,7 @@
 }
 
 .movie-title {
-  font-size: 18px; /* Increase font size for movie titles */
+  font-size: 18px;
   font-weight: bold;
   margin-bottom: 10px;
   overflow: hidden;
@@ -76,7 +79,7 @@
   border: none;
   padding: 10px 20px;
   border-radius: 4px;
-  font-size: 16px; /* Increase button font size */
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -85,6 +88,7 @@
   background-color: #e5e5e5;
 }
 
+/* Navigation bar styling */
 .navigation-bar {
   display: flex;
   justify-content: space-around;
@@ -94,27 +98,18 @@
   position: fixed;
   bottom: 0;
   left: 0;
-  z-index: 1000; /* Ensure it stays above other content */
+  z-index: 1000;
 }
 
 .nav-item {
-  flex: 1; /* Allows items to take up available space */
-  text-align: center; /* Center-align text or icons */
+  flex: 1;
+  text-align: center;
 }
 
 .nav-item a {
   color: #fff3e8;
   text-decoration: none;
   font-size: 14px;
-}
-
-.current-page a {
-  font-weight: bold;
-}
-
-.nav-icon img {
-  width: 24px; /* Adjust icon size */
-  height: 24px;
 }
 
 .current-page a {

@@ -10,7 +10,8 @@ function RegisterPage() {
 
   const register = async (email, name, password) => {
     try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
+      // First, register the user
+      const registerResponse = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
         email,
         name,
         password,
@@ -21,22 +22,51 @@ function RegisterPage() {
         withCredentials: true,
       });
 
-      console.log('Registration response:', response);
-      console.log('Registration data:', response.data);
+      console.log('Registration response:', registerResponse);
+      console.log('Registration data:', registerResponse.data);
 
-      if (response.status === 200) {
+      if (registerResponse.status === 201) {
         console.log('Registration successful');
         setMessage('Registration successful. Please check your email to verify your account.');
-        // Redirecting to a wait page or login page
-        // window.location.href = '/wait'; 
+
+        // After successful registration, send the email verification
+        await sendVerificationEmail(email);
       } else {
         console.log('Registration failed');
-        console.log('Registration error:', response.data.error);
-        setMessage(`Registration failed: ${response.data.error}`);
+        console.log('Registration error:', registerResponse.data.message);
+        setMessage(`Registration failed: ${registerResponse.data.message}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage('Registration failed');
+      setMessage('Registration failed: An error occurred');
+    }
+  };
+
+  const sendVerificationEmail = async (email) => {
+    try {
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendVerificationEmail', {
+        email,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+
+      console.log('Email sending response:', response);
+      console.log('Email sending data:', response.data);
+
+      if (response.status === 200) {
+        console.log('Verification email sent successfully');
+        setMessage('Verification email sent successfully.');
+      } else {
+        console.log('Failed to send verification email');
+        console.log('Email sending error:', response.data.message);
+        setMessage(`Failed to send verification email: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error('Error sending verification email:', error);
+      setMessage('Failed to send verification email');
     }
   };
 
