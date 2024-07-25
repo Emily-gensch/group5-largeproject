@@ -15,12 +15,11 @@ function RegisterPage() {
         name,
         password,
       });
-
+  
       // Check if response is JSON
       const contentType = response.headers.get('Content-Type');
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
-
         if (response.ok) {
           setMessage('Registration successful');
           window.location.href = '/join';
