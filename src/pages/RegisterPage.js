@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './styles/Register.css';
 import { useNavigate } from 'react-router-dom';
+import './styles/Register.css';
 
 function RegisterPage() {
   const [registerUsername, setRegisterUsername] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Add useNavigate hook
 
   const register = async (email, name, password) => {
     try {
+      // First, register the user
       const registerResponse = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register', {
         email,
         name,
@@ -23,26 +24,26 @@ function RegisterPage() {
         withCredentials: true,
       });
 
-      if (registerResponse.headers['content-type'].includes('application/json')) {
-        const data = registerResponse.data;
-        if (registerResponse.status === 201) {
-          setMessage('Registration successful. Please check your email to verify your account.');
-          navigate("/wait");
-          await sendVerificationEmail(email);
-        } else {
-          setMessage(`Registration failed: ${data.message || 'Unknown error occurred'}`);
-        }
+      console.log('Registration response:', registerResponse);
+      console.log('Registration data:', registerResponse.data);
+
+      if (registerResponse.status === 201) {
+        console.log('Registration successful');
+        setMessage('Registration successful. Please check your email to verify your account.');
+        
+        // After successful registration, send the email verification
+        await sendVerificationEmail(email);
+        
+        // Redirect to /wait page
+        navigate("/wait");
       } else {
-        setMessage('Unexpected response format. Please contact support.');
+        console.log('Registration failed');
+        console.log('Registration error:', registerResponse.data.message);
+        setMessage(`Registration failed: ${registerResponse.data.message}`);
       }
     } catch (error) {
-      if (error.response) {
-        setMessage(`Registration failed: ${error.response.data.message || 'Unknown error occurred'}`);
-      } else if (error.request) {
-        setMessage('Registration failed: No response from server');
-      } else {
-        setMessage(`Registration failed: ${error.message || 'Unknown error occurred'}`);
-      }
+      console.error('Registration error:', error);
+      setMessage('Registration failed: An error occurred');
     }
   };
 
@@ -57,24 +58,20 @@ function RegisterPage() {
         withCredentials: true,
       });
 
-      if (response.headers['content-type'].includes('application/json')) {
-        const data = response.data;
-        if (response.status === 200) {
-          setMessage('Verification email sent successfully.');
-        } else {
-          setMessage(`Failed to send verification email: ${data.message || 'Unknown error occurred'}`);
-        }
+      console.log('Email sending response:', response);
+      console.log('Email sending data:', response.data);
+
+      if (response.status === 200) {
+        console.log('Verification email sent successfully');
+        setMessage('Verification email sent successfully.');
       } else {
-        setMessage('Unexpected response format. Please contact support.');
+        console.log('Failed to send verification email');
+        console.log('Email sending error:', response.data.message);
+        setMessage(`Failed to send verification email: ${response.data.message}`);
       }
     } catch (error) {
-      if (error.response) {
-        setMessage(`Failed to send verification email: ${error.response.data.message || 'Unknown error occurred'}`);
-      } else if (error.request) {
-        setMessage('Failed to send verification email: No response from server');
-      } else {
-        setMessage(`Failed to send verification email: ${error.message || 'Unknown error occurred'}`);
-      }
+      console.error('Error sending verification email:', error);
+      setMessage('Failed to send verification email');
     }
   };
 
