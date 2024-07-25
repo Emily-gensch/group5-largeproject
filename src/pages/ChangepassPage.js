@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './styles/ChangepassPage.css';
 
@@ -9,6 +9,7 @@ const ChangePasswordPage = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate(); // Use navigate for routing
 
   // Retrieve userId from local storage
   const userId = localStorage.getItem('userId');
@@ -28,10 +29,8 @@ const ChangePasswordPage = () => {
     }
 
     try {
-      console.log('User ID:', userId); // Debugging line
-
       const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/changePassword', {
-        userID: userId, // Use actual user ID from local storage
+        userId: userId, // Use actual user ID from local storage
         currentPassword,
         newPassword,
         validatePassword: confirmNewPassword,
@@ -44,8 +43,9 @@ const ChangePasswordPage = () => {
         setNewPassword('');
         setConfirmNewPassword('');
         setError('');
+        // Redirect after 2 seconds to show the success message
         setTimeout(() => {
-          window.location.href = '/profile';
+          navigate('/profile'); // Use navigate instead of window.location.href
         }, 2000); // Redirect after 2 seconds
       } else {
         setError(data.error || 'Failed to change password.');
