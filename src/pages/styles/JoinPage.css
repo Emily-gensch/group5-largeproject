@@ -1,72 +1,50 @@
-/* Ensure no margin or padding affects the container */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden; /* Prevent scrollbars */
-}
-
-/* Container for the join page */
-.join-container {
-  position: absolute; /* Ensure it covers the full viewport */
-  width: 100vw; /* Full viewport width */
-  height: 100vh; /* Full viewport height */
+body {
+  background-color: #313338;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url('./Landingpage2.jpg') no-repeat center center;
-  background-size: cover; /* Adjust image to cover container */
-  background-repeat: no-repeat; /* Prevent repeating the image */
-  background-position: center; /* Center the image */
+  height: 100vh;
+  margin: 0;
   font-family: 'Inter', sans-serif;
 }
 
-/* Style for the container */
 .container {
   text-align: center;
-  color: #FFF3E8; /* Text color inside the container */
-  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background for readability */
-  padding: 40px;
-  border-radius: 10px;
+  color: #FFF3E8;
 }
 
-/* Header style */
 #welcomeHeader {
   margin-top: 50px;
   color: #FFD700;
-  font-size: 36px;
+  font-size: 36px; 
   font-weight: bold;
 }
 
-/* Gold text style */
 .goldText {
   font-weight: bold;
 }
 
-/* Style for the join box */
 #joinDiv {
   width: 400px;
   padding: 40px;
-  background-color: #A51F1F; /* Red background for the join box */
+  background-color: #A51F1F; 
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
+  margin-top: 40px;
 }
 
-/* Title style */
 #inner-title {
   font-size: 24px;
   font-weight: bold;
-  color: #FFF3E8;
+  color: #FFF3E8; 
   margin-bottom: 20px;
 }
 
-/* Input styles */
 .inputField {
   width: 100%;
   height: 50px;
-  background-color: #F0F0F0; /* Background color for input fields */
-  color: #000; /* Text color in input fields */
+  background-color: #F0F0F0; 
   border-radius: 8px;
   border: none;
   padding: 0 15px;
@@ -75,12 +53,11 @@ html, body {
   box-sizing: border-box;
 }
 
-/* Submit button style */
 #joinButton {
   width: 100%;
   height: 50px;
-  background-color: #FFF3E8; /* Button background color */
-  color: #A51F1F; /* Button text color */
+  background-color: #FFF3E8; 
+  color: #A51F1F; 
   border: none;
   border-radius: 8px;
   font-size: 18px;
@@ -88,25 +65,22 @@ html, body {
   margin-top: 10px;
 }
 
-/* Button hover style */
 #joinButton:hover {
-  background-color: #E0E0E0; /* Hover background color */
+  background-color: #E0E0E0; 
 }
 
-/* Result message style */
 #joinResult {
-  color: #000000; /* Result message color */
+  color: #000000;
   font-size: 14px;
   margin-top: 10px;
 }
 
-/* Link styles */
 a {
-  color: #FFD700; /* Link color */
-  text-decoration: none;
+  color: #FFD700; 
+  text-decoration: none; 
 }
 
 #createPartyLink {
-  text-decoration: underline; /* Underline for create party link */
+  text-decoration: underline; 
   color: #FFD700;
 }

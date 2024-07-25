@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './styles/CreateaPartyPage.css';
 
 const CreateaPartyPage = () => {
-  const [groupName, setGroupName] = useState('');
+  const [groupName, setGroupName] = useState(''); // This is for setting the party name
   const [message, setMessage] = useState('');
   const [userId, setUserId] = useState('');
   const [partyCode, setPartyCode] = useState('');
@@ -20,64 +20,36 @@ const CreateaPartyPage = () => {
     }
   }, []);
 
-  const handleCreateGroup = async (groupName) => {
-    if (!userId) {
-      setMessage('User ID is missing.');
-      return;
-    }
-
+  const createGroup = async (partyName, userId) => {
     try {
-      const response = await axios.post(
-        'https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/party/create',
-        { partyName: groupName, userId },
-        { withCredentials: true } // Ensure credentials are included
-      );
+      const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/party/create', {
+        partyName,
+        userId
+      });
 
-      console.log('API Response:', response);
-
-      if (response.status === 200) {
-        const { party } = response.data;
-        if (party && party.partyInviteCode) {
-          setPartyCode(party.partyInviteCode);
-          setMessage('Group created successfully!');
-          setShowPopup(true);
-        } else {
-          setMessage('Unexpected response structure from server.');
-        }
-      } else {
-        setMessage(`Error: ${response.data.message}`);
-      }
+      const data = response.data;
+      console.log('Group created:', data);
+      setPartyCode(data.partyInviteCode); // Set party code to state
+      setMessage('Group created successfully!');
+      setShowPopup(true); // Show popup
     } catch (error) {
       console.error('Error creating group:', error);
-      setMessage('Failed to create group. Please try again later.');
+      setMessage('Error: Failed to create group. Please try again later.');
     }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    handleCreateGroup(groupName);
+    if (userId) {
+      createGroup(groupName, userId);
+    } else {
+      setMessage('User ID is required.');
+    }
   };
 
-  const handleClosePopup = async () => {
+  const handleClosePopup = () => {
     setShowPopup(false);
-
-    try {
-      const response = await axios.post(
-        'https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/poll/startPoll',
-        { partyID: partyCode },
-        { withCredentials: true }
-      );
-
-      if (response.data && response.data.pollID) {
-        localStorage.setItem('pollID', response.data.pollID);
-        navigate('/home');
-      } else {
-        throw new Error('Failed to start poll');
-      }
-    } catch (error) {
-      console.error('Error starting poll:', error);
-      setMessage('Failed to start poll. Please try again later.');
-    }
+    navigate('/join'); 
   };
 
   return (
