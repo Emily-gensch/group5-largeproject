@@ -187,6 +187,94 @@ app.post('/api/changePassword', async (req, res) => {
   }
 });
 
+// Send reset password email
+app.post('/api/sendResetPassEmail', async (req, res) => {
+  const { email } = req.body;
+  try{
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email' });
+    }
+    const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: "themoviesocial@gmail.com",
+        pass: "mjzd lbgy tttl ynuc"
+    },
+    });  
+    const passToken = jwt.sign({ data: 'Pass Token' }, 'PassTokenKey', { expiresIn: '24h' });
+    transporter
+    .sendMail({
+      from: '"largeproject " <themoviesocial@gmail.com>',
+      to: email,
+      subject: 'Password Reset Request',
+      text: `Hi! There, You can reset your password 
+            by clicking the link below:
+            http://localhost:5000/api/resetPassword/${passToken}/${email}
+            Thanks`,
+    });
+    res.status(200).json({ message: 'email sent' });
+    }
+    catch(e){
+      res.status(500).json({ error: e.toString() });
+    };
+});
+
+// Reset password 
+// RESET_PASSWORD_PAGE needed
+app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
+  const { passToken, email} = req.params;
+
+  try {
+    // Verifying the JWT token 
+    jwt.verify(passToken, 'PassTokenKey', function(err, decoded) {
+      if (err) {
+        return res.status(401).send(`
+          <html>
+            <body>
+              <h2>Reset password failed</h2>
+              <p>The link you clicked is invalid or has expired. </p>
+              <p><a href="http://localhost:5000/RESET_PASSWORD_PAGE">Go to Login Page</a></p>
+            </body>
+          </html>
+        `);
+      }
+      res.status(200).send(`
+        <html>
+          <head>
+            <title>Redirecting to another page</title>
+            <!-- Redirecting to another page using meta tag -->
+            <meta http-equiv="refresh" content="1; url = "http://localhost:5000/RESET_PASSWORD_PAGE" />
+          </head>
+          <body>
+            <h3>
+              Redirecting to another page
+            </h3>
+            <p><strong>Note:</strong> If your browser supports Refresh, you'll be
+              redirected to the Reset Password Page. 
+            </p>
+            <p>f you are not redirected in 5 seconds, click the link below:
+              <a href="http://localhost:5000/RESET_PASSWORD_PAGE" target="_blank">click here</a>
+            </p>
+          </body>
+          </html>`
+      );
+    });
+  } catch (e) {
+    console.error('Error during reset password:', e);
+    res.status(500).send(`
+      <html>
+        <body>
+          <h2>Internal Server Error</h2>
+          <p>There was a problem processing your password reset. Please try again later.</p>
+        </body>
+      </html>
+    `);
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
