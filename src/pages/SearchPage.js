@@ -58,18 +58,9 @@ const SearchPage = () => {
     const partyID = localStorage.getItem('partyID');
     const userId = localStorage.getItem('userId');
 
-    // Ensure movieID is a number
-    const movieIDNumber = Number(movieID);
-
-    if (isNaN(movieIDNumber)) {
-      console.error('Invalid movie ID:', movieID);
-      setErrorMessage('Invalid movie ID.');
-      return;
-    }
-
     try {
       const response = await axios.post(`${apiUrl}/api/poll/addMovieToPoll`, {
-        movieID: movieIDNumber,
+        movieID,
         partyID,
         userId
       }, {
@@ -79,8 +70,8 @@ const SearchPage = () => {
       console.log('Movie added to poll:', response.data);
 
       const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
-      if (!existingMovies.includes(movieIDNumber)) {
-        existingMovies.push(movieIDNumber);
+      if (!existingMovies.includes(movieID)) {
+        existingMovies.push(movieID);
         localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
       }
     } catch (error) {
@@ -88,12 +79,6 @@ const SearchPage = () => {
       setErrorMessage('Failed to add movie to poll. Please try again later.');
     }
   };
-
-  const filteredMovies = searchTerm
-    ? allMovies.filter((movie) =>
-        movie.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : allMovies;
 
   return (
     <div className="search-page-container">
@@ -111,10 +96,10 @@ const SearchPage = () => {
       <div className="movie-list">
         <h2>{showingAllMovies ? 'All Movies' : 'Search Results'}</h2>
         <div className="movie-grid">
-          {filteredMovies.length === 0 ? (
+          {allMovies.length === 0 ? (
             <div className="no-results">No movies available.</div>
           ) : (
-            filteredMovies.map((movie) => (
+            allMovies.map((movie) => (
               <div key={movie._id} className="movie-box">
                 <div className="movie-title">{movie.title}</div>
                 <button
