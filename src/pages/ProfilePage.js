@@ -20,7 +20,7 @@ const ProfilePage = () => {
       const fetchUserDetails = async () => {
         try {
           const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/userAccount', {
-            userId: userId,
+            userID: userId,
           });
 
           if (response.status === 200) {
@@ -88,11 +88,11 @@ const ProfilePage = () => {
       <div className="profile-content">
         <div className="profile-details">
           <div className="profile-image">
-            <div className="profile-placeholder">Profile</div>
+            <div className="profile-placeholder">P</div>
           </div>
           <div className="profile-info">
-            <h2>{username}</h2>
-            <p>{email}</p>
+            <h2 className="username">{username}</h2>
+            <p className="email">{email}</p>
           </div>
         </div>
         <div className="button-space">
