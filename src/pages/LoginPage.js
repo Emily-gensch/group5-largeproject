@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';  // Import axios
+import axios from 'axios';
 import './styles/Login.css';
 
 function LoginPage() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [authorized, setAuthorized] = useState(null); // Add state for authorization status
   const navigate = useNavigate();
 
   // Handle login request and response using axios
@@ -19,9 +20,14 @@ function LoginPage() {
 
       console.log('Login response:', response.data); // Debug log
       if (response.status === 200) {
-        const { userId } = response.data;
+        const { userId, authorized } = response.data;
         localStorage.setItem('userId', userId); // Store user ID
-        navigate('/join'); // Redirect to another page
+        setAuthorized(authorized); // Set authorization status
+        if (authorized) {
+          navigate('/join'); // Redirect to another page if authorized
+        } else {
+          setMessage('Please verify your email to access the site.');
+        }
       } else {
         setMessage(response.data.message || 'Login failed. Please check your email and password.');
       }
@@ -69,6 +75,7 @@ function LoginPage() {
           />
         </form>
         {message && <span id="loginResult">{message}</span>}
+        {authorized === false && <span id="authResult">Please verify your email to access the site.</span>}
         <div>
           <span>
             If you don't have an account,{' '}
