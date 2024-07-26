@@ -22,8 +22,6 @@ function RegisterPage() {
 
       if (response.status === 201) {
         setMessage('Registration successful. Please check your email to verify your account.');
-        const emailToken = response.data.user.emailToken;
-        await sendVerificationEmail(email, emailToken);
         window.location.href = '/wait';
       } else {
         setMessage(`Registration failed: ${response.data.message || 'Unknown error'}`);
@@ -32,30 +30,6 @@ function RegisterPage() {
       console.error('Registration error:', error);
       const errorMessage = error.response?.data?.message || 'Registration failed: Unknown error';
       setMessage(errorMessage);
-    }
-  };
-
-  const sendVerificationEmail = async (email, emailToken) => {
-    try {
-      const response = await axios.post(
-        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendEmail',
-        { email, emailToken },
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true,
-        }
-      );
-
-      if (response.status === 200) {
-        console.log('Verification email sent');
-      } else {
-        const sendEmailError = response.data.error || 'Failed to send verification email';
-        setMessage(`Failed to send verification email: ${sendEmailError}`);
-      }
-    } catch (error) {
-      console.error('Send email error:', error);
-      const sendEmailError = error.response?.data?.error || 'Failed to send verification email';
-      setMessage(`Failed to send verification email: ${sendEmailError}`);
     }
   };
 
