@@ -26,7 +26,7 @@ const ProfilePage = () => {
           if (response.status === 200) {
             const userData = response.data;
             setUsername(userData.name);
-            setEmail(userData.email); // Fetch and set email from API
+            setEmail(userData.email);
           } else {
             throw new Error('Failed to fetch user account');
           }
@@ -51,7 +51,7 @@ const ProfilePage = () => {
     if (confirmed) {
       localStorage.removeItem('userId');
       localStorage.removeItem('partyID');
-      localStorage.removeItem('email'); // Clear email from localStorage
+      localStorage.removeItem('email');
       navigate('/');
     }
     setShowLogoutConfirmation(false);
@@ -92,6 +92,8 @@ const ProfilePage = () => {
             <div className="profile-placeholder">Profile</div>
           </div>
           <div className="profile-info">
+            <h2>{username}</h2>
+            <p>{email}</p>
           </div>
         </div>
         <div className="button-space">
