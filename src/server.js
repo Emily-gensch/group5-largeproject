@@ -44,7 +44,7 @@ app.use(express.json());
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: 'e89d35b3747d1f046e14a882dfc781b936eb511a8ffbec71d777b4e6da365fa8',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
