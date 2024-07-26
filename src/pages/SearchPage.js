@@ -75,7 +75,7 @@ const SearchPage = () => {
 
   const handleAddToPoll = async (movieID) => {
     const partyID = localStorage.getItem('partyID');
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem('userID');
   
     // Ensure movieID is a number
     const movieIDNumber = Number(movieID);
