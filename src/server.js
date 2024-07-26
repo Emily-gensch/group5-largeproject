@@ -11,7 +11,8 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const app = express();
 
-const url = 'mongodb+srv://lyrenee02:tSGwv9viMBFajw3u@cluster.muwwbsd.mongodb.net/party-database?retryWrites=true&w=majority&appName=cluster';
+// MongoDB connection
+const url = process.env.MONGODB_URI;
 const MongoClient = require('mongodb').MongoClient;
 const client = new MongoClient(url);
 client.connect();
@@ -30,6 +31,7 @@ const Poll = require('./models/Poll');
 const PartyGuest = require('./models/PartyMembers');
 const Movie = require('./models/Movie');
 
+// Enable CORS for all routes
 app.use(cors({
     origin: 'https://themoviesocial-a63e6cbb1f61.herokuapp.com',
     credentials: true,
@@ -65,6 +67,13 @@ app.use('/api/party', partyRouter);
 app.use('/api/poll', pollRouter);
 
 app.set('port', (process.env.PORT || 5000));
+
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('frontend/build'));
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'));
+    });
+}
 
 app.get('/', (req, res) => {
     if (!req.session.views) {
@@ -275,8 +284,6 @@ app.post('/api/resetPass', async (req, res) => {
     }
 });
 
-// Start the server
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
