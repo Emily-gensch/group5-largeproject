@@ -21,12 +21,12 @@ const SearchPage = () => {
           },
           credentials: 'include',
         });
-
+  
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to fetch movies');
         }
-
+  
         const data = await response.json();
         console.log('Fetched movies:', data);
         setAllMovies(data);
@@ -37,9 +37,11 @@ const SearchPage = () => {
         setAllMovies([]);
       }
     };
-
+  
     fetchMovies();
   }, []);
+  
+  
 
   const handleSearch = async () => {
     if (searchTerm === '') {

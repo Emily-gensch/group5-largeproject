@@ -96,16 +96,13 @@ app.post('/api/displayMovies', async (req, res) => {
     }
 });
 
-app.post('/api/displayWatchedMovies', async (req, res) => {
-    const { partyID } = req.body;
-    try {
-        const polls = await Poll.find({ partyID, watchedStatus: 1 });
-        const movieIDs = polls.flatMap((poll) => poll.movies.map((movie) => movie.movieID));
-        const movies = await Movie.find({ _id: { $in: movieIDs } });
-        res.status(200).json(movies);
-    } catch (e) {
-        res.status(500).json({ error: e.toString() });
-    }
+app.post('/api/displayMovies', async (req, res) => {
+  try {
+    const movies = await Movie.find({}).sort({ title: 1 }).exec();
+    res.status(200).json(movies);
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
 });
 
 app.get('/getPartyMembers', async (req, res) => {
@@ -129,14 +126,15 @@ app.get('/getPartyMembers', async (req, res) => {
 });
 
 app.post('/api/searchMovie', async (req, res) => {
-    const { search } = req.body;
-    try {
-        const movies = await Movie.find({ title: new RegExp(search, 'i') });
-        res.status(200).json(movies.map((movie) => movie.title));
-    } catch (e) {
-        res.status(500).json({ error: e.toString() });
-    }
+  const { search } = req.body;
+  try {
+    const movies = await Movie.find({ title: new RegExp(search, 'i') });
+    res.status(200).json(movies);
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
 });
+
 
 app.post('/api/userAccount', async (req, res) => {
     const { userID } = req.body;
