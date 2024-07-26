@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 
-// Register
+
 router.post('/register', async (req, res) => {
   const { email, name, password } = req.body;
 
@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
   }
 
   try {
-    const emailToken = jwt.sign({ data: 'Token Data' }, 'ourSecretKey');
+    const emailToken = jwt.sign({ email }, 'ourSecretKey', { expiresIn: '1h' });
     const hashedPassword = bcrypt.hashSync(password, 8);
     const newUser = new User({
       name,
@@ -41,10 +41,32 @@ router.post('/register', async (req, res) => {
       emailVerifStatus: 0,
     });
     await newUser.save();
-    res
-      .status(201)
-      .json({ message: 'User registered successfully', user: newUser });
+
+    // Send verification email
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'joanndinzey@gmail.com',
+        pass: 'ocdr fxxd iggz vysi', // Use environment variables for security
+      },
+    });
+
+    await transporter.sendMail({
+      from: '"largeproject " <joanndinzey@gmail.com>',
+      to: email,
+      subject: 'Email Verification',
+      text: `Hi! There, You have recently visited 
+            our website and entered your email.
+            Please follow the given link to verify your email
+            https://socialmoviebackend-4584a07ae955.herokuapp.com/verifyEmail/${emailToken} 
+            Thanks`,
+    });
+
+    res.status(201).json({ message: 'User registered successfully. Please check your email to verify your account.' });
   } catch (e) {
+    console.error('Registration error:', e);  // Log the error to the console
     res.status(500).json({ message: 'Server error', error: e.toString() });
   }
 });
@@ -79,11 +101,12 @@ router.post('/sendEmail', async (req, res) => {
     secure: true,
     auth: {
       user: 'joanndinzey@gmail.com',
-      pass: 'ocdr fxxd iggz vysi',
+      pass: 'ocdr fxxd iggz vysi', // Use environment variables for security
     },
   });
-  transporter
-    .sendMail({
+
+  try {
+    await transporter.sendMail({
       from: '"largeproject " <joanndinzey@gmail.com>',
       to: email,
       subject: 'Email Verification',
@@ -92,13 +115,13 @@ router.post('/sendEmail', async (req, res) => {
             Please follow the given link to verify your email
             https://socialmoviebackend-4584a07ae955.herokuapp.com/verifyEmail/${emailToken} 
             Thanks`,
-    })
-    .then(() => {
-      res.status(200).json({ message: 'email sent' });
-    })
-    .catch((err) => {
-      res.status(500).json({ error: e.toString() });
     });
+
+    res.status(200).json({ message: 'Email sent' });
+  } catch (error) {
+    console.error('Email sending error:', error);
+    res.status(500).json({ error: error.toString() });
+  }
 });
 
 // verifyEmail
