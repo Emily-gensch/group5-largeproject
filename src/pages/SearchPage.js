@@ -9,7 +9,7 @@ const SearchPage = () => {
   const [allMovies, setAllMovies] = useState([]);
   const [showingAllMovies, setShowingAllMovies] = useState(true);
 
-  const apiUrl = 'https://socialmoviebackend-4584a07ae955.herokuapp.com'; 
+  const apiUrl = 'https://socialmoviebackend-4584a07ae955.herokuapp.com';
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -18,7 +18,7 @@ const SearchPage = () => {
           withCredentials: true
         });
         const movies = Array.isArray(response.data) ? response.data : [];
-        console.log('Fetched movies:', movies); 
+        console.log('Fetched movies:', movies);
         setAllMovies(movies);
         setErrorMessage('');
       } catch (error) {
@@ -42,7 +42,7 @@ const SearchPage = () => {
         withCredentials: true
       });
       const movies = Array.isArray(response.data) ? response.data : [];
-      console.log('Search results:', movies); 
+      console.log('Search results:', movies);
       setAllMovies(movies);
       setShowingAllMovies(false);
       setErrorMessage('');
