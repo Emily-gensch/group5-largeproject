@@ -20,31 +20,6 @@ function RegisterPage() {
         }
       );
 
-      const sendVerificationEmail = async (email, emailToken) => {
-        try {
-          const response = await axios.post(
-            'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendEmail',
-            { email, emailToken },
-            {
-              headers: { 'Content-Type': 'application/json' },
-              withCredentials: true,
-            }
-          );
-          console.log('Send email response:', response);
-          console.log('Send email data:', response.data);
-    
-          if (response.status === 200) {
-            console.log('Verification email sent');
-          } else {
-            const sendEmailError = response.data.error || 'Failed to send verification email';
-            setMessage(`Failed to send verification email: ${sendEmailError}`);
-          }
-        } catch (error) {
-          console.error('Send email error:', error);
-          const sendEmailError = error.response?.data?.error || 'Failed to send verification email';
-          setMessage(`Failed to send verification email: ${sendEmailError}`);
-        }
-      };    
       if (response.status === 200) {
         setMessage('Registration successful. Please check your email to verify your account.');
         const emailToken = response.data.emailToken;
@@ -60,7 +35,30 @@ function RegisterPage() {
     }
   };
 
-  
+  const sendVerificationEmail = async (email, emailToken) => {
+    try {
+      const response = await axios.post(
+        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/sendEmail',
+        { email, emailToken },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        console.log('Verification email sent');
+      } else {
+        const sendEmailError = response.data.error || 'Failed to send verification email';
+        setMessage(`Failed to send verification email: ${sendEmailError}`);
+      }
+    } catch (error) {
+      console.error('Send email error:', error);
+      const sendEmailError = error.response?.data?.error || 'Failed to send verification email';
+      setMessage(`Failed to send verification email: ${sendEmailError}`);
+    }
+  };
+
   return (
     <div className="container">
       <div id="registerDiv">
