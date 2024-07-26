@@ -20,9 +20,6 @@ function RegisterPage() {
         }
       );
 
-      console.log('Registration response:', response);
-      console.log('Registration data:', response.data);
-
       const sendVerificationEmail = async (email, emailToken) => {
         try {
           const response = await axios.post(
