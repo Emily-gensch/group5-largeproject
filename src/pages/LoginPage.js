@@ -9,7 +9,6 @@ function LoginPage() {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  // Handle login request and response using axios
   const doLogin = async (email, password) => {
     try {
       const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/login', {
@@ -17,21 +16,19 @@ function LoginPage() {
         password,
       });
 
-      console.log('Login response:', response.data); // Debug log
       if (response.status === 200) {
         const { userId } = response.data;
-        localStorage.setItem('userID', userId); // Store user ID
-        navigate('/join'); // Redirect to another page if authorized
+        localStorage.setItem('userID', userId); 
+        navigate('/join'); 
       } else {
         setMessage(response.data.message || 'Login failed. Please check your email and password.');
       }
     } catch (error) {
       console.error('Error during login:', error);
-      setMessage('Login failed. Please try again later.');
+      setMessage(error.response?.data?.message || 'Login failed. Please try again later.');
     }
   };
 
-  // Handle form submission
   const handleLogin = (event) => {
     event.preventDefault();
     doLogin(loginEmail, loginPassword);

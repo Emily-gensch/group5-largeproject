@@ -14,7 +14,7 @@ const url = 'mongodb+srv://lyrenee02:tSGwv9viMBFajw3u@cluster.muwwbsd.mongodb.ne
 
 mongoose.set('strictQuery', true);
 
-if (process.env.NODE_ENV !== 'test') {
+if ('development' !== 'test') {
   console.log('MongoDB URI:', url);
   mongoose
     .connect(url, {
