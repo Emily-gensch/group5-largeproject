@@ -19,9 +19,11 @@ if (process.env.NODE_ENV !== 'test') {
   mongoose
     .connect(url, {
       dbName: 'party-database',
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     })
     .then(() => console.log('MongoDB connected'))
-    .catch((err) => console.log(err));
+    .catch((err) => console.log('MongoDB connection error:', err));
 }
 
 // Mongoose Models
@@ -111,7 +113,7 @@ app.get('/getPartyMembers', async (req, res) => {
   }
 
   try {
-    const partyMember = await PartyMembers.findOne({ userID }).populate(
+    const partyMember = await PartyGuest.findOne({ userID }).populate(
       'partyID'
     );
 
@@ -119,7 +121,7 @@ app.get('/getPartyMembers', async (req, res) => {
       return res.status(404).json({ message: 'Party not found' });
     }
 
-    const members = await PartyMembers.find({
+    const members = await PartyGuest.find({
       partyID: partyMember.partyID._id,
     }).populate('userID', 'username email');
 
@@ -190,23 +192,22 @@ app.post('/api/changePassword', async (req, res) => {
 // Send reset password email
 app.post('/api/sendResetPassEmail', async (req, res) => {
   const { email } = req.body;
-  try{
+  try {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: 'Invalid email' });
     }
     const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-        user: "themoviesocial@gmail.com",
-        pass: "mjzd lbgy tttl ynuc"
-    },
-    });  
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
     const passToken = jwt.sign({ data: 'Pass Token' }, 'PassTokenKey', { expiresIn: '24h' });
-    transporter
-    .sendMail({
+    await transporter.sendMail({
       from: '"largeproject " <themoviesocial@gmail.com>',
       to: email,
       subject: 'Password Reset Request',
@@ -216,20 +217,17 @@ app.post('/api/sendResetPassEmail', async (req, res) => {
             Thanks`,
     });
     res.status(200).json({ message: 'email sent' });
-    }
-    catch(e){
-      res.status(500).json({ error: e.toString() });
-    };
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
 });
 
 // Reset password verify and redirect
-// RESET_PASSWORD_PAGE needed
-// can probably use the changepassword page
 app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
-  const { passToken, email} = req.params;
+  const { passToken, email } = req.params;
   try {
     // Verifying the JWT token 
-    jwt.verify(passToken, 'PassTokenKey', function(err, decoded) {
+    jwt.verify(passToken, 'PassTokenKey', function (err, decoded) {
       if (err) {
         return res.status(401).send(`
           <html>
@@ -241,7 +239,7 @@ app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
           </html>
         `);
       }
-      let url = new URL("https://socialmoviebackend-4584a07ae955.herokuapp.com/RESET_PASSWORD_PAGE?email="+email);
+      const url = new URL("https://socialmoviebackend-4584a07ae955.herokuapp.com/RESET_PASSWORD_PAGE?email=" + email);
       res.status(200).send(`
         <html>
           <head>
@@ -257,10 +255,10 @@ app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
               redirected to the Reset Password Page. 
             </p>
             <p>If you are not redirected in 5 seconds, click the link below:
-              <a href = ${url}  target="_blank">click here</a>
+              <a href="${url}" target="_blank">click here</a>
             </p>
           </body>
-          </html>`
+        </html>`
       );
     });
   } catch (e) {
@@ -276,7 +274,7 @@ app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
   }
 });
 
-// reset password with email
+// Reset password with email
 app.post('/api/resetPass', async (req, res) => {
   const { email, newPassword, validatePassword } = req.body;
   const passwordRegex =
@@ -290,7 +288,6 @@ app.post('/api/resetPass', async (req, res) => {
   }
 
   try {
-    //const user = await User.findById(userID);
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
