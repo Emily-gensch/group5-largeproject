@@ -25,7 +25,7 @@ const CreateaPartyPage = () => {
       const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/create', {
         partyName,
       }, {
-        withCredentials: true, // Include credentials with the request
+        withCredentials: true, 
       });
 
       if (response.status === 201) {
