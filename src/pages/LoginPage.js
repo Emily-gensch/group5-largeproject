@@ -15,20 +15,21 @@ function LoginPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials: 'include', // Include credentials in the request
       });
 
-      // Check if the response is OK
       if (!response.ok) {
-        const errorText = await response.text(); // Get response as text
+        const errorText = await response.text();
         console.error('Login error:', errorText);
         setMessage('Login failed. Please try again later.');
         return;
       }
 
       const data = await response.json();
-      console.log('Login response:', data); // Debug log
+      console.log('Login response:', data);
 
       if (data.userId) {
+        localStorage.setItem('userId', data.userId); // Store user ID
         navigate('/join'); // Redirect to another page
       } else {
         setMessage(data.message || 'Login failed. Please check your email and password.');
