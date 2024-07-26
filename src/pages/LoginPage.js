@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './styles/Login.css';
 
 function LoginPage() {
@@ -9,30 +10,22 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const doLogin = async (email, password) => {
-    console.log('Logging in with:', email, password)
+    console.log('Logging in with:', email, password);
     try {
-      const response = await fetch('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include', // Include credentials in the request
+      const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/auth/login', {
+        email,
+        password
+      }, {
+        withCredentials: true // Include credentials in the request
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Login error:', errorText);
-        setMessage('Login failed. Please try again later.');
-        return;
-      }
+      console.log('Login response:', response.data);
 
-      const data = await response.json();
-      console.log('Login response:', data);
-
-      if (data.userId) {
-        localStorage.setItem('userId', data.userId); // Store user ID
+      if (response.status === 200 && response.data.userId) {
+        localStorage.setItem('userId', response.data.userId); // Store user ID
         navigate('/join'); // Redirect to another page
       } else {
-        setMessage(data.message || 'Login failed. Please check your email and password.');
+        setMessage(response.data.message || 'Login failed. Please check your email and password.');
       }
     } catch (error) {
       console.error('Login error:', error);
