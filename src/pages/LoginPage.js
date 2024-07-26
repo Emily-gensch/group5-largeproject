@@ -22,7 +22,7 @@ function LoginPage() {
   const doLogin = async (email, password) => {
     console.log('Logging in with:', email, password);
     try {
-      const response = await axios.post('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/auth/login', {
+      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/login', {
         email,
         password
       }, {
