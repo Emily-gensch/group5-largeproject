@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import './styles/SearchPage.css';
 
 const SearchPage = () => {
@@ -8,18 +7,29 @@ const SearchPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [allMovies, setAllMovies] = useState([]);
   const [showingAllMovies, setShowingAllMovies] = useState(true);
-
-  const apiUrl = 'https://socialmoviebackend-4584a07ae955.herokuapp.com';
+  const navigate = useNavigate();
+  const [pollID, setPollID] = useState(localStorage.getItem('pollID') || '');
+  const [partyID, setPartyID] = useState(localStorage.getItem('partyID') || '');
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.post(`${apiUrl}/api/displayMovies`, {}, {
-          withCredentials: true
+        const response = await fetch('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/displayMovies', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
         });
-        const movies = Array.isArray(response.data) ? response.data : [];
-        console.log('Fetched movies:', movies);
-        setAllMovies(movies);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch movies');
+        }
+
+        const data = await response.json();
+        console.log('Fetched movies:', data);
+        setAllMovies(data);
         setErrorMessage('');
       } catch (error) {
         console.error('Fetch movies error:', error);
@@ -32,53 +42,87 @@ const SearchPage = () => {
   }, []);
 
   const handleSearch = async () => {
-    if (searchTerm.trim() === '') {
+    if (searchTerm === '') {
       setShowingAllMovies(true);
-      return;
-    }
+    } else {
+      try {
+        const response = await fetch('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/searchMovie', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ search: searchTerm }),
+          credentials: 'include',
+        });
 
-    try {
-      const response = await axios.post(`${apiUrl}/api/searchMovie`, { search: searchTerm }, {
-        withCredentials: true
-      });
-      const movies = Array.isArray(response.data) ? response.data : [];
-      console.log('Search results:', movies);
-      setAllMovies(movies);
-      setShowingAllMovies(false);
-      setErrorMessage('');
-    } catch (error) {
-      console.error('Search error:', error);
-      setErrorMessage('Search failed. Please try again later.');
-      setAllMovies([]);
-      setShowingAllMovies(true);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Search request failed');
+        }
+
+        const data = await response.json();
+        setAllMovies(data);
+        setShowingAllMovies(false);
+        setErrorMessage('');
+      } catch (error) {
+        console.error('Search error:', error);
+        setErrorMessage('Search failed. Please try again later.');
+        setAllMovies([]);
+        setShowingAllMovies(true);
+      }
     }
   };
 
   const handleAddToPoll = async (movieID) => {
     const partyID = localStorage.getItem('partyID');
     const userId = localStorage.getItem('userId');
-
+  
+    // Ensure movieID is a number
+    const movieIDNumber = Number(movieID);
+  
+    if (isNaN(movieIDNumber)) {
+      console.error('Invalid movie ID:', movieID);
+      setErrorMessage('Invalid movie ID.');
+      return;
+    }
+  
     try {
-      const response = await axios.post(`${apiUrl}/api/poll/addMovieToPoll`, {
-        movieID,
-        partyID,
-        userId
-      }, {
-        withCredentials: true
+      const response = await fetch('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/poll/addMovieToPoll', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ movieID: movieIDNumber, partyID, userId }),
+        credentials: 'include',
       });
-
-      console.log('Movie added to poll:', response.data);
-
-      const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
-      if (!existingMovies.includes(movieID)) {
-        existingMovies.push(movieID);
-        localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        console.log('Movie added to poll:', result);
+  
+        // Save movie to localStorage
+        const existingMovies = JSON.parse(localStorage.getItem('pollMovies')) || [];
+        if (!existingMovies.includes(movieIDNumber)) {
+          existingMovies.push(movieIDNumber);
+          localStorage.setItem('pollMovies', JSON.stringify(existingMovies));
+        }
+      } else {
+        console.error('Error adding movie to poll:', result.error);
+        setErrorMessage(result.error || 'Failed to add movie to poll.');
       }
     } catch (error) {
-      console.error('Add to poll error:', error);
+      console.error('Fetch error:', error);
       setErrorMessage('Failed to add movie to poll. Please try again later.');
     }
   };
+  
+
+  const filteredMovies = searchTerm
+    ? allMovies.filter((movie) =>
+        movie.title.toLowerCase().startsWith(searchTerm.toLowerCase())
+      )
+    : allMovies;
 
   return (
     <div className="search-page-container">
@@ -96,15 +140,15 @@ const SearchPage = () => {
       <div className="movie-list">
         <h2>{showingAllMovies ? 'All Movies' : 'Search Results'}</h2>
         <div className="movie-grid">
-          {allMovies.length === 0 ? (
+          {filteredMovies.length === 0 ? (
             <div className="no-results">No movies available.</div>
           ) : (
-            allMovies.map((movie) => (
-              <div key={movie._id} className="movie-box">
+            filteredMovies.map((movie, index) => (
+              <div key={index} className="movie-box">
                 <div className="movie-title">{movie.title}</div>
                 <button
                   className="add-button"
-                  onClick={() => handleAddToPoll(movie._id)}
+                  onClick={() => handleAddToPoll(movie.movieID)}
                 >
                   Add To Poll
                 </button>
