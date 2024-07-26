@@ -20,17 +20,17 @@ function RegisterPage() {
         }
       );
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         setMessage('Registration successful. Please check your email to verify your account.');
-        const emailToken = response.data.emailToken;
+        const emailToken = response.data.user.emailToken;
         await sendVerificationEmail(email, emailToken);
         window.location.href = '/wait';
       } else {
-        setMessage(`Registration failed: ${response.data.error || 'Unknown error'}`);
+        setMessage(`Registration failed: ${response.data.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      const errorMessage = error.response?.data?.error || 'Registration failed: Unknown error';
+      const errorMessage = error.response?.data?.message || 'Registration failed: Unknown error';
       setMessage(errorMessage);
     }
   };
