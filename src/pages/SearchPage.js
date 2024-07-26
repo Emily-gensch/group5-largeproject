@@ -14,7 +14,7 @@ const SearchPage = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/displayMovies', {
+        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/displayMovies', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
