@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Import axios
+import axios from 'axios';
 import './styles/JoinPage.css';
 
 const JoinPage = () => {
@@ -35,7 +35,7 @@ const JoinPage = () => {
     try {
       const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/joinParty', {
         partyInviteCode,
-        userID
+        userID: userId // Use userId from state
       }, {
         withCredentials: true // Include credentials with the request
       });

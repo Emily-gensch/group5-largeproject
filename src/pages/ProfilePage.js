@@ -10,7 +10,7 @@ const ProfilePage = () => {
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
   const [redirectAfterConfirm, setRedirectAfterConfirm] = useState('');
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userID');
+  const userId = localStorage.getItem('userId');
   const partyID = localStorage.getItem('partyID');
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const ProfilePage = () => {
 
           if (response.status === 200) {
             const userData = response.data;
-            setUsername(userData.name);
+            setUsername(userData.username);  // Ensure backend returns `username`
             setEmail(userData.email);
           } else {
             throw new Error('Failed to fetch user account');
@@ -51,7 +51,6 @@ const ProfilePage = () => {
     if (confirmed) {
       localStorage.removeItem('userId');
       localStorage.removeItem('partyID');
-      localStorage.removeItem('email');
       navigate('/');
     }
     setShowLogoutConfirmation(false);
