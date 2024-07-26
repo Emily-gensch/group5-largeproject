@@ -36,7 +36,7 @@ app.use(cors({
   origin: 'https://socialmoviebackend-4584a07ae955.herokuapp.com',
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  allowedHeaders: 'Content-Type,Authorization',
+  allowedHeaders: 'Content-Type, Authorization',
 }));
 
 app.use(bodyParser.json());
