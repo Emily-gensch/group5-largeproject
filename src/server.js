@@ -31,9 +31,9 @@ const Poll = require('./models/Poll');
 const PartyGuest = require('./models/PartyMembers');
 const Movie = require('./models/Movie');
 
-// Enable CORS for all routes
+// Enabl CORS for all routes
 app.use(cors({
-    origin: 'https://themoviesocial-a63e6cbb1f61.herokuapp.com',
+    origin: 'https://socialmoviebackend-4584a07ae955.herokuapp.com',
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization',
@@ -221,12 +221,12 @@ app.get('/api/resetPassword/:passToken/:email', async (req, res) => {
                         <body>
                             <h2>Reset password failed</h2>
                             <p>The link you clicked is invalid or has expired. </p>
-                            <p><a href="https://themoviesocial-a63e6cbb1f61.herokuapp.com/login">Go to Login Page</a></p>
+                            <p><a href="https://socialmoviebackend-4584a07ae955.herokuapp.com/login">Go to Login Page</a></p>
                         </body>
                     </html>
                 `);
             }
-            const url = new URL("https://themoviesocial-a63e6cbb1f61.herokuapp.com/RESET_PASSWORD_PAGE?email=" + email);
+            const url = new URL("https://socialmoviebackend-4584a07ae955.herokuapp.com/RESET_PASSWORD_PAGE?email=" + email);
             res.status(200).send(`
                 <html>
                     <head>
