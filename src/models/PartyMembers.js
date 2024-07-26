@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const PartyMembersSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
+  userID: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
   partyID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Party',

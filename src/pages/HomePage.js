@@ -14,7 +14,7 @@ const HomePage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const partyID = queryParams.get('partyID');
-  const userID = queryParams.get('userID'); // Retrieve userID from query parameters
+  const userID = queryParams.get('userID'); 
 
   useEffect(() => {
     const fetchGroupData = async () => {

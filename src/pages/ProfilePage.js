@@ -10,7 +10,7 @@ const ProfilePage = () => {
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
   const [redirectAfterConfirm, setRedirectAfterConfirm] = useState('');
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem('userID');
   const partyID = localStorage.getItem('partyID');
 
   useEffect(() => {

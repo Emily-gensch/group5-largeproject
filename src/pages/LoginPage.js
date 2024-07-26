@@ -20,7 +20,7 @@ function LoginPage() {
       console.log('Login response:', response.data); // Debug log
       if (response.status === 200) {
         const { userId } = response.data;
-        localStorage.setItem('userId', userId); // Store user ID
+        localStorage.setItem('userID', userId); // Store user ID
         navigate('/join'); // Redirect to another page if authorized
       } else {
         setMessage(response.data.message || 'Login failed. Please check your email and password.');

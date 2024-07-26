@@ -121,7 +121,7 @@ arouter.get('/getPartyMembers', async (req, res) => {
 
     const members = await PartyGuest.find({
       partyID: partyMember.partyID._id,
-    }).populate('userId', 'username email');
+    }).populate('userID', 'username email');
 
     const currentUser = await User.findById(userID).select('username email');
 

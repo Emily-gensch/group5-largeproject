@@ -22,7 +22,7 @@ const JoinPage = () => {
     }
 
     // Fetch user ID from local storage
-    const storedUserId = localStorage.getItem('userId');
+    const storedUserId = localStorage.getItem('userID');
     if (storedUserId) {
       setUserId(storedUserId);
     } else {
@@ -35,7 +35,7 @@ const JoinPage = () => {
     try {
       const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/joinParty', {
         partyInviteCode,
-        userId
+        userID
       }, {
         withCredentials: true // Include credentials with the request
       });
