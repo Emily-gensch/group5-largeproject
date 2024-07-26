@@ -3,6 +3,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './styles/JoinPage.css';
 
+function buildPath(route){
+  if (process.env.NODE_ENV === 'production'){
+    return 'https://' + app_name + '.herokuapp.com/' + route;
+  }
+  else
+  {
+    return 'http://localhost:5000/' + route;
+  }
+}
+
 const JoinPage = () => {
   const [partyInviteCode, setPartyInviteCode] = useState('');
   const [message, setMessage] = useState('');
@@ -12,6 +22,7 @@ const JoinPage = () => {
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
+
 
   const query = useQuery();
 
