@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';  // Import Link here
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './styles/Login.css';
 
@@ -38,7 +38,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="container">
+    <div className="login-container">
       <div id="loginDiv">
         <form onSubmit={handleLogin}>
           <span id="inner-title">PLEASE LOGIN</span>

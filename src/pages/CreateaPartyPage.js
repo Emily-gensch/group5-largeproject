@@ -52,25 +52,25 @@ const CreateaPartyPage = () => {
   };
 
   return (
-    <div className="container">
+    <div className="create-group-container">
       <div id="createGroupDiv">
-        <h1 className="inner-heading">Create a Party</h1>
+        <h1 className="create-group-inner-heading">Create a Party</h1>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
             placeholder="Group Name"
-            className="inputField"
+            className="create-group-inputField"
             required
           />
-          <button type="submit" className="buttons">
+          <button type="submit" className="create-group-buttons">
             Submit
           </button>
         </form>
-        {message && <p id="registerResult">{message}</p>}
+        {message && <p className="create-group-message">{message}</p>}
         <div>
-          <a href="/join" id="joinLink">
+          <a href="/join" className="create-group-link">
             Have a code? Enter it!
           </a>
         </div>
@@ -78,8 +78,8 @@ const CreateaPartyPage = () => {
 
       {showPopup && (
         <>
-          <div className="popup-overlay"></div>
-          <div className="popup">
+          <div className="create-group-popup-overlay"></div>
+          <div className="create-group-popup">
             <p>Group created successfully!</p>
             <p>Group Code: <strong>{partyCode}</strong></p>
             <button onClick={handleClosePopup}>OK</button>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';  // Import Link here
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './styles/Register.css';
 
@@ -35,7 +35,7 @@ function RegisterPage() {
   };
 
   return (
-    <div className="container">
+    <div className="register-container">
       <div id="registerDiv">
         <form
           onSubmit={(e) => {

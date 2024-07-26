@@ -1,4 +1,4 @@
-body {
+body.join-page {
   background-color: #313338;
   display: flex;
   justify-content: center;
@@ -8,26 +8,15 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-.container {
+.join-container {
   text-align: center;
   color: #FFF3E8;
-}
-
-#welcomeHeader {
-  margin-top: 50px;
-  color: #FFD700;
-  font-size: 36px; 
-  font-weight: bold;
-}
-
-.goldText {
-  font-weight: bold;
 }
 
 #joinDiv {
   width: 400px;
   padding: 40px;
-  background-color: #A51F1F; 
+  background-color: #A51F1F;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
@@ -37,14 +26,14 @@ body {
 #inner-title {
   font-size: 24px;
   font-weight: bold;
-  color: #FFF3E8; 
+  color: #FFF3E8;
   margin-bottom: 20px;
 }
 
 .inputField {
   width: 100%;
   height: 50px;
-  background-color: #F0F0F0; 
+  background-color: #F0F0F0;
   border-radius: 8px;
   border: none;
   padding: 0 15px;
@@ -56,8 +45,8 @@ body {
 #joinButton {
   width: 100%;
   height: 50px;
-  background-color: #FFF3E8; 
-  color: #A51F1F; 
+  background-color: #FFF3E8;
+  color: #A51F1F;
   border: none;
   border-radius: 8px;
   font-size: 18px;
@@ -66,7 +55,7 @@ body {
 }
 
 #joinButton:hover {
-  background-color: #E0E0E0; 
+  background-color: #E0E0E0;
 }
 
 #joinResult {
@@ -76,11 +65,11 @@ body {
 }
 
 a {
-  color: #FFD700; 
-  text-decoration: none; 
+  color: #FFD700;
+  text-decoration: none;
 }
 
 #createPartyLink {
-  text-decoration: underline; 
+  text-decoration: underline;
   color: #FFD700;
 }
