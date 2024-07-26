@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import './styles/CreateaPartyPage.css';
 
 const CreateaPartyPage = () => {
-  const [groupName, setGroupName] = useState(''); // State for party name
-  const [message, setMessage] = useState(''); // State for message
-  const [userId, setUserId] = useState(''); // State for user ID
-  const [partyCode, setPartyCode] = useState(''); // State for party code
-  const [showPopup, setShowPopup] = useState(false); // State to show/hide popup
+  const [groupName, setGroupName] = useState(''); // This is for setting the party name
+  const [message, setMessage] = useState('');
+  const [userId, setUserId] = useState('');
+  const [partyCode, setPartyCode] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,25 +21,27 @@ const CreateaPartyPage = () => {
 
   const createGroup = async (partyName, userId) => {
     try {
-      const response = await axios.post(
-        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/party/create',
-        { partyName },
-        {
-          withCredentials: true
-        }
-      );
+      const response = await fetch('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ partyName, userId }),
+      });
 
-      if (response.status === 201) {
-        const { partyInviteCode } = response.data.party;
-        setPartyCode(partyInviteCode); // Set the generated party code to state
-        setMessage('Group created successfully!');
-        setShowPopup(true); // Show popup
-      } else {
-        setMessage('Failed to create group');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Unknown error occurred');
       }
+
+      const data = await response.json();
+      console.log('Group created:', data);
+      setPartyCode(data.partyInviteCode); // Set party code to state
+      setMessage('Group created successfully!');
+      setShowPopup(true); // Show popup
     } catch (error) {
       console.error('Error creating group:', error);
-      setMessage(`Error: ${error.response?.data?.message || error.message}`);
+      setMessage('Error: Failed to create group. Please try again later.');
     }
   };
 
@@ -55,43 +56,40 @@ const CreateaPartyPage = () => {
 
   const handleClosePopup = () => {
     setShowPopup(false);
-    navigate('/join');
+    navigate('/join'); 
   };
 
   return (
-    <div className="create-group-container">
+    <div className="container">
       <div id="createGroupDiv">
-        <h1 className="create-group-inner-heading">Create a Party</h1>
+        <h1 className="inner-heading">Create a Party</h1>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
             placeholder="Group Name"
-            className="create-group-inputField"
+            className="inputField"
             required
           />
-          <button type="submit" className="create-group-buttons">
+          <button type="submit" className="buttons">
             Submit
           </button>
         </form>
-        {message && <p className="create-group-message">{message}</p>}
+        {message && <p id="registerResult">{message}</p>}
         <div>
-          <a href="/join" className="create-group-link">
+          <a href="/join" id="joinLink">
             Have a code? Enter it!
           </a>
         </div>
       </div>
 
       {showPopup && (
-        <>
-          <div className="create-group-popup-overlay"></div>
-          <div className="create-group-popup">
-            <p>Group created successfully!</p>
-            <p>Group Code: <strong>{partyCode}</strong></p>
-            <button onClick={handleClosePopup}>OK</button>
-          </div>
-        </>
+        <div className="popup">
+          <p>Group created successfully!</p>
+          <p>Group Code: <strong>{partyCode}</strong></p>
+          <button onClick={handleClosePopup}>OK</button>
+        </div>
       )}
     </div>
   );
