@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import './styles/HomePage.css';
 
 const HomePage = () => {
@@ -18,23 +19,21 @@ const HomePage = () => {
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
-        const response = await fetch(`https://socialmoviebackend-4584a07ae955.herokuapp.com/home?partyID=${partyID}&userID=${userID}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        const response = await axios.get(`https://socialmoviebackend-4584a07ae955.herokuapp.com/api/getPartyMembers`, {
+          params: { partyID, userID },
+          withCredentials: true,
         });
 
-        if (!response.ok) {
+        if (response.status === 200) {
+          const data = response.data;
+          setPartyName(data.partyName || '');
+          setHostName(data.hostName || '');
+          setTopVotedMovie(data.topVotedMovie || 'No votes yet');
+          setGroupMembers(data.members || []);
+          setError(null);
+        } else {
           throw new Error('Failed to fetch group data');
         }
-
-        const data = await response.json();
-        setPartyName(data.partyName || '');
-        setHostName(data.hostName || '');
-        setTopVotedMovie(data.topVotedMovie || 'No votes yet');
-        setGroupMembers(data.guests || []);
-        setError(null);
       } catch (error) {
         console.error('Fetch group data error:', error);
         setError('Failed to fetch group data. Please try again later.');
@@ -52,7 +51,7 @@ const HomePage = () => {
 
   return (
     <div className="home-page-container">
-      <div className="large-project-header">Welcome to The Movie Social </div>
+      <div className="large-project-header">Welcome to The Movie Social</div>
       <div className="content">
         <div className="group-members">
           <h2>Group Members</h2>

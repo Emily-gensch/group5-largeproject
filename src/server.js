@@ -105,7 +105,7 @@ app.post('/api/displayWatchedMovies', async (req, res) => {
   }
 });
 
-app.get('/getPartyMembers', async (req, res) => {
+arouter.get('/getPartyMembers', async (req, res) => {
   const userID = req.session.userId;
 
   if (!userID) {
@@ -113,9 +113,7 @@ app.get('/getPartyMembers', async (req, res) => {
   }
 
   try {
-    const partyMember = await PartyGuest.findOne({ userID }).populate(
-      'partyID'
-    );
+    const partyMember = await PartyGuest.findOne({ userID }).populate('partyID');
 
     if (!partyMember) {
       return res.status(404).json({ message: 'Party not found' });
@@ -123,15 +121,18 @@ app.get('/getPartyMembers', async (req, res) => {
 
     const members = await PartyGuest.find({
       partyID: partyMember.partyID._id,
-    }).populate('userID', 'username email');
+    }).populate('userId', 'username email');
 
-    res.status(200).json({ members });
+    const currentUser = await User.findById(userID).select('username email');
+
+    res.status(200).json({ members, currentUser });
   } catch (error) {
     console.error('Error fetching party members:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
+module.exports = router;
 // Search movies
 app.post('/api/searchMovie', async (req, res) => {
   const { search } = req.body;
