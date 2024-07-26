@@ -7,9 +7,7 @@ const authenticate = (req, res, next) => {
   const authHeader = req.header('Authorization');
   if (!authHeader) {
     console.log('Authorization header is missing.');
-    return res
-      .status(401)
-      .json({ message: 'Access Denied: No token provided' });
+    return res.status(401).json({ message: 'Access Denied: No token provided' });
   }
 
   console.log('Authorization header found:', authHeader);
@@ -17,9 +15,7 @@ const authenticate = (req, res, next) => {
   const token = authHeader.replace('Bearer ', '');
   if (!token) {
     console.log('Token is missing in Authorization header.');
-    return res
-      .status(401)
-      .json({ message: 'Access Denied: No token provided' });
+    return res.status(401).json({ message: 'Access Denied: No token provided' });
   }
 
   console.log('Token extracted:', token);
