@@ -30,8 +30,8 @@ function RegisterPage() {
       }
     } catch (error) {
       console.error('Registration error:', error);
-      const errorMessage = error.response?.data?.error || 'Registration failed';
-      setMessage(`Registration failed: ${errorMessage}`);
+      const errorMessage = error.response?.data?.error || 'Registration failed: Unknown error';
+      setMessage(errorMessage);
     }
   };
 
