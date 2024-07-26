@@ -6,6 +6,8 @@ const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const app = express();
 
@@ -14,7 +16,7 @@ const url = 'mongodb+srv://lyrenee02:tSGwv9viMBFajw3u@cluster.muwwbsd.mongodb.ne
 
 mongoose.set('strictQuery', true);
 
-if ('development' !== 'test') {
+if (process.env.NODE_ENV !== 'test') {
   console.log('MongoDB URI:', url);
   mongoose
     .connect(url, {
@@ -105,7 +107,8 @@ app.post('/api/displayWatchedMovies', async (req, res) => {
   }
 });
 
-arouter.get('/getPartyMembers', async (req, res) => {
+// Get party members
+app.get('/getPartyMembers', async (req, res) => {
   const userID = req.session.userId;
 
   if (!userID) {
@@ -132,7 +135,6 @@ arouter.get('/getPartyMembers', async (req, res) => {
   }
 });
 
-module.exports = router;
 // Search movies
 app.post('/api/searchMovie', async (req, res) => {
   const { search } = req.body;
