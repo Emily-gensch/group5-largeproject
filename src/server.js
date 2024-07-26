@@ -6,11 +6,14 @@ const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
-
 const app = express();
-
+const client = new MongoClient(url);
+const MongoClient = require('mongodb').MongoClient;
 // MongoDB connection
 const url = 'mongodb+srv://lyrenee02:tSGwv9viMBFajw3u@cluster.muwwbsd.mongodb.net/party-database?retryWrites=true&w=majority';
+client.connect()
+require('dotenv').config();
+
 
 mongoose.set('strictQuery', true);
 
@@ -64,9 +67,9 @@ const authRouter = require('./routes/auth');
 const partyRouter = require('./routes/party');
 const pollRouter = require('./routes/poll');
 
-app.use('/api/auth', authRouter);
-app.use('/api/party', partyRouter);
-app.use('/api/poll', pollRouter);
+buildPath('/api/auth', authRouter);
+buildPath('/api/party', partyRouter);
+buildPath('/api/poll', pollRouter);
 
 app.get('/', (req, res) => {
   if (!req.session.views) {

@@ -23,7 +23,7 @@ function RegisterPage() {
 
       if (response.status === 201) {
         setMessage('Registration successful. Please check your email to verify your account.');
-        navigate('/wait'); // Redirect to wait page
+        navigate('/wait');
       } else {
         setMessage(`Registration failed: ${response.data.message || 'Unknown error'}`);
       }
