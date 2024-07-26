@@ -46,7 +46,7 @@ const SearchPage = () => {
       setShowingAllMovies(true);
     } else {
       try {
-        const response = await fetch('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/searchMovie', {
+        const response = await fetch('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/searchMovie', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ const SearchPage = () => {
     }
   
     try {
-      const response = await fetch('https://themoviesocial-a63e6cbb1f61.herokuapp.com/api/poll/addMovieToPoll', {
+      const response = await fetch('https://themoviesocial-a63e6cbb1f61.herokuapp.comapi/poll/addMovieToPoll', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
