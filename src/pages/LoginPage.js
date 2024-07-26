@@ -7,7 +7,6 @@ function LoginPage() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [authorized, setAuthorized] = useState(null); // Add state for authorization status
   const navigate = useNavigate();
 
   // Handle login request and response using axios
@@ -20,14 +19,9 @@ function LoginPage() {
 
       console.log('Login response:', response.data); // Debug log
       if (response.status === 200) {
-        const { userId, authorized } = response.data;
+        const { userId } = response.data;
         localStorage.setItem('userId', userId); // Store user ID
-        setAuthorized(authorized); // Set authorization status
-        if (authorized) {
-          navigate('/join'); // Redirect to another page if authorized
-        } else {
-          setMessage('Please verify your email to access the site.');
-        }
+        navigate('/join'); // Redirect to another page if authorized
       } else {
         setMessage(response.data.message || 'Login failed. Please check your email and password.');
       }
@@ -75,13 +69,12 @@ function LoginPage() {
           />
         </form>
         {message && <span id="loginResult">{message}</span>}
-        {authorized === false && <span id="authResult">Please verify your email to access the site.</span>}
         <div>
           <span>
             If you don't have an account,{' '}
-            <a href="/register" id="signupLink">
+            <Link to="/register" id="signupLink">
               Register
-            </a>
+            </Link>
           </span>
         </div>
       </div>

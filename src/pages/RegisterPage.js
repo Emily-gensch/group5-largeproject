@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 import './styles/Register.css';
 
 function RegisterPage() {
@@ -8,6 +8,7 @@ function RegisterPage() {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const register = async (email, name, password) => {
     try {
@@ -22,7 +23,7 @@ function RegisterPage() {
 
       if (response.status === 201) {
         setMessage('Registration successful. Please check your email to verify your account.');
-        window.location.href = '/wait';
+        navigate('/wait'); // Redirect to wait page
       } else {
         setMessage(`Registration failed: ${response.data.message || 'Unknown error'}`);
       }
