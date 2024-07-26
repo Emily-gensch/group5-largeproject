@@ -6,8 +6,6 @@ const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 
 const app = express();
 
@@ -16,7 +14,7 @@ const url = 'mongodb+srv://lyrenee02:tSGwv9viMBFajw3u@cluster.muwwbsd.mongodb.ne
 
 mongoose.set('strictQuery', true);
 
-if (process.env.NODE_ENV !== 'test') {
+if ('development' !== 'test') {
   console.log('MongoDB URI:', url);
   mongoose
     .connect(url, {
@@ -28,19 +26,19 @@ if (process.env.NODE_ENV !== 'test') {
     .catch((err) => console.log('MongoDB connection error:', err));
 }
 
-// Mongoose Models
 const User = require('./models/User');
 const Party = require('./models/Party');
 const Poll = require('./models/Poll');
 const PartyGuest = require('./models/PartyMembers');
 const Movie = require('./models/Movie');
 
-app.use(
-  cors({
-    origin: 'https://socialmoviebackend-4584a07ae955.herokuapp.com',
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: 'https://socialmoviebackend-4584a07ae955.herokuapp.com',
+  credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+}));
+
 app.use(bodyParser.json());
 app.use(express.json());
 
@@ -62,7 +60,6 @@ app.use(
   })
 );
 
-// Routes
 const authRouter = require('./routes/auth');
 const partyRouter = require('./routes/party');
 const pollRouter = require('./routes/poll');
@@ -107,7 +104,7 @@ app.post('/api/displayWatchedMovies', async (req, res) => {
   }
 });
 
-// Get party members
+// Fetch party members
 app.get('/getPartyMembers', async (req, res) => {
   const userID = req.session.userId;
 
@@ -205,8 +202,8 @@ app.post('/api/sendResetPassEmail', async (req, res) => {
       port: 465,
       secure: true,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: "themoviesocial@gmail.com",
+        pass: "mjzd lbgy tttl ynuc",
       },
     });
     const passToken = jwt.sign({ data: 'Pass Token' }, 'PassTokenKey', { expiresIn: '24h' });
