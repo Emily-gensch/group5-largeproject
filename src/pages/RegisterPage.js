@@ -48,7 +48,7 @@ function RegisterPage() {
           setMessage(`Failed to send verification email: ${sendEmailError}`);
         }
       };    
-      if (response.status === 201) {
+      if (response.status === 200) {
         setMessage('Registration successful. Please check your email to verify your account.');
         const emailToken = response.data.emailToken;
         await sendVerificationEmail(email, emailToken);
