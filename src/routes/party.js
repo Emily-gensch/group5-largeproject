@@ -14,7 +14,6 @@ const url =
   'mongodb+srv://lyrenee02:tSGwv9viMBFajw3u@cluster.muwwbsd.mongodb.net/party-database?retryWrites=true&w=majority&appName=cluster';
 const client = new MongoClient(url);
 
-// Generates unique party invite code when creating new party
 const generateUniquePartyCode = async () => {
   const characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
