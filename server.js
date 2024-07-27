@@ -25,11 +25,11 @@ mongoose.connect(url, {
 }).then(() => console.log('MongoDB connected'))
   .catch((err) => console.log('MongoDB connection error:', err));
 
-const User = require('./models/User');
-const Party = require('./models/Party');
-const Poll = require('./models/Poll');
-const PartyGuest = require('./models/PartyMembers');
-const Movie = require('./models/Movie');
+const User = require('./src/models/User');
+const Party = require('./src/models/Party');
+const Poll = require('./src/models/Poll');
+const PartyGuest = require('./src/models/PartyMembers');
+const Movie = require('./src/models/Movie');
 
 // Enabl CORS for all routes
 app.use(cors({
@@ -58,9 +58,9 @@ app.use(session({
     },
 }));
 
-const authRouter = require('./routes/auth');
-const partyRouter = require('./routes/party');
-const pollRouter = require('./routes/poll');
+const authRouter = require('./src/routes/auth');
+const partyRouter = require('./src/routes/party');
+const pollRouter = require('./src/routes/poll');
 
 app.use('/api/auth', authRouter);
 app.use('/api/party', partyRouter);
