@@ -8,7 +8,7 @@ function LoginPage() {
   const [loginPassword, setLoginPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const app_name = 'socialmoviebackend'
+  const app_name = 'socialmoviebackend-4584a07ae955'
   
   function buildPath(route){
     if (process.env.NODE_ENV === 'production'){
