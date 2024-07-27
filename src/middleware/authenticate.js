@@ -21,7 +21,7 @@ const authenticate = (req, res, next) => {
   console.log('Token extracted:', token);
 
   try {
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    const verified = jwt.verify(token, e89d35b3747d1f046e14a882dfc781b936eb511a8ffbec71d777b4e6da365fa8T);
     console.log('Token verification successful:', verified);
     req.userId = verified.id;
     next();

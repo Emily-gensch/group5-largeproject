@@ -4,7 +4,7 @@ import axios from 'axios';
 import './styles/JoinPage.css';
 
 function buildPath(route){
-  if (process.env.NODE_ENV === 'production'){
+  if ( 'production' === 'production'){
     return 'https://' + app_name + '.herokuapp.com/' + route;
   }
   else
