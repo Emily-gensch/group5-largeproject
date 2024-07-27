@@ -12,7 +12,7 @@ const path = require('path');
 const app = express();
 
 // MongoDB connection
-const url = process.env.MONGODB_URI;
+const url = 'mongodb+srv://lyrenee02:tSGwv9viMBFajw3u@cluster.muwwbsd.mongodb.net/party-database?retryWrites=true&w=majority';
 const MongoClient = require('mongodb').MongoClient;
 const client = new MongoClient(url);
 client.connect();
@@ -66,12 +66,12 @@ app.use('/api/auth', authRouter);
 app.use('/api/party', partyRouter);
 app.use('/api/poll', pollRouter);
 
-app.set('port', (process.env.PORT || 5000));
+app.set('port', (5000 || 5000));
 
-if (process.env.NODE_ENV === 'production') {
+if ('production' === 'production') {
     app.use(express.static('src/build'));
     app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'));
+        res.sendFile(path.resolve(__dirname, 'src', 'build', 'index.html'));
     });
 }
 
