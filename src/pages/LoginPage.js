@@ -8,22 +8,20 @@ function LoginPage() {
   const [loginPassword, setLoginPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const app_name = 'socialmoviebackend-4584a07ae955'
+  const app_name = 'socialmoviebackend-4584a07ae955';
   
-  function buildPath(route){
-    if ('production' === 'production'){
+  function buildPath(route) {
+    if ('production' === 'production') {
       return 'https://' + app_name + '.herokuapp.com/' + route;
-    }
-    else
-    {
-      return 'http://localhost:5000/' + route;
+    } else {
+      return 'http://localhost:3000/' + route;
     }
   }
 
   const doLogin = async (email, password) => {
     console.log('Logging in with:', email, password);
     try {
-      const response = await axios.post('https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/login', {
+      const response = await axios.post(buildPath('api/auth/login'), {
         email,
         password
       }, {
