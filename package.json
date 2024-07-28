@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "devStart": "nodemon server.js",
-    "test": "jest --forceExit"
+    "test": "jest --forceExit",
+    "heroku-postbuild": " NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
