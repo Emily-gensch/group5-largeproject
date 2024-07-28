@@ -9,21 +9,20 @@ function RegisterPage() {
   const [registerPassword, setRegisterPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const app_name = 'socialmoviebackend-4584a07ae955';
 
-  function buildPath(route){
-    if ('production' === 'production'){
+  function buildPath(route) {
+    if (process.env.NODE_ENV === 'production') {
       return 'https://' + app_name + '.herokuapp.com/' + route;
-    }
-    else
-    {
-      return 'http://localhost:5000/' + route;
+    } else {
+      return 'http://localhost:3000/' + route;
     }
   }
 
   const register = async (email, name, password) => {
     try {
       const response = await axios.post(
-        'https://socialmoviebackend-4584a07ae955.herokuapp.com/api/auth/register',
+        buildPath('api/auth/register'),
         { email, name, password },
         {
           headers: { 'Content-Type': 'application/json' },
