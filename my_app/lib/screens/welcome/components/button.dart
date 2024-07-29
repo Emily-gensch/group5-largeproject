@@ -15,15 +15,15 @@ class Button extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return SizedBox(
-      height: 60,
-      width: 190,
+      height: 80,
+      width: 260,
       child: TextButton(
         onPressed: press, 
         child: Text(
           text, 
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 35,
+            fontSize: 36,
           ),
         ),
         style: TextButton.styleFrom(

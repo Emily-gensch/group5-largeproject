@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/constants.dart';
 import 'package:http/http.dart' as http;
-import 'package:my_app/screens/search/global_movies.dart';
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:my_app/screens/vote/vote_screen.dart';
+import 'package:my_app/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -17,8 +16,12 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   TextEditingController searchController = TextEditingController();
   List<String> _movies = [];
-  List<String> _addedMovies = []; // List to keep track of added movies
   Timer? _debounce;
+
+  Future<String?> getPartyId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('partyID');
+  }
 
   void _search(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -36,10 +39,22 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  void _addMovie(String movie) {
-  GlobalMovies().addMovie(movie);
-  print('Added movie: $movie'); // Debug print
-}
+  Future<void> _addMovie(String movieTitle) async {
+    final partyID = await getPartyId();
+    final response = await http.post(
+      Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/poll/addMovieToPoll'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'partyID': partyID, 'movieTitle': movieTitle}),
+    );
+
+    if (response.statusCode == 201) {
+      print('Movie added: $movieTitle');
+
+      
+    } else {
+      print('Failed to add movie: ${response.body}');
+    }
+  }
   
   @override
   void dispose() {
@@ -58,7 +73,7 @@ class _SearchScreenState extends State<SearchScreen> {
           alignment: Alignment.center,
           children: <Widget>[
             Positioned(
-              top: size.height * 0.03,
+              top: size.height * 0.05,
               child: SizedBox(
                 height: size.height * 0.09,
                 width: size.width * 0.92,
@@ -78,7 +93,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
             Positioned(
-              top: size.height * 0.14,
+              top: size.height * 0.16,
               child: SizedBox(
                 height: size.height * 0.73,
                 width: size.width * 0.92,
@@ -98,7 +113,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
             Positioned(
-              top: size.height * 0.15,
+              top: size.height * 0.17,
               child: SizedBox(
                 height: size.height * 0.71,
                 width: size.width * 0.9,
@@ -118,7 +133,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
             Positioned(
-              top: size.height * 0.011,
+              top: size.height * 0.035,
               child: TextFieldContainer(
                 child: TextField(
                   controller: searchController,
@@ -126,7 +141,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   decoration: InputDecoration(
                     labelText: "Search",
                     labelStyle: TextStyle(
-                      color: secondaryCream,
+                      color: primaryCream,
                       fontWeight: FontWeight.bold,
                       fontSize: 30,
                     ),
@@ -147,29 +162,28 @@ class _SearchScreenState extends State<SearchScreen> {
               right: size.width * 0.05,
               bottom: size.height * 0.05,
               child: Container(
-                // Make sure the container fits within its parent
                 decoration: BoxDecoration(
-                  color: primaryCream, // Set background color if needed
-                  borderRadius: BorderRadius.all(Radius.circular(18)), // Match with your design
+                  color:primaryCream,
+                  borderRadius: BorderRadius.all(Radius.circular(18)),
                 ),
                 child: ListView.builder(
-                  shrinkWrap: true, // Ensure the ListView takes only the needed height
-                  padding: EdgeInsets.all(8.0), // Padding around the ListView
+                  shrinkWrap: true,
+                  padding: EdgeInsets.all(8.0),
                   itemCount: _movies.length,
                   itemBuilder: (context, index) {
                     return Container(
-                      margin: EdgeInsets.symmetric(vertical: 4.0), // Space between items
+                      margin: EdgeInsets.symmetric(vertical: 4.0),
                       child: ListTile(
                         title: Text(_movies[index]),
                         trailing: ElevatedButton(
                           onPressed: () => _addMovie(_movies[index]),
                           child: Text('Add', style: TextStyle(color: primaryCream)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryRed, // Background color of the button
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Padding inside the button
-                            textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Text style
+                            backgroundColor: primaryRed,
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10), // Rounded corners
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                         ),
@@ -178,15 +192,13 @@ class _SearchScreenState extends State<SearchScreen> {
                   },
                 ),
               ),
-            )
-
+            ),
           ],
         ),
       ),
     );
   }
 }
-
 
 class TextFieldContainer extends StatelessWidget {
   final Widget child;
@@ -222,7 +234,7 @@ Future<List<String>> searchMovie(String searchQuery) async {
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = jsonDecode(response.body);
-      return List<String>.from(jsonResponse);
+      return jsonResponse.map<String>((movie) => movie as String).toList();
     } else {
       print('Error: ${response.statusCode}');
       print('Error Body: ${response.body}');
@@ -233,3 +245,4 @@ Future<List<String>> searchMovie(String searchQuery) async {
     return [];
   }
 }
+

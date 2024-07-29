@@ -18,8 +18,8 @@ class Background extends StatelessWidget {
         children: <Widget>[
           Positioned(
             child: Image.asset(
-              "assets/images/popcorn_bucket.png", 
-              width: size.width * 0.9,
+              "assets/images/popcorn.jpg", 
+              width: size.width * 0.99,
             ),
           ),
           child,

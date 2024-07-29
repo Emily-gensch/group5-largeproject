@@ -39,7 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         print(emailToken);
 
-        sendEmail(email, emailToken);
+        // sendEmail(email, emailToken);
 
         Navigator.pushReplacement(
           context,
@@ -62,183 +62,166 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  Future<void> sendEmail(String email, String emailToken) async {
-    final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/auth/sendEmail');
-    final response = await post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'email': email,
-        'emailToken': emailToken
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print('Email sent successfully');
-    } else {
-      throw Exception('Failed to send email');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Scaffold(body: Container(
-      width: double.infinity,
-      height: size.height,
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          Positioned(child: SizedBox( // red box
-            height: size.height * 0.85,
-            width: size.width * 0.8,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: primaryRed,
-                borderRadius: BorderRadius.all(Radius.circular(36)),
-                boxShadow: [BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
-                  blurRadius: 5.0,
-                  offset: Offset(2.0, 2.0)
-                )]
-              ),
-            )
-          ),),
-          Container(
-            child: Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                Positioned( // title
-                  top: size.height * 0.15,
-                  child: Text(
-                    "Register",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 70,
-                      color: primaryCream,
-                      shadows: [Shadow(
-                        blurRadius: 5.0,
-                        color: Colors.black.withOpacity(0.5),
-                        offset: Offset(2.0, 2.0),
-                      )],
-                    ),
-                  ),
+
+    return Scaffold(body: SingleChildScrollView(
+      child: Container(
+        width: double.infinity,
+        height: size.height,
+        child: Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            Positioned(child: SizedBox( // red box
+              height: size.height * 0.85,
+              width: size.width * 0.8,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: primaryRed,
+                  borderRadius: BorderRadius.all(Radius.circular(36)),
+                  boxShadow: [BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    blurRadius: 5.0,
+                    offset: Offset(2.0, 2.0)
+                  )]
                 ),
-                Positioned(
-                  top: size.height * 0.28,
-                  child: TextFieldContainer(child: TextFormField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                      labelStyle: TextStyle(
-                        color: secondaryCream,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent),
-                    ),
-                      focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent),
-                    ),
-                    floatingLabelBehavior: FloatingLabelBehavior.never
-                    ),
-                  ))
-                ),
-                Positioned(
-                  top: size.height * 0.4,
-                  child: TextFieldContainer(child: TextFormField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: "Name",
-                      labelStyle: TextStyle(
-                        color: secondaryCream,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent),
-                    ),
-                      focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent),
-                    ),
-                    floatingLabelBehavior: FloatingLabelBehavior.never
-                    ),
-                  ))
-                ),
-                Positioned(
-                  top: size.height * 0.52,
-                  child: TextFieldContainer(child: TextFormField(
-                    controller: passwordController,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      labelStyle: TextStyle(
-                        color: secondaryCream,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent),
-                    ),
-                      focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.transparent),
-                    ),
-                    floatingLabelBehavior: FloatingLabelBehavior.never
-                    ),
-                  ))
-                ),
-                Positioned(
-                  top: size.height * 0.67,
-                  child: Button(
-                    text: "Submit",
-                    press: () {
-                      register(emailController.text.toString(), nameController.text.toString(), passwordController.text.toString());
-                    },
-                  ),
-                ),
-                Positioned(
-                  top: size.height * 0.78,
-                  child: Text(
-                    "Already have an account?",
-                    style: TextStyle(
-                      color: primaryCream,
-                      fontSize: 20
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: size.height * 0.81,
-                  child: TextButton(
-                    onPressed: () {
-                      // placeholder for apis
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return LoginScreen();
-                          }
-                        )
-                      );
-                    },
+              )
+            ),),
+            Container(
+              child: Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  Positioned( // title
+                    top: size.height * 0.15,
                     child: Text(
-                      "Login!",
+                      "Register",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 55,
+                        color: primaryCream,
+                        shadows: [Shadow(
+                          blurRadius: 5.0,
+                          color: Colors.black.withOpacity(0.5),
+                          offset: Offset(2.0, 2.0),
+                        )],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: size.height * 0.28,
+                    child: TextFieldContainer(child: TextFormField(
+                      controller: emailController,
+                      decoration: InputDecoration(
+                        labelText: "Email",
+                        labelStyle: TextStyle(
+                          color: secondaryCream,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.transparent),
+                      ),
+                        focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.transparent),
+                      ),
+                      floatingLabelBehavior: FloatingLabelBehavior.never
+                      ),
+                    ))
+                  ),
+                  Positioned(
+                    top: size.height * 0.4,
+                    child: TextFieldContainer(child: TextFormField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: "Name",
+                        labelStyle: TextStyle(
+                          color: secondaryCream,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.transparent),
+                      ),
+                        focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.transparent),
+                      ),
+                      floatingLabelBehavior: FloatingLabelBehavior.never
+                      ),
+                    ))
+                  ),
+                  Positioned(
+                    top: size.height * 0.52,
+                    child: TextFieldContainer(child: TextFormField(
+                      controller: passwordController,
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        labelStyle: TextStyle(
+                          color: secondaryCream,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.transparent),
+                      ),
+                        focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.transparent),
+                      ),
+                      floatingLabelBehavior: FloatingLabelBehavior.never
+                      ),
+                    ))
+                  ),
+                  Positioned(
+                    top: size.height * 0.67,
+                    child: Button(
+                      text: "Submit",
+                      press: () {
+                        register(emailController.text.toString(), nameController.text.toString(), passwordController.text.toString());
+                      },
+                    ),
+                  ),
+                  Positioned(
+                    top: size.height * 0.78,
+                    child: Text(
+                      "Already have an account?",
                       style: TextStyle(
                         color: primaryCream,
-                        fontSize: 20,
-                        decoration: TextDecoration.underline,
-                        decorationColor: primaryCream,
-                        decorationThickness: 4.0
+                        fontSize: 20
                       ),
                     ),
+                  ),
+                  Positioned(
+                    top: size.height * 0.81,
+                    child: TextButton(
+                      onPressed: () {
+                        // placeholder for apis
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return LoginScreen();
+                            }
+                          )
+                        );
+                      },
+                      child: Text(
+                        "Login!",
+                        style: TextStyle(
+                          color: primaryCream,
+                          fontSize: 20,
+                          decoration: TextDecoration.underline,
+                          decorationColor: primaryCream,
+                          decorationThickness: 4.0
+                        ),
+                      ),
+                    )
                   )
-                )
-              ]
+                ]
+              )
             )
-          )
-        ],
-      )
+          ],
+        )
+      ),
     ));
   }
 }

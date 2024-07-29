@@ -139,8 +139,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Positioned(
             top: size.height * 0.001,
             child: Container(
-              width: size.width * 0.4,
-              height: size.height * 0.4,
+              width: size.width * 0.5,
+              height: size.height * 0.5,
               decoration: BoxDecoration(
                 color: primaryRed,
                 shape: BoxShape.circle,
@@ -148,33 +148,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           Positioned(
-            top: size.height * 0.1,
+            top: size.height * 0.15,
             child: Image.asset('assets/icons/profilepage.png'),
           ),
           Positioned(
-            top: size.height * 0.35,
+            top: size.height * 0.4,
             child: Text(
               name,
               style: TextStyle(
-                fontSize: 40, 
+                fontSize: 25, 
                 fontWeight: FontWeight.bold,
                 color: primaryCream
                 ),
             ),
           ),
           Positioned(
-            top: size.height * 0.41,
+            top: size.height * 0.46,
             child: Text(
               email,
               style: TextStyle(
-                fontSize: 40, 
+                fontSize: 25, 
                 fontWeight: FontWeight.bold,
                 color: primaryCream
                 ),
             ),
           ),
           Positioned(
-            top: size.height * 0.55,
+            top: size.height * 0.57,
             child: ProfileButtons(
               text: "Leave the Party",
               press: () {
@@ -191,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     actions: [
                       TextButton(
-                        onPressed: () async { await pressYesLeave(userId); }, 
+                        onPressed: () async { pressYesLogout(); }, 
                         child: Text(
                           "Yes",
                           style: TextStyle(
@@ -224,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           Positioned(
-            top: size.height * 0.65,
+            top: size.height * 0.67,
             child: ProfileButtons(
               text: "Change Password",
               press: () {
@@ -235,7 +235,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: Text(
                       "Change Password",
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: 25,
                         fontWeight: FontWeight.bold,
                         color: primaryCream
                       )
@@ -256,7 +256,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 labelStyle: TextStyle(
                                   color: secondaryCream,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 30
+                                  fontSize: 10
                                 ),
                                 enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(color: Colors.transparent),
@@ -278,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 labelStyle: TextStyle(
                                   color: secondaryCream,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 30
+                                  fontSize: 10
                                 ),
                                 enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(color: Colors.transparent),
@@ -328,7 +328,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           Positioned(
-            top: size.height * 0.75,
+            top: size.height * 0.77,
             child: ProfileButtons(
               text: "Logout",
               press: () {
@@ -407,7 +407,7 @@ class ProfileButtons extends StatelessWidget {
           text, 
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 35,
+            fontSize: 20,
           ),
         ),
         style: TextButton.styleFrom(
@@ -472,7 +472,7 @@ class TextFieldContainer extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20),
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      width: size.width * 0.7,
+      width: size.width * 0.63,
       height: size.height * 0.1,
       decoration: BoxDecoration(
         color: primaryCream,

@@ -18,7 +18,10 @@ class _NavBarState extends State<NavBar> {
 
   final List<Widget> _pages = [
     SearchScreen(),
-    VoteScreen(),
+    PageStorage(
+      bucket: PageStorageBucket(),
+      child: VoteScreen(),
+    ),
     HomeScreen(),
     WatchedScreen(),
     ProfileScreen()
@@ -42,7 +45,18 @@ class _NavBarState extends State<NavBar> {
         child: NavigationBar(
           height: 80,
           selectedIndex: _index,
-          onDestinationSelected: (index) => setState(() => _index = index),
+          onDestinationSelected: (index) {
+            setState(() {
+              _index = index;
+              if (_index == 1) {
+                // Refresh VoteScreen when selected
+                _pages[1] = PageStorage(
+                  bucket: PageStorageBucket(),
+                  child: VoteScreen(),
+                );
+              }
+            });
+          },
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
           destinations: [
             NavigationDestination(

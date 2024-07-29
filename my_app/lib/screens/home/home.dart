@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_app/constants.dart';
 import 'package:my_app/screens/welcome/components/button.dart';
 import 'package:my_app/screens/welcome/welcome_screen.dart';
-import 'package:my_app/screens/search/global_movies.dart'; // Import GlobalMovies
 import 'package:http/http.dart';
 import 'dart:convert';
 
@@ -16,12 +15,24 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {List<Map<String, String>> _users = []; // List to hold users data
   bool _isLoading = true;
   String? _error;
+  String? _partyName; 
+  String? _partyCode; 
+  List<String> _movies = [];
+  String? _topMovieTitle;
+  int? _topMovieVotes;
 
-  String apiUrl = 'https://cod-destined-secondly.ngrok-free.app/home';
+  
+
+  String apiUrl = 'https://cod-destined-secondly.ngrok-free.app/api/home';
 
   @override
   void initState() {
     super.initState();
+    _fetchPartyData();
+    _fetchMovies();
+  }
+
+  void refresh() {
     _fetchPartyData();
   }
 
@@ -34,197 +45,186 @@ class _HomeScreenState extends State<HomeScreen> {List<Map<String, String>> _use
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('partyName');
   }
+  
+  Future<String?> getPartyCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('partyCode');
+  }
+  
 
   Future<void> _fetchPartyData() async {
-    String? partyID = await getPartyId(); 
+      final partyID = await getPartyId();
+      final partyName = await getPartyName();
+      final partyCode = await getPartyCode();
+      
+      if (partyName != null) {
+      setState(() {
+        _partyName = partyName; 
+      });
+      
+    }
+
+    if (partyCode != null) {
+      setState(() {
+        _partyCode = partyCode; 
+      });
+      
+    }
+  }
+
+  Future<void> _fetchMovies() async {
+    final partyID = await getPartyId();
+    if (partyID == null) {
+      print('Party ID is null');
+      return;
+    }
+    final url = Uri.parse('https://cod-destined-secondly.ngrok-free.app/api/displayTopMovie');
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({'partyID': partyID});
+
     try {
-      final response = await get(Uri.parse('$apiUrl?partyID=$partyID'));
+      final response = await post(url, headers: headers, body: body);
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final guests = data['guests'] as List<dynamic>;
-        setState(() {
-          _users = guests.map((guest) {
-            return {
-              'userName': guest['userName'] as String,
-              'userEmail': guest['userEmail'] as String,
-            };
-          }).toList();
-          _isLoading = false;
-        });
+        final List<dynamic> data = jsonDecode(response.body);
+        print(data);
+        if (data.isNotEmpty) {
+          final firstMovie = data.first;
+          setState(() {
+            _topMovieTitle = firstMovie['title'].toString();
+            _topMovieVotes = firstMovie['votes']; 
+            _movies = data.map((movie) => movie['title'].toString()).toList();
+          });
+        } else {
+        print('No movies found');
+      }
       } else {
-        setState(() {
-          _error = 'Failed to load data';
-          _isLoading = false;
-        });
+        print('Failed to fetch watched movies: ${response.body}');
       }
     } catch (e) {
-      setState(() {
-        _error = 'An error occurred: $e';
-        _isLoading = false;
-      });
+      print('Error: $e');
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+Widget build(BuildContext context) {
+  Size size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: size.height,
-        child: Stack(
-          children: <Widget>[
-            Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                Positioned(
-                  top: size.height * 0.19,
-                  child: SizedBox(
-                    height: size.height * 0.38,
-                    width: size.width * 0.85,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: primaryRed,
-                        borderRadius: BorderRadius.all(Radius.circular(36)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.5),
-                            blurRadius: 5.0,
-                            offset: Offset(2.0, 2.0),
-                          )
+  return Scaffold(
+    body: Container(
+      width: double.infinity,
+      height: size.height,
+      child: Stack(
+        children: <Widget>[
+          Padding(padding: EdgeInsets.all(20)),
+          Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              
+              Container(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    Positioned(
+                      top: size.height * 0.12,
+                      child: Text(
+                        _partyName ?? 'N/A',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size.width*0.13,
+                          color: primaryCream,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 5.0,
+                              color: Colors.black.withOpacity(0.5),
+                              offset: Offset(2.0, 2.0),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: size.height * 0.25,
+                      child: Text(
+                        _partyCode ?? 'N/A',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 40,
+                          color: primaryCream,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 5.0,
+                              color: Colors.black.withOpacity(0.5),
+                              offset: Offset(2.0, 2.0),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: size.height * 0.45,
+                      child: Text(
+                        (_partyName ?? 'N/A') + "'s Top Pick",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25,
+                          color: primaryCream,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 5.0,
+                              color: Colors.black.withOpacity(0.5),
+                              offset: Offset(2.0, 2.0),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: size.height * 0.5, 
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            _topMovieTitle ?? 'No top movie',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: primaryCream,
+                            ),
+                          ),
+                          if (_topMovieVotes != null) 
+                            Text(
+                              'Votes: $_topMovieVotes',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: primaryCream,
+                              ),
+                            ),
                         ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                Container(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: <Widget>[
-                      Positioned(
-                        top: size.height * 0.03,
-                        child: Text(
-                          'Party Name',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 40,
-                            color: primaryCream,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 5.0,
-                                color: Colors.black.withOpacity(0.5),
-                                offset: Offset(2.0, 2.0),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: size.height * 0.1,
-                        child: Text(
-                          "CODE",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 40,
-                            color: primaryCream,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 5.0,
-                                color: Colors.black.withOpacity(0.5),
-                                offset: Offset(2.0, 2.0),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: size.height * 0.59,
-                        child: Text(
-                          "Party Name's Top Pick",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25,
-                            color: primaryCream,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 5.0,
-                                color: Colors.black.withOpacity(0.5),
-                                offset: Offset(2.0, 2.0),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: size.height * 0.65,
-                        child: ValueListenableBuilder<List<Map<String, dynamic>>>(
-                          valueListenable: GlobalMovies().addedMoviesNotifier,
-                          builder: (context, movies, child) {
-                            final topMovie = GlobalMovies().getTopMovie();
-                            if (topMovie == null) {
-                              return Text(
-                                "No movies available",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                  color: primaryCream,
-                                  shadows: [
-                                    Shadow(
-                                      blurRadius: 5.0,
-                                      color: Colors.black.withOpacity(0.5),
-                                      offset: Offset(2.0, 2.0),
-                                    )
-                                  ],
-                                ),
-                              );
-                            }
-
-                            return Column(
-                              children: [
-                                Text(
-                                  topMovie['title'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: primaryCream,
-                                    shadows: [
-                                      Shadow(
-                                        blurRadius: 5.0,
-                                        color: Colors.black.withOpacity(0.5),
-                                        offset: Offset(2.0, 2.0),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Text(
-                                  "Votes: ${topMovie['votes']}",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: primaryCream,
-                                    shadows: [
-                                      Shadow(
-                                        blurRadius: 5.0,
-                                        color: Colors.black.withOpacity(0.5),
-                                        offset: Offset(2.0, 2.0),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
+            ],
+          ),
+          Positioned(
+            top: size.height * 0.8,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                child: Text("Refresh", style: TextStyle(color: primaryCream)),
+                onPressed: () {
+                  _fetchMovies();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryRed,
                 ),
-              ],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
-}
+    ),
+  );
+}}
