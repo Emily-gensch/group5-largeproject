@@ -55,7 +55,7 @@
     padding: 30px;
     border-radius: 8px;
     text-align: center;
-    width: calc(25% - 20px);
+    width: calc(40% - 20px);
     box-sizing: border-box;
     transition: transform 0.3s;
   }
@@ -88,6 +88,7 @@
     background-color: #e5e5e5;
   }
   
+  /* Navigation bar styling */
   .navigation-bar {
     display: flex;
     justify-content: space-around;

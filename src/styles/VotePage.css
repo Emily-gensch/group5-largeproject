@@ -77,3 +77,15 @@
 .vote-button:hover {
     background-color: #e5e5e5;
 }
+
+#homeLink {
+    color: #FFD700;
+    text-decoration: none;
+    margin-top: 20px;
+    display: block;
+  }
+  
+  #homeLink:hover {
+    text-decoration: underline;
+  }
+  

@@ -13,6 +13,7 @@ import Waiting from './pages/WaitingPage';
 import JoinPage from './pages/JoinPage';
 import CreatePartyPage from './pages/CreatePartyPage';
 import PollPage from './pages/PollPage';
+import WatchedPage from './pages/WatchedPage';
 
 import './App.css';
 
@@ -33,6 +34,7 @@ const App = () => {
           <Route path="/changepassword" element={<ChangePasswordPage />} />
           <Route path="/wait" element={<Waiting />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/watched" element={<WatchedPage />} />
           <Route path="/thank-you" element={<ThankYouPage />} />
         </Routes>
       </div>

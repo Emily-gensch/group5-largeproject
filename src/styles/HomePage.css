@@ -1,99 +1,135 @@
 .home-page-container {
+    position: relative;
+    width: calc(100% - 200px); /* Adjust width to account for the navigation bar */
+    min-height: calc(100vh - 70px); /* Adjust to fit the viewport height minus navigation bar height */
+    background: #313338;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Center align items horizontally */
+    justify-content: flex-start; /* Align items to the top */
     padding: 20px;
-    background-color: #313338;
+    margin-left: 200px; /* Consider navigation bar width */
+  }
+  
+  .group-name {
     color: #fff3e8;
-    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center; /* Center align text */
   }
   
   .large-project-header {
-    font-size: 2.5em;
+    color: #fff3e8;
+    font-family: 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: bold;
     margin-bottom: 20px;
-    color: #FFD700;
+    text-align: center; /* Center align text */
   }
   
   .content {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     width: 100%;
-    max-width: 1200px;
+    margin-top: 20px;
   }
   
-  .group-members, .group-picks {
+  .group-members,
+  .group-picks {
     background-color: #a51f1f;
-    padding: 20px;
+    padding: 15px; /* Adjust padding */
     border-radius: 8px;
-    width: 45%;
     color: #fff3e8;
+    font-family: 'Inter', sans-serif;
+    width: 400px; /* Fixed width for the red boxes */
+    height: 500px; /* Fixed height for the red boxes */
+    display: flex;
+    flex-direction: column; /* Display white boxes vertically */
+    align-items: center; /* Align white boxes to the center */
+    justify-content: flex-start; /* Align white boxes to the top */
+    margin-bottom: 30px; /* Add bottom margin for spacing */
   }
   
-  .group-members h2, .group-picks h2 {
-    font-size: 1.8em;
+  .group-members {
+    align-self: flex-start; /* Align red box to the left */
+  }
+  
+  .group-members h2,
+  .group-picks h2 {
+    font-weight: 700;
+    font-size: 20px; /* Adjust font size */
     margin-bottom: 10px;
   }
   
   .user-box {
     background-color: #fff3e8;
-    color: #a51f1f;
     border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
+    padding: 8px; /* Adjust padding */
+    margin-bottom: 8px; /* Adjust margin */
+    color: #000 !important; /* Black color for text */
+    text-align: center;
+    width: 300px;
   }
   
-  .current-user {
-    border: 2px solid #FFD700;
+  .username,
+  .email {
+    color: #000 !important; /* Black color for usernames and emails */
   }
   
-  .username, .email {
-    font-size: 1.2em;
-    margin-bottom: 5px;
+  .navigation-bar {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    background: #000;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
   }
   
-  .no-members {
-    font-size: 1.2em;
-    margin-top: 10px;
+  .nav-item {
+    color: #fff3e8;
+    font-family: 'Inter', sans-serif;
   }
   
-  .top-movie {
-    font-size: 1.5em;
-    color: #FFD700;
+  .current-page {
+    font-weight: bold;
   }
   
-  .error-message {
-    color: red;
-    margin-bottom: 10px;
+  .current-page a {
+    color: #ff0; /* Highlight current page link */
+  }
+  
+  .current-page a:hover {
+    text-decoration: underline;
   }
   
   .popup {
     position: fixed;
-    top: 30%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .popup p {
-    font-size: 1.2em;
-    margin-bottom: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    text-align: center; /* Center align text */
   }
   
   .popup button {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
+    margin-top: 10px;
+    background-color: #a51f1f;
+    color: #fff;
     border: none;
+    padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s;
   }
   
   .popup button:hover {
-    background-color: #45a049;
+    background-color: #8a1d1d;
   }
   

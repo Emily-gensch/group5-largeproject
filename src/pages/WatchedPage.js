@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Vote from '../components/Vote';
-import '../styles/VotePage.css';
+import WatchedPage from '../components/Watched';
+import '../styles/WatchedPage.css';
 
-const VotePage = () => {
+const Watched = () => {
   const userID = localStorage.getItem('userId');
   const partyID = localStorage.getItem('partyID');
 
   return (
     <div>
-      <Vote userID={userID} partyID={partyID} />
+      <WatchedPage userID={userID} partyID={partyID} />
       <div className="navigation-bar">
         <div className="nav-item">
           <Link to="/search">Search</Link>
@@ -31,4 +31,4 @@ const VotePage = () => {
   );
 };
 
-export default VotePage;
+export default Watched;

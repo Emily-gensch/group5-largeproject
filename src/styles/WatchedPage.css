@@ -1,0 +1,71 @@
+.watched-page-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #313338;
+    color: #FFF3E8;
+    text-align: center;
+  }
+  
+  .watched-page-container .watched-header {
+    font-size: 36px;
+    font-weight: bold;
+    color: #FFF3E8;
+    margin-bottom: 20px;
+  }
+  
+  .watched-page-container .watched-bar {
+    margin-bottom: 20px;
+  }
+  
+  .watched-page-container .watched-buttons {
+    width: 200px;
+    height: 50px;
+    background-color: #FFF3E8;
+    color: #A51F1F;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  .watched-page-container .watched-buttons:hover {
+    background-color: #E0E0E0;
+  }
+  
+  .watched-page-container .error-message {
+    color: #FFD700;
+    margin: 20px 0;
+  }
+  
+  .watched-page-container .movie-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .watched-page-container .movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .watched-page-container .movie-box {
+    background-color: #A51F1F;
+    color: #FFF3E8;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .watched-page-container .movie-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .watched-page-container .no-results {
+    color: #FFD700;
+    font-size: 18px;
+    margin-top: 20px;
+  }
+  

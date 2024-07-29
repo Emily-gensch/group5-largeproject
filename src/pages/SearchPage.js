@@ -11,7 +11,7 @@ const SearchPage = () => {
     <div>
       <Search userID={userID} partyID={partyID} />
       <div className="navigation-bar">
-        <div className="nav-item current-page">
+        <div className="nav-item">
           <Link to="/search">Search</Link>
         </div>
         <div className="nav-item">
@@ -23,9 +23,13 @@ const SearchPage = () => {
         <div className="nav-item">
           <Link to="/profile">Profile</Link>
         </div>
+        <div className="nav-item current-page">
+          <Link to="/watched">Watched</Link>
+        </div>
       </div>
     </div>
   );
 };
+
 
 export default SearchPage;
